@@ -76,7 +76,7 @@ Supported variables
 {%- if inventory_for_variant != blank -%}
   <variant-inventory class="inventory text-{{ inventory_status }} custom-product-info_inventory">
     {{- inventory_for_variant -}}
-    <div class="text_included">Tax included. <b>Express shipping</b></div>
+    <div class="text_included">{{ settings.custom_text_tax_included | default: 'Tax included. <b>Express shipping</b>' }}</div>
 
     {%- if show_progress_bar -%}
       <progress-bar class="progress-bar" animate-on-scroll aria-valuenow="{{ inventory_quantity }}" aria-valuemax="{{ progress_bar_max_value | default: 50 }}"></progress-bar>

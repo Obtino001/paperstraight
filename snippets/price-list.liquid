@@ -66,7 +66,7 @@ Supported variables
         {%- endif -%}
       </compare-at-price>
       {%- capture savings_percentage -%}{{ variant.compare_at_price | minus: variant.price | times: 100.0 | divided_by: variant.compare_at_price | round }}%{%- endcapture -%}
-      <span class="price-discount-badge sm-max:hidden">SAVE {{ savings_percentage }}</span>
+      <span class="price-discount-badge sm-max:hidden">{{ settings.custom_text_save_badge | default: 'SAVE' }} {{ savings_percentage }}</span>
     {%- endif -%}
   {%- elsif line_item != blank -%}
     {%- comment -%}
@@ -95,7 +95,7 @@ Supported variables
         {%- endif -%}
       </compare-at-price>
       {%- capture savings_percentage -%}{{ line_item.original_price | minus: line_item.final_price | times: 100.0 | divided_by: line_item.original_price | round }}%{%- endcapture -%}
-    <span class="price-discount-badge sm-max:hidden">SAVE {{ savings_percentage }}</span> 
+    <span class="price-discount-badge sm-max:hidden">{{ settings.custom_text_save_badge | default: 'SAVE' }} {{ savings_percentage }}</span> 
     {%- endif -%}
   {%- elsif product != blank -%}
     {%- comment -%}

@@ -45,7 +45,7 @@ Supported variables
         endcomment
         if product.has_only_default_variant == false and product.selected_variant == nil and product.variants.size > 1
           assign requires_size_selection = true
-          assign button_content = 'SELECT A SIZE'
+          assign button_content = settings.custom_text_select_size | default: 'SELECT A SIZE'
         elsif product.selected_or_first_available_variant == nil
           assign button_disabled = true
           assign button_content = 'product.general.unavailable_button' | t
@@ -102,14 +102,14 @@ Supported variables
             {%- if is_available -%}
               {%- if inventory_qty > 0 and inventory_qty <= 5 and inventory_policy != 'continue' -%}
                 <span class="stock-dot pulse-yellow" style="display: inline-block; width: 8px; height: 8px; background-color: #dc392b !important; border-radius: 50%; position: relative;"></span>
-                <span style="font-weight: 600; color: #dc392b !important;">Only {{ inventory_qty }} Left</span>
+                <span style="font-weight: 600; color: #dc392b !important;">{{ settings.custom_text_low_stock | default: 'Only [qty] Left' | replace: '[qty]', inventory_qty }}</span>
               {%- else -%}
                 <span class="stock-dot pulse-green" style="display: inline-block; width: 8px; height: 8px; background-color: #008000; border-radius: 50%; position: relative;"></span>
-                <span style="font-weight: 600; color: #000000;">IN STOCK</span>
+                <span style="font-weight: 600; color: #000000;">{{ settings.custom_text_in_stock | default: 'IN STOCK' }}</span>
               {%- endif -%}
             {%- else -%}
               <span class="stock-dot grey" style="display: inline-block; width: 8px; height: 8px; background-color: #9ca3af; border-radius: 50%;"></span>
-              <span style="font-weight: 600; color: #9ca3af;">SOLD OUT</span>
+              <span style="font-weight: 600; color: #9ca3af;">{{ settings.custom_text_sold_out | default: 'SOLD OUT' }}</span>
             {%- endif -%}
           </div>
 
@@ -144,10 +144,10 @@ Supported variables
             <button type="button" class="button button--full w-full" style="background-color: #000; color: white; padding: 18px;" onclick="(function(btn){var section=btn.closest('.section-spacing,product-rerender,[id^=shopify-section]');var picker=section?section.querySelector('variant-picker'):document.querySelector('variant-picker');if(picker){picker.scrollIntoView({behavior:'smooth',block:'center'});picker.classList.remove('size-selection-shake');void picker.offsetWidth;picker.classList.add('size-selection-shake');var vPickerErr=picker.querySelector('.size-selection-error');if(vPickerErr){vPickerErr.removeAttribute('hidden');setTimeout(function(){vPickerErr.setAttribute('hidden','');},3000);}setTimeout(function(){picker.classList.remove('size-selection-shake');},600);}var err=btn.nextElementSibling;if(err&&err.classList.contains('size-selection-error')){err.removeAttribute('hidden');setTimeout(function(){err.setAttribute('hidden','');},3000);}})(this)">
               <span>{{ button_content }}</span>
             </button>
-            <p class="size-selection-error" hidden aria-live="polite" style="margin-top:8px; font-size:12px; color:#dc392b; text-align:center; letter-spacing:0.5px;">Please select an option above to continue</p>
+            <p class="size-selection-error" hidden aria-live="polite" style="margin-top:8px; font-size:12px; color:#dc392b; text-align:center; letter-spacing:0.5px;">{{ settings.custom_text_select_option_error | default: 'Please select an option above to continue' }}</p>
           {%- elsif product.selected_or_first_available_variant.available == false -%}
             <button type="button" class="button button--full w-full" style="background-color: #1a202c; color: white;" onclick="window.openBISModal()">
-              <span>NOTIFY ME WHEN AVAILABLE</span>
+              <span>{{ settings.custom_text_notify_me | default: 'NOTIFY ME WHEN AVAILABLE' }}</span>
             </button>
           {%- else -%}
             {%- render 'button', content: button_content, type: 'submit', disabled: button_disabled, style: atc_button_style, background: atc_button_background, text_color: atc_button_text_color, stretch: true -%}

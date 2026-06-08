@@ -1749,17 +1749,21 @@ Supported variables
                 }
 
                 function formatDate(date) {
-                  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                  const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const locale = document.documentElement.lang || (window.Shopify && window.Shopify.locale) || 'en';
                   
                   switch (dateFormat) {
-                    case 'full': return `${months[date.getMonth()]} ${date.getDate()}`;
-                    case 'short': return `${monthsShort[date.getMonth()]} ${date.getDate()}`;
-                    case 'numeric': return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-                    case 'day_name': return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
-                    case 'relative': return days[date.getDay()];
-                    default: return `${months[date.getMonth()]} ${date.getDate()}`;
+                    case 'full': 
+                      return new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' }).format(date);
+                    case 'short': 
+                      return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(date);
+                    case 'numeric': 
+                      return new Intl.DateTimeFormat(locale, { month: '2-digit', day: '2-digit' }).format(date);
+                    case 'day_name': 
+                      return new Intl.DateTimeFormat(locale, { weekday: 'long', month: 'long', day: 'numeric' }).format(date);
+                    case 'relative': 
+                      return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(date);
+                    default: 
+                      return new Intl.DateTimeFormat(locale, { month: 'long', day: 'numeric' }).format(date);
                   }
                 }
 

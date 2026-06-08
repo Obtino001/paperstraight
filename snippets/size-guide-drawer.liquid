@@ -223,7 +223,7 @@ h3.size-guide-title {
         loading="lazy">
       <div class="size-guide-header-text">
         <h3 id="size-guide-title" class="size-guide-title">{{ product.title }}</h3>
-        <p class="size-guide-subtitle">Size Guide</p>
+        <p class="size-guide-subtitle">{{ settings.custom_text_size_guide | default: 'Size Guide' }}</p>
       </div>
     </div>
 

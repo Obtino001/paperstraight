@@ -107,7 +107,7 @@ Supported variables
               </div>
             </div>
 
-            <p class="size-selection-error h6" hidden style="color: #dc392b; font-size: 11px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Please select a size above</p>
+            <p class="size-selection-error h6" hidden style="color: #dc392b; font-size: 11px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">{{ settings.custom_text_select_size_error | default: 'Please select a size above' }}</p>
 
             {%- comment -%} Size Chart Link {%- endcomment -%}
             {%- if size_chart_page != blank -%}

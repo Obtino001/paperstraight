@@ -975,5 +975,77 @@
         "info": "t:theme_settings.favicon.image_info"
       }
     ]
+  },
+  {
+    "name": "Custom Text Translations",
+    "settings": [
+      {
+        "type": "text",
+        "id": "custom_text_select_size",
+        "label": "Select Size Text",
+        "default": "SELECT A SIZE"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_low_stock",
+        "label": "Low Stock Text",
+        "default": "Only [qty] Left",
+        "info": "Use [qty] where the inventory quantity should appear."
+      },
+      {
+        "type": "text",
+        "id": "custom_text_in_stock",
+        "label": "In Stock Text",
+        "default": "IN STOCK"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_sold_out",
+        "label": "Sold Out Text",
+        "default": "SOLD OUT"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_notify_me",
+        "label": "Notify Me Button Text",
+        "default": "NOTIFY ME WHEN AVAILABLE"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_select_option_error",
+        "label": "Select Option Error Text",
+        "default": "Please select an option above to continue"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_tax_included",
+        "label": "Tax Included Text",
+        "default": "Tax included. Express shipping"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_size_guide",
+        "label": "Size Guide Text",
+        "default": "Size Guide"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_select_size_error",
+        "label": "Select Size Error Text",
+        "default": "Please select a size above"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_save_badge",
+        "label": "Save Badge Text",
+        "default": "SAVE"
+      },
+      {
+        "type": "text",
+        "id": "custom_text_back_in_stock",
+        "label": "Back in Stock Description",
+        "default": "Register to receive a notification when this item comes back in stock."
+      }
+    ]
   }
 ]

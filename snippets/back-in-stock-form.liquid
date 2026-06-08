@@ -17,7 +17,7 @@ Supported variables:
     
     <div class="bis-header">
       <h2 class="bis-title">{{ product.title }}</h2>
-      <p class="bis-description">Register to receive a notification when this item comes back in stock.</p>
+      <p class="bis-description">{{ settings.custom_text_back_in_stock | default: 'Register to receive a notification when this item comes back in stock.' }}</p>
     </div>
 
     {%- assign form_id = 'bis-form-' | append: product.id -%}

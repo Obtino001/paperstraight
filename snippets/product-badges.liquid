@@ -63,13 +63,14 @@ Supported variables
             {%- if show_on_sale_badge -%}
               <on-sale-badge class="badge badge--on-sale custom-sale-badge">
                 {%- liquid
+                  assign custom_save_text = settings.custom_text_save_badge | default: 'SAVE'
                   if context == 'product'
-                    echo 'SAVE ' | append: savings
+                    echo custom_save_text | append: ' ' | append: savings
                   elsif context == 'card'
                     if product.compare_at_price_varies or variant.compare_at_price == blank
                       echo 'product.general.on_sale_badge' | t
                     else
-                      echo 'SAVE ' | append: savings
+                      echo custom_save_text | append: ' ' | append: savings
                     endif
                   endif
                 -%}

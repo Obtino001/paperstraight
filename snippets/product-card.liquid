@@ -54,7 +54,7 @@
 
       {%- if product.compare_at_price > product.price -%}
         {%- assign savings = product.compare_at_price | minus: product.price | money -%}
-        <span class="badge badge--save-mobile">SAVE {{ savings }}</span>
+        <span class="badge badge--save-mobile">{{ settings.custom_text_save_badge | default: 'SAVE' }} {{ savings }}</span>
 {%- endif -%}
 
       <a href="{{ product.url }}" class="product-card__media" data-instant>
