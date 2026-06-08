@@ -1,0 +1,153 @@
+{% style %}
+    .custom-background-{{ section.id }}{
+      background:url("{{section.settings.image | image_url }}");
+          padding: 154px 0 47px 0;
+      background-repeat: no-repeat;
+      background-size: cover;
+      margin: 0 20px;
+      text-align: center;
+      margin-bottom:26px;
+    }
+    .pre-order-banner {
+      max-width: 645px;
+      width: 100%;
+      margin: 0 auto;
+  }
+
+  .pre-order-caption {
+      font-size: 16px;
+      line-height: 100%;
+      color: #fff;
+      margin-bottom:3px;
+  }
+
+  .pre-order-title {
+      font-size: 48px;
+      line-height: 100%;
+      letter-spacing: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+  }
+
+  .pre-order-descptions {
+      padding-top: 14px;
+      color: #fff;
+      max-width: 462px;
+      width: 100%;
+      font-size: 16px;
+      line-height: 100%;
+      margin: 0 auto;
+      letter-spacing: 0;
+  }
+
+  .pre-order-button_link {
+      width: 49px;
+      height: 49px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 58px auto 0 auto;
+  }
+
+  .pre-order-button_link a {
+      display: block;
+  }
+
+  @media(max-width:768px){
+      .pre-order-button_link{
+              margin: 60px auto 0 auto;
+      }
+    .custom-background-{{ section.id }}{
+          background:url("{{section.settings.mb_image | image_url }}");
+      padding: 144px 0 34px 0;
+      background-repeat: no-repeat;
+      background-size: cover;
+      margin: 0 10px;
+      text-align: center;
+      margin-bottom: 26px;
+  }
+  .pre-order-descptions {
+      padding-top: 16px;
+      max-width: 273px;
+      font-size: 14px;
+  }
+  .pre-order-title {
+      font-size: 24px;
+  }
+  }
+{% endstyle %}
+<div class="custom-background-{{ section.id }}">
+  <div class="pre-order-banner">
+    {% if section.settings.caption != blank %}
+      <div class="pre-order-caption">{{ section.settings.caption }}</div>
+    {% endif %}
+    {% if section.settings.title != blank %}
+      <h2 class="pre-order-title">{{ section.settings.title }}</h2>
+    {% endif %}
+    {% if section.settings.descptions != blank %}
+      <div class="pre-order-descptions">{{ section.settings.descptions }}</div>
+    {% endif %}
+    {% if section.settings.button_link != blank %}
+      <div class="pre-order-button_link">
+        <a href="{{section.settings.button_link }}">
+          <svg width="15" height="18" viewBox="0 0 15 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.65666 17.7071C7.04719 18.0976 7.68035 18.0976 8.07088 17.7071L14.4348 11.3431C14.8254 10.9526 14.8254 10.3195 14.4348 9.92893C14.0443 9.53841 13.4111 9.53841 13.0206 9.92893L7.36377 15.5858L1.70692 9.92893C1.31639 9.53841 0.683226 9.53841 0.292702 9.92893C-0.0978227 10.3195 -0.0978227 10.9526 0.292702 11.3431L6.65666 17.7071ZM7.36377 0H6.36377V17H7.36377H8.36377V0H7.36377Z" fill="black"/>
+          </svg>
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Pre Order Banner",
+  "tag": "section",
+  "class": "custom-banner-pred-order",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "label": "Image",
+      "id": "image"
+    },
+    {
+      "type": "image_picker",
+      "label": "Moblie Image",
+      "id": "mb_image"
+    },
+    {
+      "type": "inline_richtext",
+      "label": "Caption",
+      "id": "caption"
+    },
+    {
+      "type": "text",
+      "label": "Title",
+      "id": "title"
+    },
+    {
+      "type": "richtext",
+      "label": "Descptions",
+      "id": "descptions"
+    },
+    {
+      "type": "url",
+      "label": "Button Link",
+      "id": "button_link"
+    }
+  ],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Pre Order Banner"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,100 @@
+<div class="multi-icon-row"
+    style="
+      --text-size:{{ block.settings.text-size }}px;
+    "    
+    >
+    {% if block.settings.icon-1 %}
+        <div class="multi-icon-item"
+        style="
+        --icon-size:{{ block.settings.icon_size_1 }}px;
+        --icon-size-m:{{ block.settings.icon_size_m_1 }}px;
+        ">
+        <div class="multi-icon-item-img">
+            {% render 'lx-liquid-image' image: block.settings.icon-1 %}
+        </div>
+        <div class="multi-icon-item-text">
+            {{ block.settings.text-1 }}
+        </div>
+        </div>
+    {% endif %}
+    {% if block.settings.icon-2 %}
+        <div class="multi-icon-item"
+        style="
+        --icon-size:{{ block.settings.icon_size_2 }}px;
+        --icon-size-m:{{ block.settings.icon_size_m_2 }}px;
+        ">
+                <div class="multi-icon-item-img">
+            {% render 'lx-liquid-image' image: block.settings.icon-2 %}
+        </div>
+        <div class="multi-icon-item-text">
+
+            {{ block.settings.text-2 }}
+        </div>
+        </div>
+
+    {% endif %}
+    {% if block.settings.icon-3 %}
+        <div class="multi-icon-item"
+        style="
+        --icon-size:{{ block.settings.icon_size_3 }}px;
+        --icon-size-m:{{ block.settings.icon_size_m_3 }}px;
+        ">
+           <div class="multi-icon-item-img">
+            {% render 'lx-liquid-image' image: block.settings.icon-3 %}
+        </div>
+                    <div class="multi-icon-item-text">
+
+            {{ block.settings.text-3 }}
+                    </div>
+
+        </div>
+    {% endif %}
+</div>
+
+
+<style>
+.multi-icon-item-img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.multi-icon-row {
+    display: flex;
+    gap: 5px;
+}
+
+.multi-icon-item {
+    width: calc(100% / 3);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--text-size);
+    color: rgba(var(--color-foreground));
+    line-height: 120%;
+    letter-spacing: 0;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+    text-align: center;
+}
+.multi-icon-item-text {
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 12px;
+    line-height: 122%;
+    letter-spacing: 0%;
+    text-align: center;
+    max-width: 100px;
+    margin: 0 auto;
+}
+.multi-icon-item img {
+    max-width: var(--icon-size);
+    max-height: var(--icon-size);
+}
+accordion-disclosure.accordion *{
+    line-height: 140%;
+}
+</style>

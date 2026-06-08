@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}" dir="{{ direction }}" class="{{ checkout_html_classes }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0" />
+    <meta name="referrer" content="origin" />
+
+    <title>{{ page_title }}</title>
+
+    {{ content_for_header }}
+
+    {{ checkout_stylesheets }}
+    {{ checkout_scripts }}
+  </head>
+  <body>
+    {{ skip_to_content_link }}
+
+    <!-- COUNTDOWN TIMER BANNER -->
+    <style>
+      .checkout-countdown-banner {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 14px 20px;
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      .checkout-countdown-banner .icon-check {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        margin-top: 1px;
+      }
+
+      .checkout-countdown-banner .icon-check circle {
+        fill: none;
+        stroke: #16a34a;
+        stroke-width: 2;
+      }
+
+      .checkout-countdown-banner .icon-check path {
+        fill: none;
+        stroke: #16a34a;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .checkout-countdown-banner p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #14532d;
+      }
+
+      .checkout-countdown-banner .countdown-time {
+        font-weight: 600;
+      }
+    </style>
+
+    <div class="checkout-countdown-banner" id="checkoutCountdownBanner">
+      <svg class="icon-check" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 12l3 3 5-6"/>
+      </svg>
+      <p>
+        Your order is reserved for <span class="countdown-time" id="countdownTimer">10:00</span> min! Hurry, sale items are selling fast.
+      </p>
+    </div>
+    <!-- END COUNTDOWN TIMER -->
+
+    <header class="banner" data-header role="banner">
+      <div class="wrap">
+        {{ content_for_logo }}
+      </div>
+    </header>
+
+    {{ order_summary_toggle }}
+    <div class="content" data-content>
+      <div class="wrap">
+        <div class="main">
+          <header class="main__header" role="banner">
+            {{ content_for_logo }}
+            {{ breadcrumb }}
+            {{ alternative_payment_methods }}
+          </header>
+          <main class="main__content" role="main">
+            {{ content_for_layout }}
+          </main>
+          <footer class="main__footer" role="contentinfo">
+            {{ content_for_footer }}
+          </footer>
+        </div>
+        <aside class="sidebar" role="complementary">
+          <div class="sidebar__header">
+            {{ content_for_logo }}
+          </div>
+          <div class="sidebar__content">
+            {{ content_for_order_summary }}
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    {{ tracking_code }}
+
+    <script>
+    (function() {
+      const TIMER_MINUTES = 10;
+      const STORAGE_KEY = 'checkout_countdown_end';
+      
+      let endTime = sessionStorage.getItem(STORAGE_KEY);
+      
+      if (!endTime) {
+        endTime = Date.now() + (TIMER_MINUTES * 60 * 1000);
+        sessionStorage.setItem(STORAGE_KEY, endTime);
+      } else {
+        endTime = parseInt(endTime, 10);
+      }
+      
+      const timerElement = document.getElementById('countdownTimer');
+      const bannerElement = document.getElementById('checkoutCountdownBanner');
+      
+      function updateTimer() {
+        const now = Date.now();
+        const remaining = endTime - now;
+        
+        if (remaining <= 0) {
+          timerElement.textContent = '0:00';
+          bannerElement.style.backgroundColor = '#fef2f2';
+          bannerElement.style.borderColor = '#fecaca';
+          bannerElement.querySelector('p').style.color = '#7f1d1d';
+          bannerElement.querySelector('p').innerHTML = 'Your reservation has expired! Complete your order now before items sell out.';
+          return;
+        }
+        
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        
+        timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+      
+      updateTimer();
+      var _checkoutTimer = setInterval(updateTimer, 1000);
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          clearInterval(_checkoutTimer);
+          _checkoutTimer = null;
+        } else {
+          updateTimer();
+          if (!_checkoutTimer) _checkoutTimer = setInterval(updateTimer, 1000);
+        }
+      });
+    })();
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,586 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+VARIANT PICKER (WITH SIZE TABS)
+----------------------------------------------------------------------------------------------------------------------
+
+Render the variant picker option selectors with tabbed size system (UK, EU, US).
+
+********************************************
+Supported variables
+********************************************
+
+* product: the product for which to render the selector (required)
+* form_id: the ID of the form to which the variant picker belongs (required)
+* context: the context of the variant picker. Can be "main_product", "featured_product" or "quick_buy" (required)
+* hide_sold_out_variants: if set to true, the sold out or unavailable variants are hidden
+* selector_style: the selector style to use for the main selectors
+* swatch_selector_style: the selector style to use for the dedicated swatch selectors
+* variant_image_options: a list of option names for which to use the variant image selector mode
+* size_chart_page: the page to use for the size chart
+{%- endcomment -%}
+
+{%- liquid
+  assign color_label_list = 'general.label.color' | t | replace: ', ', ',' | downcase | split: ','
+  assign size_label_list = 'general.label.size' | t | replace: ', ', ',' | downcase | split: ','
+  assign variant_image_options = variant_image_options | replace: ', ', ',' | downcase | split: ','
+
+  if context == 'main_product'
+    assign is_main_product = true
+  endif
+-%}
+
+{%- unless product.has_only_default_variant -%}
+  <variant-picker class="variant-picker v-stack gap-4" section-id="{{ section.id }}" form-id="{{ form_id }}" context="{{ context }}" handle="{{ product.handle }}" {% if context == 'main_product' %}update-url{% endif %}>
+    {%- comment -%}
+    The variant data is outputted as a JSON, which allows the theme to emit an event with the data when the variant changes. This must not be removed.
+    {%- endcomment -%}
+    <script data-variant type="application/json">
+      {{- product.selected_or_first_available_variant | json -}}
+    </script>
+
+    {%- for option in product.options_with_values -%}
+      {% liquid
+        assign option_downcase = option.name | downcase
+        assign resolved_option_selector_style = selector_style
+
+        assign swatch_count = option.values | map: 'swatch' | compact | size
+
+        if swatch_count > 0 and swatch_selector_style != 'none'
+          assign resolved_option_selector_style = swatch_selector_style
+        endif
+
+        if swatch_count == 0 and color_label_list contains option_downcase and swatch_selector_style != 'none'
+          assign resolved_option_selector_style = swatch_selector_style
+        endif
+
+        if variant_image_options contains option_downcase
+          assign resolved_option_selector_style = 'variant_image'
+        endif
+
+        # Check if this is a size option with pipe-separated values
+        assign is_size_with_tabs = false
+        if size_label_list contains option_downcase
+          assign first_size_value = option.values | first
+          if first_size_value contains '|'
+            assign is_size_with_tabs = true
+          endif
+        endif
+
+        # Count available option values (respecting hide_sold_out_variants setting)
+        assign visible_option_values_count = 0
+        for option_value in option.values
+          if hide_sold_out_variants == false or option_value.available or option_value.selected
+            assign visible_option_values_count = visible_option_values_count | plus: 1
+          endif
+        endfor
+      %}
+
+      {%- comment -%}=== ONLY SHOW IF MORE THAN 1 VALUE ==={%- endcomment -%}
+      {%- if visible_option_values_count > 1 -%}
+
+        {%- comment -%}=== SIZE OPTION WITH TABS (UK, EU, US) ==={%- endcomment -%}
+        {%- if is_size_with_tabs -%}
+          <fieldset class="variant-picker__option variant-picker__option--size-tabs v-stack gap-2" data-option-index="{{ forloop.index0 }}">
+            <div class="variant-picker__option-info h-stack justify-between gap-2">
+              <div class="h-stack gap-1">
+                <legend>SELECT SIZE:</legend>
+                {%- assign selected_parts = option.selected_value | split: '|' -%}
+                {%- assign selected_eu = '' -%}
+                {%- for part in selected_parts -%}
+                  {%- assign part_stripped = part | strip -%}
+                  {%- assign part_lower = part_stripped | downcase -%}
+                  {%- if part_lower contains 'eu' -%}
+                    {%- assign selected_eu = part_stripped -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if selected_eu == '' -%}
+                  {%- assign selected_eu = selected_parts | first | strip -%}
+                {%- endif -%}
+                <span class="size-tabs__selected-value">{{ selected_eu }}</span>
+              </div>
+
+              {%- comment -%} Size System Tabs {%- endcomment -%}
+              <div class="size-tabs__switcher h-stack gap-2">
+                <span class="size-tabs__tab" data-size-system="uk">UK</span>
+                <span class="size-tabs__tab size-tabs__tab--active" data-size-system="eu">EU</span>
+                <span class="size-tabs__tab" data-size-system="us">US</span>
+              </div>
+            </div>
+
+            <p class="size-selection-error h6" hidden style="color: #dc392b; font-size: 11px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Please select a size above</p>
+
+            {%- comment -%} Size Chart Link {%- endcomment -%}
+            {%- if size_chart_page != blank -%}
+              {%- capture id -%}size-chart-{{ option.position }}-{{ form_id }}{%- endcapture -%}
+
+              <button type="button" class="link size-chart-link" aria-controls="{{ id | escape }}" aria-expanded="false">
+                {{- 'product.general.size_chart' | t -}}
+              </button>
+
+              <x-modal id="{{ id | escape }}" class="modal modal--lg color-scheme color-scheme--dialog">
+                <span class="h5" slot="header">{{ size_chart_page.title }}</span>
+                <div class="prose">
+                  {{- size_chart_page.content -}}
+                </div>
+              </x-modal>
+            {%- endif -%}
+
+            <div class="variant-picker__option-values size-tabs__values h-stack gap-2.5 wrap">
+              {%- assign name = form_id | append: '-option' | append: option.position -%}
+
+              {%- for option_value in option.values -%}
+                {%- liquid
+                  assign full_value = option_value | default: option_value.name
+                  assign value_parts = full_value | split: '|'
+                  
+                  # Initialize size variables - keep full value like "EU38" not just "38"
+                  assign eu_size = ''
+                  assign uk_size = ''
+                  assign us_size = ''
+                  
+                  # Parse each part - looking for EU, UK, US prefixes
+                  for part in value_parts
+                    assign part_stripped = part | strip
+                    assign part_lower = part_stripped | downcase
+                    
+                    if part_lower contains 'eu'
+                      assign eu_size = part_stripped
+                    endif
+                    
+                    if part_lower contains 'uk'
+                      assign uk_size = part_stripped
+                    endif
+                    
+                    if part_lower contains 'us'
+                      assign us_size = part_stripped
+                    endif
+                  endfor
+
+                  # Check availability
+                  assign is_disabled = false
+                  if option_value.available == false
+                    assign is_disabled = true
+                  endif
+
+                  assign is_selected = false
+                  if option_value.selected
+                    assign is_selected = true
+                  endif
+                -%}
+
+                {%- if hide_sold_out_variants == false or option_value.available or option_value.selected -%}
+                  <div class="size-tabs__option" 
+                       data-eu-size="{{ eu_size }}" 
+                       data-uk-size="{{ uk_size }}" 
+                       data-us-size="{{ us_size }}"
+                       data-full-value="{{ full_value | escape }}">
+                    <input 
+                      class="sr-only" 
+                      type="radio" 
+                      name="{{ name }}" 
+                      id="{{ name }}-{{ option_value.id | default: forloop.index }}" 
+                      value="{{ option_value.id | default: option_value }}" 
+                      form="{{ form_id }}" 
+                      data-option-position="{{ option.position }}"
+                      {% if is_selected %}checked{% endif %}>
+                    <label 
+                      class="block-swatch size-tabs__label{% if is_disabled %} is-disabled{% endif %}" 
+                      for="{{ name }}-{{ option_value.id | default: forloop.index }}">
+                      <span class="size-tabs__eu-value">{{ eu_size }}</span>
+                      <span class="size-tabs__uk-value" style="display: none;">{{ uk_size }}</span>
+                      <span class="size-tabs__us-value" style="display: none;">{{ us_size }}</span>
+                    </label>
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </fieldset>
+
+        {%- comment -%}=== STANDARD OPTIONS (Color, Material, etc.) ==={%- endcomment -%}
+        {%- else -%}
+          <fieldset class="variant-picker__option prod-var v-stack gap-2 v-{{ option.name }}">
+            <div class="variant-picker__option-info h-stack justify-between gap-2">
+              <div class="h-stack gap-1">
+                <legend>{{ option.name }}:</legend>
+                <span>{{ option.selected_value }}</span>
+
+                {% comment %} {%- if resolved_option_selector_style == 'swatch' or resolved_option_selector_style == 'variant_image' -%}
+                  <span>{{ option.selected_value }}</span>
+                {%- endif -%} {% endcomment %}
+              </div>
+
+              {%- if size_chart_page != blank and size_label_list contains option_downcase -%}
+                {%- capture id -%}size-chart-{{ option.position }}-{{ form_id }}{%- endcapture -%}
+
+                <button type="button" class="link" aria-controls="{{ id | escape }}" aria-expanded="false">
+                  {{- 'product.general.size_chart' | t -}}
+                </button>
+
+                <x-modal id="{{ id | escape }}" class="modal modal--lg color-scheme color-scheme--dialog">
+                  <span class="h5" slot="header">{{ size_chart_page.title }}</span>
+
+                  <div class="prose">
+                    {{- size_chart_page.content -}}
+                  </div>
+                </x-modal>
+              {%- endif -%}
+            </div>
+
+            {%- assign name = 'option' | append: option.position -%}
+
+            {%- if resolved_option_selector_style == 'dropdown' -%}
+              <div class="relative">
+                {%- capture popover_id -%}popover-variant-dropdown-{{ section.id }}-{{ product.id }}-{{ option.position }}{%- endcapture -%}
+
+                <button type="button" class="select" aria-controls="{{ popover_id }}" aria-expanded="false">
+                  <span id="{{ popover_id }}-selected-value">{{- option.selected_value -}}</span>
+                  {%- render 'icon' with 'dropdown-chevron' -%}
+                </button>
+
+                <x-popover id="{{ popover_id }}" class="popover popover--bottom-start color-scheme color-scheme--dialog" close-on-listbox-change>
+                  <p class="h5" slot="header">{{ option.name }}</p>
+
+                  <div class="popover__value-list">
+                    {%- assign param_name = form_id | append: '-option' | append: option.position -%}
+
+                    {%- for option_value in option.values -%}
+                      {%- capture option_markup -%}
+                        <span>{{- option_value -}}</span>
+
+                        {%- if option_value.available == false -%}
+                          <span>
+                            {%- if option_value.variant == nil -%}
+                              {{- 'product.general.unavailable_button' | t -}}
+                            {%- else -%}
+                              {{- 'product.general.sold_out_badge' | t -}}
+                            {%- endif -%}
+                          </span>
+                        {%- endif -%}
+                      {%- endcapture -%}
+
+                      {%- if hide_sold_out_variants == false or option_value.available or option_value.selected -%}
+                        {%- if is_main_product and option_value.product_url != blank -%}
+                          <div class="popover__value-option">
+                            {%- if option_value.selected -%}
+                              <input class="sr-only" type="radio" id="{{ param_name }}-{{ option_value.id }}" form="{{ form_id }}" name="{{ param_name }}" data-option-position="{{ option.position }}" value="{{ option_value.id }}" checked>
+                            {%- endif -%}
+
+                            <a href="{{ option_value.variant.url | default: option_value.product_url }}" class="h-stack justify-between gap-2">
+                              {{- option_markup -}}
+                            </a>
+                          </div>
+                        {%- else -%}
+                          <label class="popover__value-option h-stack justify-between gap-2" for="{{ param_name }}-{{ option_value.id }}">
+                            <input class="sr-only" form="{{ form_id }}" type="radio" id="{{ param_name }}-{{ option_value.id }}" name="{{ param_name }}" {% if option_value.product_url != blank %}data-product-url="{{ option_value.product_url | escape }}"{% endif %} data-option-position="{{ option.position }}" value="{{ option_value.id }}" {% if option_value.selected %}checked{% endif %}>
+                            {{- option_markup -}}
+                          </label>
+                        {%- endif -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </div>
+                </x-popover>
+              </div>
+            {%- else -%}
+              {%- liquid
+                case resolved_option_selector_style
+                  when 'swatch' or 'variant_image' or 'block' or 'block_swatch'
+                    assign list_classes = 'h-stack gap-2.5 wrap'
+
+                  else
+                    assign list_classes = ''
+                endcase
+              -%}
+
+              <div class="variant-picker__option-values {{ list_classes }}">
+                {% liquid
+                  assign name = form_id | append: '-option' | append: option.position
+
+                  for option_value in option.values
+                    case resolved_option_selector_style
+                      when 'variant_image'
+                        render 'option-value', type: 'thumbnail', form: form_id, option_value: option_value, param_name: name, option_position: option.position, hide_if_disabled: hide_sold_out_variants, reload_page_for_combined_products: is_main_product, id_prefix: forloop.index
+                      when 'swatch'
+                        render 'option-value', type: 'swatch', form: form_id, option_value: option_value, param_name: name, option_position: option.position, hide_if_disabled: hide_sold_out_variants, reload_page_for_combined_products: is_main_product, id_prefix: forloop.index
+                      when 'block'
+                        render 'option-value', type: 'block', form: form_id, option_value: option_value, param_name: name, option_position: option.position, hide_if_disabled: hide_sold_out_variants, reload_page_for_combined_products: is_main_product, id_prefix: forloop.index
+                      when 'block_swatch'
+                        render 'option-value', type: 'block', form: form_id, option_value: option_value, param_name: name, option_position: option.position, show_swatch: true, hide_if_disabled: hide_sold_out_variants, reload_page_for_combined_products: is_main_product, id_prefix: forloop.index
+                    endcase
+                  endfor
+                %}
+              </div>
+            {%- endif -%}
+          </fieldset>
+        {%- endif -%}
+
+      {%- endif -%}
+      {%- comment -%}=== END: ONLY SHOW IF MORE THAN 1 VALUE ==={%- endcomment -%}
+
+    {%- endfor -%}
+
+    {%- unless request.design_mode -%}
+      <noscript>
+        {%- assign input_label = 'product.general.variant' | t -%}
+
+        {%- capture select_options -%}
+          {%- for variant in product.variants -%}
+            <option {% if variant == product.selected_or_first_available_variant %}selected="selected"{% endif %} {% unless variant.available %}disabled="disabled"{% endunless %} value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+          {%- endfor -%}
+        {%- endcapture -%}
+
+        {%- render 'select', label: input_label, form: form_id, name: 'id', options: select_options -%}
+      </noscript>
+    {%- endunless -%}
+  </variant-picker>
+{%- endunless -%}
+
+{%- comment -%}=== SIZE TABS STYLES ==={%- endcomment -%}
+<style>
+  .size-tabs__switcher {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .size-tabs__tab {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    color: #999;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .size-tabs__tab:hover {
+    color: #666;
+  }
+
+  .size-tabs__tab--active {
+    color: #000;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .size-tabs__values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .size-tabs__option {
+    display: block;
+  }
+
+  .size-tabs__option[data-hidden="true"] {
+    display: none !important;
+  }
+
+  .size-tabs__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 55px;
+    padding: 10px 14px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+  }
+
+  .size-tabs__label:hover:not(.is-disabled) {
+    border-color: #000;
+  }
+
+  input:checked + .size-tabs__label {
+    border-color: #000;
+    border-width: 2px;
+    padding: 9px 13px;
+  }
+
+  .size-tabs__label.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    position: relative;
+  }
+
+  .size-tabs__label.is-disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: currentColor;
+    transform: rotate(-10deg);
+  }
+
+  .size-tabs__selected-value {
+    font-weight: 600;
+  }
+
+  .variant-picker__option--size-tabs legend {
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  @keyframes sizeShake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+  }
+
+  variant-picker.size-selection-shake .variant-picker__option--size-tabs {
+    animation: sizeShake 0.55s ease;
+  }
+
+  variant-picker.size-selection-shake .size-tabs__values {
+    outline: 2px solid #dc392b;
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+</style>
+
+{%- comment -%}=== SIZE TABS JAVASCRIPT ==={%- endcomment -%}
+<script>
+  (function() {
+    // Prevent duplicate initialization if snippet is included multiple times.
+    // Do NOT call initAllSizeContainers here — the MutationObserver will
+    // pick up any new size-tab containers automatically.
+    if (window.sizeTabsInitialized) return;
+    window.sizeTabsInitialized = true;
+
+    // Store the current size system globally - persists across re-renders
+    var currentSizeSystem = 'eu';
+    try { currentSizeSystem = localStorage.getItem('size_system_pref') || 'eu'; } catch(e) {}
+
+    function applyTabState(container, system) {
+      if (!container) return;
+      
+      // Update tabs
+      var tabs = container.querySelectorAll('.size-tabs__tab');
+      for (var t = 0; t < tabs.length; t++) {
+        var tab = tabs[t];
+        if (tab.getAttribute('data-size-system') === system) {
+          tab.classList.add('size-tabs__tab--active');
+        } else {
+          tab.classList.remove('size-tabs__tab--active');
+        }
+      }
+
+      // Update size options
+      var options = container.querySelectorAll('.size-tabs__option');
+      for (var i = 0; i < options.length; i++) {
+        var opt = options[i];
+        var euSpan = opt.querySelector('.size-tabs__eu-value');
+        var ukSpan = opt.querySelector('.size-tabs__uk-value');
+        var usSpan = opt.querySelector('.size-tabs__us-value');
+
+        if (euSpan) euSpan.style.display = (system === 'eu') ? 'inline' : 'none';
+        if (ukSpan) ukSpan.style.display = (system === 'uk') ? 'inline' : 'none';
+        if (usSpan) usSpan.style.display = (system === 'us') ? 'inline' : 'none';
+
+        var val = opt.getAttribute('data-' + system + '-size') || '';
+        opt.setAttribute('data-hidden', (val.trim() === '') ? 'true' : 'false');
+      }
+
+      // Update header display
+      var display = container.querySelector('.size-tabs__selected-value');
+      var checked = container.querySelector('input[type="radio"]:checked');
+      if (display && checked) {
+        var checkedOpt = checked.closest('.size-tabs__option');
+        if (checkedOpt) {
+          var showVal = checkedOpt.getAttribute('data-' + system + '-size') || '';
+          display.textContent = showVal;
+        }
+      }
+      
+      container.setAttribute('data-active-system', system);
+    }
+
+    function initAllContainers() {
+      var containers = document.querySelectorAll('.variant-picker__option--size-tabs');
+      for (var c = 0; c < containers.length; c++) {
+        applyTabState(containers[c], currentSizeSystem);
+      }
+    }
+    window.initAllSizeContainers = initAllContainers;
+
+    // Global click handler for tabs using event delegation
+    document.addEventListener('click', function(e) {
+      var tab = e.target.closest('.size-tabs__tab');
+      if (!tab) return;
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      var system = tab.getAttribute('data-size-system');
+      if (!system) return;
+      
+      currentSizeSystem = system;
+      try { localStorage.setItem('size_system_pref', system); } catch(ex) {}
+      
+      var container = tab.closest('.variant-picker__option--size-tabs');
+      applyTabState(container, system);
+    }, true);
+
+    // Handle input changes for selected value display
+    document.addEventListener('change', function(e) {
+      if (!e.target.matches('.variant-picker__option--size-tabs input[type="radio"]')) return;
+      
+      var cont = e.target.closest('.variant-picker__option--size-tabs');
+      var sys = cont ? (cont.getAttribute('data-active-system') || currentSizeSystem) : currentSizeSystem;
+      var disp = cont ? cont.querySelector('.size-tabs__selected-value') : null;
+      var optEl = e.target.closest('.size-tabs__option');
+      if (disp && optEl) {
+        disp.textContent = optEl.getAttribute('data-' + sys + '-size') || '';
+      }
+    }, true);
+
+    // Single global observer for re-renders
+    var sizeTabObserver = new MutationObserver(function(mutations) {
+      var shouldReinit = false;
+      for (var m = 0; m < mutations.length; m++) {
+        if (mutations[m].addedNodes.length > 0) {
+          for (var n = 0; n < mutations[m].addedNodes.length; n++) {
+            var node = mutations[m].addedNodes[n];
+            if (node.nodeType === 1 && (
+              (node.classList && node.classList.contains('variant-picker__option--size-tabs')) ||
+              (node.querySelector && node.querySelector('.variant-picker__option--size-tabs'))
+            )) {
+              shouldReinit = true;
+              break;
+            }
+          }
+        }
+        if (shouldReinit) break;
+      }
+      if (shouldReinit) requestAnimationFrame(initAllContainers);
+    });
+
+    sizeTabObserver.observe(document.body, { childList: true, subtree: true });
+
+    // Initialize
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAllContainers);
+    } else {
+      initAllContainers();
+    }
+
+    document.addEventListener('variant:change', function() {
+      requestAnimationFrame(initAllContainers);
+    });
+    
+    document.addEventListener('product:rerender', function() {
+      requestAnimationFrame(initAllContainers);
+    });
+  })();
+</script>

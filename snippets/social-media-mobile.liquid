@@ -1,0 +1,163 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+SOCIAL MEDIA
+----------------------------------------------------------------------------------------------------------------------
+
+Output a list of social media icons based on the social URL settings.
+
+* layout: either support "list" or "block" (default to list)
+{%- endcomment -%}
+
+{%- capture social_media -%}
+  {%- if settings.social_facebook != blank or shop.brand.metafields.social_links.facebook != blank -%}
+    <li class="social-media__item branding-colors--facebook">
+      <a href="{{ settings.social_facebook | default: shop.brand.metafields.social_links.facebook }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Facebook' }}">
+        {% comment %} {%- render 'icon' with 'facebook' -%} {% endcomment %}
+     <svg class="Icon Icon--facebook" viewBox="0 0 9 17">
+      <path d="M5.842 17V9.246h2.653l.398-3.023h-3.05v-1.93c0-.874.246-1.47 1.526-1.47H9V.118C8.718.082 7.75 0 6.623 0 4.27 0 2.66 1.408 2.66 3.994v2.23H0v3.022h2.66V17h3.182z"></path>
+    </svg>
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_twitter != blank or shop.brand.metafields.social_links.twitter != blank -%}
+    <li class="social-media__item branding-colors--twitter">
+      <a href="{{ settings.social_twitter | default: shop.brand.metafields.social_links.twitter }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Twitter' }}">
+        {%- render 'icon' with 'twitter' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_instagram != blank or shop.brand.metafields.social_links.instagram != blank -%}
+    <li class="social-media__item branding-colors--instagram">
+      <a href="{{ settings.social_instagram | default: shop.brand.metafields.social_links.instagram }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Instagram' }}">
+        {% comment %} {%- render 'icon' with 'instagram' -%} {% endcomment %}
+        <svg class="Icon Icon--instagram" role="presentation" viewBox="0 0 32 32">
+      <path d="M15.994 2.886c4.273 0 4.775.019 6.464.095 1.562.07 2.406.33 2.971.552.749.292 1.283.635 1.841 1.194s.908 1.092 1.194 1.841c.216.565.483 1.41.552 2.971.076 1.689.095 2.19.095 6.464s-.019 4.775-.095 6.464c-.07 1.562-.33 2.406-.552 2.971-.292.749-.635 1.283-1.194 1.841s-1.092.908-1.841 1.194c-.565.216-1.41.483-2.971.552-1.689.076-2.19.095-6.464.095s-4.775-.019-6.464-.095c-1.562-.07-2.406-.33-2.971-.552-.749-.292-1.283-.635-1.841-1.194s-.908-1.092-1.194-1.841c-.216-.565-.483-1.41-.552-2.971-.076-1.689-.095-2.19-.095-6.464s.019-4.775.095-6.464c.07-1.562.33-2.406.552-2.971.292-.749.635-1.283 1.194-1.841s1.092-.908 1.841-1.194c.565-.216 1.41-.483 2.971-.552 1.689-.083 2.19-.095 6.464-.095zm0-2.883c-4.343 0-4.889.019-6.597.095-1.702.076-2.864.349-3.879.743-1.054.406-1.943.959-2.832 1.848S1.251 4.473.838 5.521C.444 6.537.171 7.699.095 9.407.019 11.109 0 11.655 0 15.997s.019 4.889.095 6.597c.076 1.702.349 2.864.743 3.886.406 1.054.959 1.943 1.848 2.832s1.784 1.435 2.832 1.848c1.016.394 2.178.667 3.886.743s2.248.095 6.597.095 4.889-.019 6.597-.095c1.702-.076 2.864-.349 3.886-.743 1.054-.406 1.943-.959 2.832-1.848s1.435-1.784 1.848-2.832c.394-1.016.667-2.178.743-3.886s.095-2.248.095-6.597-.019-4.889-.095-6.597c-.076-1.702-.349-2.864-.743-3.886-.406-1.054-.959-1.943-1.848-2.832S27.532 1.247 26.484.834C25.468.44 24.306.167 22.598.091c-1.714-.07-2.26-.089-6.603-.089zm0 7.778c-4.533 0-8.216 3.676-8.216 8.216s3.683 8.216 8.216 8.216 8.216-3.683 8.216-8.216-3.683-8.216-8.216-8.216zm0 13.549c-2.946 0-5.333-2.387-5.333-5.333s2.387-5.333 5.333-5.333 5.333 2.387 5.333 5.333-2.387 5.333-5.333 5.333zM26.451 7.457c0 1.059-.858 1.917-1.917 1.917s-1.917-.858-1.917-1.917c0-1.059.858-1.917 1.917-1.917s1.917.858 1.917 1.917z"></path>
+    </svg>
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_threads != blank or shop.brand.metafields.social_links.threads != blank -%}
+    <li class="social-media__item branding-colors--instagram">
+      <a href="{{ settings.social_threads | default: shop.brand.metafields.social_links.threads }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Threads' }}">
+        {%- render 'icon' with 'threads' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_pinterest != blank or shop.brand.metafields.social_links.pinterest != blank -%}
+    <li class="social-media__item branding-colors--pinterest">
+      <a href="{{ settings.social_pinterest | default: shop.brand.metafields.social_links.pinterest }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Pinterest' }}">
+        {% comment %} {%- render 'icon' with 'pinterest' -%} {% endcomment %}
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0.5" y="0.5" width="39" height="39" rx="19.5" stroke="white"/>
+        <path d="M19.9951 8C13.3608 8 8 13.3706 8 19.9951C8 25.0794 11.1592 29.4233 15.6216 31.1707C15.513 30.2229 15.4241 28.7618 15.661 27.7252C15.8782 26.7873 17.0629 21.7622 17.0629 21.7622C17.0629 21.7622 16.7075 21.0416 16.7075 19.9852C16.7075 18.3167 17.675 17.0728 18.8795 17.0728C19.9062 17.0728 20.3998 17.8429 20.3998 18.761C20.3998 19.7877 19.7482 21.3278 19.4027 22.7594C19.1164 23.9539 20.0049 24.9313 21.1798 24.9313C23.3122 24.9313 24.9511 22.6804 24.9511 19.4422C24.9511 16.5693 22.8877 14.5652 19.9358 14.5652C16.52 14.5652 14.5158 17.1222 14.5158 19.768C14.5158 20.7947 14.9107 21.9004 15.4044 22.5027C15.5031 22.6211 15.513 22.7297 15.4833 22.8482C15.3945 23.2234 15.1872 24.0428 15.1477 24.2106C15.0983 24.4278 14.97 24.4772 14.7429 24.3686C13.262 23.6577 12.334 21.4661 12.334 19.7088C12.334 15.9276 15.0786 12.4525 20.2616 12.4525C24.4179 12.4525 27.6561 15.4142 27.6561 19.383C27.6561 23.5195 25.0498 26.8466 21.4364 26.8466C20.2221 26.8466 19.0769 26.2147 18.6919 25.4644C18.6919 25.4644 18.0897 27.7548 17.9416 28.3176C17.675 29.3641 16.9445 30.6672 16.4508 31.4669C17.5763 31.8124 18.761 32 20.0049 32C26.6294 32 32 26.6294 32 20.0049C31.9901 13.3706 26.6195 8 19.9951 8Z" fill="white"/>
+        </svg>
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_youtube != blank or shop.brand.metafields.social_links.youtube != blank -%}
+    <li class="social-media__item branding-colors--youtube">
+      <a href="{{ settings.social_youtube | default: shop.brand.metafields.social_links.youtube }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'YouTube' }}">
+        {%- render 'icon' with 'youtube' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_tiktok != blank or shop.brand.metafields.social_links.tiktok != blank -%}
+    <li class="social-media__item branding-colors--tiktok">
+      <a href="{{ settings.social_tiktok | default: shop.brand.metafields.social_links.tiktok }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'TikTok' }}">
+<svg class="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><path d="M40,0H4A4,4,0,0,0,0,4V40a4,4,0,0,0,4,4H40a4,4,0,0,0,4-4V4A4,4,0,0,0,40,0ZM37.38,19c-.26,0-.52,0-.79,0a8.56,8.56,0,0,1-7.15-3.86V28.28a9.72,9.72,0,1,1-9.72-9.72,5.88,5.88,0,0,1,.6,0v4.79a3.93,3.93,0,0,0-.6-.06,5,5,0,1,0,0,9.92,5.08,5.08,0,0,0,5.16-4.9c0-.11.05-22.34.05-22.34h4.58a8.53,8.53,0,0,0,7.87,7.62Z"></path></g></g></svg>
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_vimeo != blank or shop.brand.metafields.social_links.vimeo != blank -%}
+    <li class="social-media__item branding-colors--vimeo">
+      <a href="{{ settings.social_vimeo | default: shop.brand.metafields.social_links.vimeo }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Vimeo' }}">
+        {%- render 'icon' with 'vimeo' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_linkedin != blank -%}
+    <li class="social-media__item branding-colors--linkedin">
+      <a href="{{ settings.social_linkedin }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'LinkedIn' }}">
+        {%- render 'icon' with 'linkedin' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_snapchat != blank or shop.brand.metafields.social_links.snapchat != blank -%}
+    <li class="social-media__item branding-colors--snapchat">
+      <a href="{{ settings.social_snapchat | default: shop.brand.metafields.social_links.snapchat }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Snapchat' }}">
+        {%- render 'icon' with 'snapchat' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_whatsapp != blank -%}
+    <li class="social-media__item branding-colors--whatsapp">
+      <a href="{{ settings.social_whatsapp }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'WhatsApp' }}">
+        {%- render 'icon' with 'whatsapp' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_tumblr != blank or shop.brand.metafields.social_links.tumblr != blank -%}
+    <li class="social-media__item branding-colors--tumblr">
+      <a href="{{ settings.social_tumblr | default: shop.brand.metafields.social_links.tumblr }}" class="tap-area"  target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Tumblr' }}">
+        {%- render 'icon' with 'tumblr' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_wechat != blank -%}
+    <li class="social-media__item branding-colors--wechat">
+      <a href="{{ settings.social_wechat }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'WeChat' }}">
+        {%- render 'icon' with 'wechat' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_reddit != blank -%}
+    <li class="social-media__item branding-colors--reddit">
+      <a href="{{ settings.social_reddit }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Reddit' }}">
+        {%- render 'icon' with 'reddit' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_line != blank -%}
+    <li class="social-media__item branding-colors--line">
+      <a href="{{ settings.social_line }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'LINE' }}">
+        {%- render 'icon' with 'line' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_spotify != blank -%}
+    <li class="social-media__item branding-colors--spotify">
+      <a href="{{ settings.social_spotify }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: 'Spotify' }}">
+        {%- render 'icon' with 'spotify' -%}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if settings.social_21buttons != blank -%}
+    <li class="social-media__item branding-colors--21buttons">
+      <a href="{{ settings.social_21buttons }}" class="tap-area" target="_blank" rel="noopener" aria-label="{{ 'general.social.follow_on' | t: social_media: '21 Buttons' }}">
+        {%- render 'icon' with '21buttons' -%}
+      </a>
+    </li>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if social_media != blank -%}
+  <ul class="social-media social-media--{{ layout | default: 'list' }} unstyled-list" role="list">
+    {{- social_media -}}
+  </ul>
+{%- endif -%}

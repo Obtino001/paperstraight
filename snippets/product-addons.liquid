@@ -1,0 +1,129 @@
+<style>
+  .product-addons {
+    margin-top: 29px;
+  }
+
+  .product-addons__heading {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 100%;
+    color: rgba(0, 0, 0, 1);
+  }
+
+  .product-addons__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-addon-item {
+    display: flex;
+    gap: 17px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 15px;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+  }
+
+  .product-addon-item:last-child {
+    border-bottom: 0;
+  }
+
+  .product-addon-item__content {
+    width: 80%;
+    display: flex;
+    gap: 17px;
+    align-items: center;
+  }
+
+  .product-addon-item__image {
+    max-width: 94px;
+    width: 100%;
+  }
+
+  .product-addon-item__image img {
+    max-width: 94px;
+    width: 100%;
+    min-height: 112px;
+    height: 100%;
+    display: block;
+  }
+
+.product-addon-item__title {
+    font-size: 16px;
+    line-height: 140%;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+}
+  .product-addon-item__price .text-on-sale,
+  .product-addon-item__price compare-at-price.h5.text-subdued.line-through {
+    font-size: 12px !important;
+  }
+
+  .product-addon-item__action {
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+.product-addon-item__add-btn {
+    font-size: 12px;
+    text-align: center;
+    font-weight: 700;
+    line-height: 100%;
+    padding: 10px 15.5px;
+    /* min-width: 106px; */
+    /* min-height: 35px; */
+    opacity: 1 !important;
+    transform: unset;
+    position: unset;
+    background: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    text-transform: uppercase;
+}
+
+  .product-addon-item__add-btn svg {
+    width: 10px;
+  }
+</style>
+
+<div class="product-addons">
+  <h4 class="product-addons__heading">{{ block.settings.upsell_heading }}</h4>
+  <div class="product-addons__list">
+    {% for product in block.settings.product_list %}
+      <div class="product-addon-item">
+        <div class="product-addon-item__content">
+          <div class="product-addon-item__image">
+            <img src="{{ product.featured_image | image_url }}" alt="{{ product.title | escape }}">
+          </div>
+          <div class="product-addon-item__details">
+            <div class="product-addon-item__title">{{ product.title }}</div>
+            <div class="product-addon-item__price">
+              {%- render 'price-list', product: product, variant: product.selected_or_first_available_variant, context: 'product' -%}
+            </div>
+          </div>
+        </div>
+
+        <div class="product-addon-item__action">
+          <product-form>
+            {%- form 'product', product -%}
+              <input type="hidden" name="on_success" value="force_open_drawer">
+              <input type="hidden" name="quantity" value="1">
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="product-addon-item__add-btn">
+                <span>Add</span>
+                {%- render 'icon' with 'plus' -%}
+              </button>
+            {%- endform -%}
+          </product-form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

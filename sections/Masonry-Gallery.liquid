@@ -1,0 +1,513 @@
+<section class="masonry-gallery section-{{ section.id }}">
+  <div class="masonry-container">
+    <div class="masonry-grid">
+      <!-- Image 1 - Large Left (Blue sweater guy) - Full Height -->
+      {% if section.blocks[0] %}
+        <div class="masonry-item item-1" {{ section.blocks[0].shopify_attributes }}>
+          {% if section.blocks[0].settings.image != blank %}
+            <img src="{{ section.blocks[0].settings.image | image_url: width: 900 }}" alt="{{ section.blocks[0].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[0].settings.link != blank %}<a href="{{ section.blocks[0].settings.link }}" class="masonry-link" {% if section.blocks[0].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 2 - Top Column 2 (Guy with cap sitting) -->
+      {% if section.blocks[1] %}
+        <div class="masonry-item item-2" {{ section.blocks[1].shopify_attributes }}>
+          {% if section.blocks[1].settings.image != blank %}
+            <img src="{{ section.blocks[1].settings.image | image_url: width: 600 }}" alt="{{ section.blocks[1].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[1].settings.link != blank %}<a href="{{ section.blocks[1].settings.link }}" class="masonry-link" {% if section.blocks[1].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 3 - Bottom Column 2 (Two guys with bicycle) -->
+      {% if section.blocks[2] %}
+        <div class="masonry-item item-3" {{ section.blocks[2].shopify_attributes }}>
+          {% if section.blocks[2].settings.image != blank %}
+            <img src="{{ section.blocks[2].settings.image | image_url: width: 600 }}" alt="{{ section.blocks[2].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[2].settings.link != blank %}<a href="{{ section.blocks[2].settings.link }}" class="masonry-link" {% if section.blocks[2].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 4 - Top Column 3 (Grey jacket person) - Smaller -->
+      {% if section.blocks[3] %}
+        <div class="masonry-item item-4" {{ section.blocks[3].shopify_attributes }}>
+          {% if section.blocks[3].settings.image != blank %}
+            <img src="{{ section.blocks[3].settings.image | image_url: width: 500 }}" alt="{{ section.blocks[3].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[3].settings.link != blank %}<a href="{{ section.blocks[3].settings.link }}" class="masonry-link" {% if section.blocks[3].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 5 - Bottom Column 3 (Yellow hat sitting) - Larger -->
+      {% if section.blocks[4] %}
+        <div class="masonry-item item-5" {{ section.blocks[4].shopify_attributes }}>
+          {% if section.blocks[4].settings.image != blank %}
+            <img src="{{ section.blocks[4].settings.image | image_url: width: 700 }}" alt="{{ section.blocks[4].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[4].settings.link != blank %}<a href="{{ section.blocks[4].settings.link }}" class="masonry-link" {% if section.blocks[4].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 6 - Top Column 4 (Black puffer jacket) - Taller -->
+      {% if section.blocks[5] %}
+        <div class="masonry-item item-6" {{ section.blocks[5].shopify_attributes }}>
+          {% if section.blocks[5].settings.image != blank %}
+            <img src="{{ section.blocks[5].settings.image | image_url: width: 500 }}" alt="{{ section.blocks[5].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[5].settings.link != blank %}<a href="{{ section.blocks[5].settings.link }}" class="masonry-link" {% if section.blocks[5].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Image 7 - Bottom Column 4 (Yellow shoes guy) - Shorter -->
+      {% if section.blocks[6] %}
+        <div class="masonry-item item-7" {{ section.blocks[6].shopify_attributes }}>
+          {% if section.blocks[6].settings.image != blank %}
+            <img src="{{ section.blocks[6].settings.image | image_url: width: 500 }}" alt="{{ section.blocks[6].settings.image_alt | default: '' }}" class="masonry-image" loading="lazy">
+          {% else %}
+            <div class="masonry-placeholder">{{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+          {% endif %}
+          {% if section.blocks[6].settings.link != blank %}<a href="{{ section.blocks[6].settings.link }}" class="masonry-link" {% if section.blocks[6].settings.open_new_tab %}target="_blank" rel="noopener"{% endif %}></a>{% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-{{ section.id }} {
+    --mg-bg: {{ section.settings.background_color }};
+    --mg-gap: {{ section.settings.grid_gap }}px;
+    --mg-radius: {{ section.settings.border_radius }}px;
+  }
+
+  .masonry-gallery {
+    background-color: var(--mg-bg);
+    padding: {{ section.settings.section_padding_top }}px {{ section.settings.section_padding_x }}px {{ section.settings.section_padding_bottom }}px;
+  }
+
+  .masonry-container {
+    max-width: {{ section.settings.container_max_width }}px;
+    margin: 0 auto;
+  }
+
+  .masonry-grid {
+    display: grid;
+    grid-template-columns: 28fr 17fr 22fr 15fr;
+    grid-template-rows: 38fr 62fr;
+    gap: var(--mg-gap);
+    height: {{ section.settings.grid_height }}px;
+  }
+
+  .masonry-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--mg-radius);
+  }
+
+  .masonry-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .masonry-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .masonry-placeholder svg {
+    width: 25%;
+    height: 25%;
+    opacity: 0.3;
+  }
+
+  .masonry-link {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  /* ===== EXACT GRID POSITIONS ===== */
+  
+  /* Image 1 - Large Left - Full Height */
+  .item-1 {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  /* Image 2 - Top of Column 2 */
+  .item-2 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Image 3 - Bottom of Column 2 */
+  .item-3 {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  /* Image 4 - Top of Column 3 (Smaller) */
+  .item-4 {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Image 5 - Bottom of Column 3 (Larger) */
+  .item-5 {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  /* Image 6 - Top of Column 4 (Taller) */
+  .item-6 {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  /* Image 7 - Bottom of Column 4 (Shorter) */
+  .item-7 {
+    grid-column: 4;
+    grid-row: 2;
+  }
+
+  /* ===== ROUNDED CORNERS - Right side only ===== */
+  .item-6 {
+    border-radius: 0 var(--mg-radius) 0 0;
+  }
+
+  .item-7 {
+    border-radius: 0 0 var(--mg-radius) 0;
+  }
+
+  .item-1,
+  .item-2,
+  .item-3,
+  .item-4,
+  .item-5 {
+    border-radius: 0;
+  }
+
+  /* ===== TABLET ===== */
+  @media screen and (max-width: 990px) {
+    .masonry-grid {
+      height: {{ section.settings.grid_height_tablet }}px;
+      gap: {{ section.settings.grid_gap_tablet }}px;
+    }
+
+    .masonry-gallery {
+      padding: {{ section.settings.section_padding_top_tablet }}px {{ section.settings.section_padding_x_tablet }}px {{ section.settings.section_padding_bottom_tablet }}px;
+    }
+  }
+
+  /* ===== MOBILE ===== */
+  @media screen and (max-width: 768px) {
+    .masonry-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(4, auto);
+      height: auto;
+      gap: {{ section.settings.grid_gap_mobile }}px;
+    }
+
+    .masonry-gallery {
+      padding: {{ section.settings.section_padding_top_mobile }}px {{ section.settings.section_padding_x_mobile }}px {{ section.settings.section_padding_bottom_mobile }}px;
+    }
+
+    .item-1 {
+      grid-column: 1 / 3;
+      grid-row: auto;
+      aspect-ratio: 4/5;
+    }
+
+    .item-2 {
+      grid-column: 1;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+    }
+
+    .item-3 {
+      grid-column: 2;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+    }
+
+    .item-4 {
+      grid-column: 1;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+    }
+
+    .item-5 {
+      grid-column: 2;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+    }
+
+    .item-6 {
+      grid-column: 1;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+      border-radius: 0;
+    }
+
+    .item-7 {
+      grid-column: 2;
+      grid-row: auto;
+      aspect-ratio: 3/4;
+      border-radius: 0;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Masonry Gallery",
+  "tag": "section",
+  "class": "masonry-gallery-wrapper",
+  "max_blocks": 7,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "grid_height",
+      "label": "Grid Height (Desktop)",
+      "min": 400,
+      "max": 800,
+      "step": 20,
+      "default": 540,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "grid_height_tablet",
+      "label": "Grid Height (Tablet)",
+      "min": 300,
+      "max": 600,
+      "step": 20,
+      "default": 420,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap Between Images",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "default": 6,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_tablet",
+      "label": "Gap (Tablet)",
+      "min": 0,
+      "max": 16,
+      "step": 2,
+      "default": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_mobile",
+      "label": "Gap (Mobile)",
+      "min": 0,
+      "max": 12,
+      "step": 2,
+      "default": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "container_max_width",
+      "label": "Max Width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "default": 1400,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border Radius (Right Side)",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "default": 10,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Padding Top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Padding Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_x",
+      "label": "Padding Horizontal",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_tablet",
+      "label": "Padding Top (Tablet)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_tablet",
+      "label": "Padding Bottom (Tablet)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_x_tablet",
+      "label": "Padding Horizontal (Tablet)",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "min": 0,
+      "max": 60,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "section_padding_x_mobile",
+      "label": "Padding Horizontal (Mobile)",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "image_alt",
+          "label": "Alt Text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (Optional)"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_tab",
+          "label": "Open in New Tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Masonry Gallery",
+      "blocks": [
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" }
+      ]
+    }
+  ]
+}
+{% endschema %}

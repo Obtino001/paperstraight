@@ -1,0 +1,318 @@
+{%- style -%}
+  #custom-banner-{{ section.id }} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  #custom-banner-{{ section.id }} .banner-image-wrapper {
+    position: relative;
+    width: 100%;
+    display: block;
+    {% if section.settings.adapt_height_desktop %}
+      height: auto;
+    {% else %}
+      height: {{ section.settings.min_height_desktop }}px;
+    {% endif %}
+  }
+
+  #custom-banner-{{ section.id }} .banner-image-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0, {{ section.settings.overlay_opacity | divided_by: 100.0 }});
+    z-index: 1;
+  }
+
+  #custom-banner-{{ section.id }} .banner-image,
+  #custom-banner-{{ section.id }} .hp-hero__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #custom-banner-{{ section.id }} .banner-content {
+    position: absolute;
+    top: {{ section.settings.text_position_top }}%;
+    left: {{ section.settings.text_position_left }}%;
+    transform: translate(-{{ section.settings.text_position_left }}%, -{{ section.settings.text_position_top }}%);
+    z-index: 2;
+    text-align: {{ section.settings.text_alignment }};
+    max-width: {{ section.settings.content_width }}px;
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: {% if section.settings.text_alignment == 'left' %}flex-start{% elsif section.settings.text_alignment == 'right' %}flex-end{% else %}center{% endif %};
+  }
+
+  #custom-banner-{{ section.id }} .banner-heading {
+    font-size: {{ section.settings.heading_size_desktop }}px;
+    line-height: 1.1;
+    margin: 0;
+    font-weight: 600;
+    color: {{ section.settings.text_color }};
+  }
+
+  #custom-banner-{{ section.id }} .banner-subheading {
+    font-size: {{ section.settings.subheading_size_desktop }}px;
+    font-family: var(--text-font-family);
+    font-weight: 600;
+    line-height: 1.4;
+    color: {{ section.settings.text_color }};
+  }
+
+  #custom-banner-{{ section.id }} .banner-review-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: {{ section.settings.text_color }};
+    margin-bottom: 10px;
+  }
+
+  .banner-review-stars {
+    color: #fb499b;
+    font-size: 14px;
+  }
+
+  @media (max-width: 800px) {
+    #custom-banner-{{ section.id }} .banner-image-wrapper {
+      {% if section.settings.adapt_height_mobile %}
+        height: auto;
+      {% else %}
+        height: {{ section.settings.min_height_mobile }}px;
+      {% endif %}
+    }
+
+    #custom-banner-{{ section.id }} .banner-heading {
+      font-size: {{ section.settings.heading_size_mobile }}px;
+    }
+    
+    {% if section.settings.show_mobile_content_below %}
+      #custom-banner-{{ section.id }} .banner-content {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        padding: 30px 20px;
+        background: {{ section.settings.mobile_bg_color }};
+        color: {{ section.settings.mobile_text_color }};
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
+      }
+      #custom-banner-{{ section.id }} .banner-image-wrapper::after { display: none; }
+      #custom-banner-{{ section.id }} .banner-heading, 
+      #custom-banner-{{ section.id }} .banner-subheading,
+      #custom-banner-{{ section.id }} .banner-review-block { color: inherit; }
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<section id="custom-banner-{{ section.id }}" class="Section">
+  <div class="banner-image-wrapper">
+    {%- if section.settings.media_type == 'video' and section.settings.video != blank -%}
+      {{ section.settings.video | video_tag: autoplay: true, loop: true, muted: true, controls: false, playsinline: true, class: 'hp-hero__video' }}
+    {%- elsif section.settings.image != blank -%}
+      {%- comment -%}
+        Shopify auto-injects an unwanted mobile-image preload (no srcset, no media, downloads original).
+        We can't suppress that, but we can avoid stacking a 2nd mobile preload on top of it.
+        Only emit a DESKTOP preload here — Shopify doesn't preload the desktop variant.
+      {%- endcomment -%}
+      <link rel="preload" as="image" href="{{ section.settings.image | image_url: width: 2000 }}" imagesrcset="{{ section.settings.image | image_url: width: 800 }} 800w, {{ section.settings.image | image_url: width: 1200 }} 1200w, {{ section.settings.image | image_url: width: 1600 }} 1600w, {{ section.settings.image | image_url: width: 2000 }} 2000w, {{ section.settings.image | image_url: width: 2400 }} 2400w" imagesizes="100vw" {% if section.settings.mobile_image != blank %}media="(min-width: 801px)"{% endif %} fetchpriority="high">
+      {%- if section.settings.mobile_image != blank -%}
+        <link rel="preload" as="image" href="{{ section.settings.mobile_image | image_url: width: 800 }}" imagesrcset="{{ section.settings.mobile_image | image_url: width: 360 }} 360w, {{ section.settings.mobile_image | image_url: width: 540 }} 540w, {{ section.settings.mobile_image | image_url: width: 720 }} 720w, {{ section.settings.mobile_image | image_url: width: 800 }} 800w, {{ section.settings.mobile_image | image_url: width: 900 }} 900w, {{ section.settings.mobile_image | image_url: width: 1100 }} 1100w" imagesizes="100vw" media="(max-width: 800px)" fetchpriority="high">
+      {%- endif -%}
+      <picture>
+        {% if section.settings.mobile_image != blank %}
+          <source media="(max-width: 800px)"
+                  srcset="{{ section.settings.mobile_image | image_url: width: 360 }} 360w, {{ section.settings.mobile_image | image_url: width: 540 }} 540w, {{ section.settings.mobile_image | image_url: width: 720 }} 720w, {{ section.settings.mobile_image | image_url: width: 800 }} 800w, {{ section.settings.mobile_image | image_url: width: 900 }} 900w, {{ section.settings.mobile_image | image_url: width: 1100 }} 1100w"
+                  sizes="100vw">
+        {% endif %}
+        <img src="{{ section.settings.image | image_url: width: 2000 }}"
+             srcset="{{ section.settings.image | image_url: width: 800 }} 800w, {{ section.settings.image | image_url: width: 1200 }} 1200w, {{ section.settings.image | image_url: width: 1600 }} 1600w, {{ section.settings.image | image_url: width: 2000 }} 2000w, {{ section.settings.image | image_url: width: 2400 }} 2400w"
+             sizes="100vw"
+             width="{{ section.settings.image.width }}"
+             height="{{ section.settings.image.height }}"
+             alt="{{ section.settings.image.alt | escape }}"
+             class="banner-image"
+             loading="eager"
+             fetchpriority="high"
+             decoding="sync">
+      </picture>
+    {%- endif -%}
+
+    <div class="banner-content {% if section.settings.show_mobile_content_below %}mobile-stacked{% endif %}">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'review_badge' -%}
+            <div class="banner-review-block" {{ block.shopify_attributes }}>
+              {%- if block.settings.custom_svg != blank -%}
+                <div class="banner-review-custom-svg">{{ block.settings.custom_svg }}</div>
+              {%- else -%}
+                <div class="banner-review-stars">★★★★★</div>
+              {%- endif -%}
+              <span>{{ block.settings.review_text }}</span>
+            </div>
+
+          {%- when 'heading' -%}
+            <h2 class="banner-heading Heading u-h1" {{ block.shopify_attributes }}>
+              {{ block.settings.heading | newline_to_br }}
+            </h2>
+
+          {%- when 'subheading' -%}
+            <div class="banner-subheading Rte" {{ block.shopify_attributes }}>
+              {{ block.settings.subheading }}
+            </div>
+
+          {%- when 'buttons' -%}
+            <div class="ButtonGroup" {{ block.shopify_attributes }}>
+              {% if block.settings.button_text != blank %}
+                <a href="{{ block.settings.button_link }}" class="Button Button--primary">{{ block.settings.button_text }}</a>
+              {% endif %}
+              {% if block.settings.button_text2 != blank %}
+                <a href="{{ block.settings.button_link2 }}" class="Button Button--secondary">{{ block.settings.button_text2 }}</a>
+              {% endif %}
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Prestige Custom Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Desktop Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "mobile_bg_color",
+      "label": "Mobile Background (If stacked)",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "mobile_text_color",
+      "label": "Mobile Text (If stacked)",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "select",
+      "id": "media_type",
+      "label": "Media Type",
+      "options": [
+        { "value": "image", "label": "Static Image" },
+        { "value": "video", "label": "Background Video" }
+      ],
+      "default": "image"
+    },
+    { "type": "video", "id": "video", "label": "Banner Video" },
+    { "type": "image_picker", "id": "image", "label": "Desktop Image" },
+    { "type": "image_picker", "id": "mobile_image", "label": "Mobile Image" },
+    { "type": "range", "id": "overlay_opacity", "min": 0, "max": 90, "step": 5, "unit": "%", "label": "Overlay Opacity", "default": 20 },
+    {
+      "type": "header",
+      "content": "Desktop Sizing"
+    },
+    { "type": "range", "id": "heading_size_desktop", "min": 20, "max": 100, "step": 2, "unit": "px", "label": "Heading Size", "default": 48 },
+    { "type": "range", "id": "subheading_size_desktop", "min": 12, "max": 40, "step": 1, "unit": "px", "label": "Subheading Size", "default": 16 },
+    { "type": "range", "id": "content_width", "min": 400, "max": 1200, "step": 50, "unit": "px", "label": "Max Content Width", "default": 650 },
+    { "type": "range", "id": "min_height_desktop", "min": 300, "max": 1000, "step": 50, "unit": "px", "label": "Banner Height", "default": 600 },
+    { "type": "checkbox", "id": "adapt_height_desktop", "label": "Adapt to Image Height", "default": false },
+    {
+      "type": "header",
+      "content": "Mobile Sizing"
+    },
+    { "type": "range", "id": "heading_size_mobile", "min": 18, "max": 60, "step": 2, "unit": "px", "label": "Heading Size", "default": 30 },
+    { "type": "range", "id": "min_height_mobile", "min": 200, "max": 800, "step": 50, "unit": "px", "label": "Mobile Height", "default": 400 },
+    { "type": "checkbox", "id": "adapt_height_mobile", "label": "Adapt Height (Mobile)", "default": false },
+    { "type": "checkbox", "id": "show_mobile_content_below", "label": "Stack Content Below Image", "default": true },
+    {
+      "type": "header",
+      "content": "Content Positioning"
+    },
+    { "type": "range", "id": "text_position_top", "min": 0, "max": 100, "default": 50, "unit": "%", "label": "Vertical Position" },
+    { "type": "range", "id": "text_position_left", "min": 0, "max": 100, "default": 50, "unit": "%", "label": "Horizontal Position" },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "review_badge",
+      "name": "Review / Trust Badge",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "review_text", "label": "Badge Text", "default": "4.8 Stars | Trusted By 500+ Women" },
+        { "type": "html", "id": "custom_svg", "label": "Custom SVG" }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        { "type": "textarea", "id": "heading", "label": "Heading Text", "default": "Feel safe and confident" }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        { "type": "richtext", "id": "subheading", "label": "Subheading Text", "default": "<p>Menstrual underwear that replaces pads and tampons.</p>" }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Buttons",
+      "limit": 1,
+      "settings": [
+        { "type": "text", "id": "button_text", "label": "Button 1 Label", "default": "Shop Now" },
+        { "type": "url", "id": "button_link", "label": "Button 1 Link" },
+        { "type": "text", "id": "button_text2", "label": "Button 2 Label" },
+        { "type": "url", "id": "button_link2", "label": "Button 2 Link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Prestige Custom Banner",
+      "blocks": [
+        { "type": "review_badge" },
+        { "type": "heading" },
+        { "type": "subheading" },
+        { "type": "buttons" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,2047 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+PRODUCT INFO
+----------------------------------------------------------------------------------------------------------------------
+
+This snippet renders all the blocks of a given product. It uses the blocks of the section currently in use (there is
+no need to manually pass the section as it is globally available)
+
+********************************************
+Supported variables
+********************************************
+
+* product: the product on which to render the information (if blank, it renders placeholder information)
+* product_form_id: the ID of the product form
+* center_basic_info: if true, the basic information (product title, vendor, price) are centered on mobile
+* has_content_below_gallery: if true, the product has extra information show below the gallery
+* context: the context of the product info. Can be "main_product", "featured_product" or "quick_buy"
+{%- endcomment -%}
+
+<safe-sticky class="product-info {% if center_basic_info %}product-info--center{% endif %}">
+  <div class="product-info__block-list">
+    {%- liquid
+      assign inside_block_group_context = false
+      assign current_block_group_name = ''
+
+      if context == 'quick_buy'
+        assign allow_blocks = '@app vendor title price quantity_selector payment_terms separator variant_picker product_variations line_item_property buy_buttons' | split: ' '
+      endif
+
+      if allow_blocks != blank
+        assign filtered_blocks = '' | split: ''
+
+        for block in section.blocks
+          if allow_blocks contains block.type
+            assign block_as_arr = block | sort
+            assign filtered_blocks = filtered_blocks | concat: block_as_arr
+          endif
+        endfor
+      else
+        assign filtered_blocks = section.blocks
+      endif
+    -%}
+
+    {%- for block in filtered_blocks -%}
+      {%- liquid
+        # Filter the blocks (if allow_blocks is set)
+        if allow_blocks
+          unless allow_blocks contains block.type
+            continue
+          endunless
+        endif
+
+        assign next_block_index = forloop.index0 | plus: 1
+        assign next_block = filtered_blocks[next_block_index]
+
+        if block.settings.show_below_gallery
+          continue
+        endif
+
+        comment
+        You can use your own condition to create smart grouping. When two or more blocks match the condition, they are
+        automatically grouped by a div that will take the desired class. This can even work for more than 2 elements
+        (for instance if you specify accordion follow by an accordion). The theme takes care of properly opening and
+        closing the group for proper HTML. In order to make it work, you need to create one condition explaining when
+        to enter into the group, and you need to indicate a block_group_class and block_group_name. Most of the time,
+        the two will be identical. However, the block_group_name must be unique. This means that as long as the block_group_name
+        stays the same, then another group will not be created as long as the conditions match.
+        endcomment
+
+        assign allow_block_group = true
+
+        if block.type == 'price' and block.settings.show_taxes_notice == false and next_block.type == 'rating'
+          assign block_group_class = 'text-with-rating'
+          assign block_group_name = 'text-with-rating'
+        elsif block.type == 'rating' and next_block.type == 'price' and next_block.settings.show_taxes_notice == false
+          assign block_group_class = 'text-with-rating'
+          assign block_group_name = 'text-with-rating'
+        elsif block.type == 'sku' and next_block.type == 'rating'
+          assign block_group_class = 'text-with-rating'
+          assign block_group_name = 'text-with-rating'
+        elsif block.type == 'rating' and next_block.type == 'sku'
+          assign block_group_class = 'text-with-rating'
+          assign block_group_name = 'text-with-rating'
+        elsif block.type == 'accordion' and next_block.type == 'accordion' and next_block.settings.show_below_gallery != true
+          assign block_group_class = 'accordion-group'
+          assign block_group_name = 'accordion-group'
+        elsif block.type == 'accordion' and next_block.type == 'description' and product.description != blank and next_block.settings.collapse_content and next_block.settings.show_below_gallery != true
+          assign block_group_class = 'accordion-group'
+          assign block_group_name = 'accordion-group'
+        elsif block.type == 'description' and product.description != blank and block.settings.collapse_content and next_block.type == 'accordion' and next_block.settings.show_below_gallery != true
+          assign block_group_class = 'accordion-group'
+          assign block_group_name = 'accordion-group'
+        elsif block.type == 'feature_with_icon' and next_block.type == 'feature_with_icon'
+          assign block_group_class = 'feature-badge-list'
+          assign block_group_name = 'feature-badge-list'
+        else
+          assign allow_block_group = false
+          assign block_group_class = ''
+          assign current_block_group_name = ''
+        endif
+
+        if allow_block_group
+          assign new_block_group_name = block_group_name
+
+          if inside_block_group_context == true and new_block_group_name != current_block_group_name
+            assign allow_block_group = false
+          else
+            assign current_block_group_name = new_block_group_name
+          endif
+        endif
+      -%}
+
+      {%- capture block_content -%}
+        {%- case block.type -%}
+          {%- when '@app' -%}
+            {%- render block -%}
+
+          {%- when 'vendor' -%}
+            {%- if product != blank -%}
+              {%- render 'vendor' with product.vendor, class: 'h6 link-faded' -%}
+            {%- else -%}
+              {%- assign placeholder_vendor = 'general.on_boarding.product_vendor' | t -%}
+              {%- render 'vendor' with placeholder_vendor, class: 'h6 link-faded' -%}
+            {%- endif -%}
+
+          {%- when 'title' -%}
+            {%- if product != blank -%}
+              {%- assign product_title = product.title -%}
+            {%- else -%}
+              {%- assign product_title = 'general.on_boarding.product_title' | t -%}
+            {%- endif -%}
+
+            {%- if request.page_type == 'product' and context == 'main_product' -%}
+              <h1 class="product-title {{ block.settings.heading_tag }}">
+                {{- product_title -}}
+              </h1>
+            {%- else -%}
+              <h2 class="product-title {{ block.settings.heading_tag }}">
+                <a href="{{ product.url }}">{{ product_title }}</a>
+              </h2>
+            {%- endif -%}
+             {%- when 'multi-icon' -%}
+                {% render 'multi-icon' block: block %}
+            {% when 'upsell_products' %}
+           {% render 'product-addons',product:product,block:block %}
+
+            {%- when 'product_videos' -%}
+              <div class="video-slider-section-{{ block.id }}">
+                
+                <div class="video-slider-container">
+                  {% if block.settings.heading != blank %}
+                  <div class="video-section-heading">
+                    {{ block.settings.heading }}
+                  </div>
+                  {% endif %}
+
+                  <!-- Prev Arrow - Left Side (hidden by default) -->
+                  <button class="slide-prev-btn" id="slidePrev-{{ block.id }}" aria-label="Previous" style="display: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                  </button>
+                  
+                  <div class="video-slider-track" id="videoSlider-{{ block.id }}">
+                    {% for i in (1..10) %}
+                      {% assign video_key = 'video' | append: i %}
+                      {% assign label_key = 'label' | append: i %}
+                      {% assign video = block.settings[video_key] %}
+                      {% assign label = block.settings[label_key] %}
+
+                      {% if video != blank %}
+                        <div class="video-slide-item">
+                          <div
+                            class="video-thumbnail"
+                            data-index="{{ forloop.index0 }}"
+                            data-group="{{ block.id }}"
+                            data-video-url="{{ video }}"
+                          >
+                            <video
+                              src="{{ video }}"
+                              muted
+                              loop
+                              autoplay
+                              playsinline
+                              preload="metadata"
+                            ></video>
+                            <div class="play-button">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                              </svg>
+                            </div>
+                          </div>
+                          {% if label %}
+                            <div class="video-title">{{ label }}</div>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+
+                  <!-- Next Arrow - Right Side -->
+                  <button class="slide-next-btn" id="slideNext-{{ block.id }}" aria-label="Next">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <style>
+                /* Main Section Container */
+                .video-slider-section-{{ block.id }} {
+                  width: 100%;
+                  background: rgba(245, 245, 245, 1);
+                  margin: 20px 0;
+                }
+
+                /* Heading */
+                .video-slider-section-{{ block.id }} .video-section-heading {
+                  padding: 16px 0px 10px;
+                  font-size: 12px;
+                  font-weight: 400;
+                  color: #000;
+                  letter-spacing: 0.3px;
+                }
+
+                /* Slider Container */
+                .video-slider-section-{{ block.id }} .video-slider-container {
+                  position: relative;
+                  padding: 0 16px 16px;
+                }
+
+                /* Slider Track */
+                .video-slider-section-{{ block.id }} .video-slider-track {
+                  display: flex;
+                  gap: 6px;
+                  overflow-x: auto;
+                  scroll-behavior: smooth;
+                  scrollbar-width: none;
+                  -ms-overflow-style: none;
+                }
+                
+
+                .video-slider-section-{{ block.id }} .video-slider-track::-webkit-scrollbar {
+                  display: none;
+                }
+                @media (min-width: 1024px) {
+                    .video-slider-section-{{ block.id }} {
+                        flex: 0 0 calc((100% / 4) - ((6px + 3.0px) / 3));
+                    }
+                }
+
+                /* Video Slide Item */
+                .video-slider-section-{{ block.id }} .video-slide-item {
+                  flex: 0 0 calc((100% / 4) - ((6px + 3.0px) / 3));
+                  width: 100%;
+                }
+                
+
+                /* Video Thumbnail */
+                .video-slider-section-{{ block.id }} .video-thumbnail {
+                  position: relative;
+                  width: 100%;
+                  height: auto;
+                  border-radius: 0px;
+                  overflow: hidden;
+                  cursor: pointer;
+                  aspect-ratio: 9.6 / 16;
+                }
+
+                .video-slider-section-{{ block.id }} .video-thumbnail video {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  display: block;
+                }
+
+                /* Play Button */
+                .video-slider-section-{{ block.id }} .play-button {
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  width: 35px;
+                  height: 35px;
+                  background: rgba(255, 255, 255, 0.92);
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #333;
+                  pointer-events: none;
+                  transition: transform 0.2s ease;
+                }
+
+                .video-slider-section-{{ block.id }} .video-thumbnail:hover .play-button {
+                  transform: translate(-50%, -50%) scale(1.08);
+                }
+
+                /* Video Title */
+                .video-slider-section-{{ block.id }} .video-title {
+                  margin-top: 8px;
+                  font-size: 12px;
+                  font-weight: 500;
+                  color: #333;
+                  text-align: center;
+                  line-height: 1.3;
+                }
+
+                /* Prev Button */
+                .video-slider-section-{{ block.id }} .slide-prev-btn {
+                  position: absolute;
+                  left: 8px;
+                  top: 55%;
+                  transform: translateY(-70%);
+                  width: 35px;
+                  height: 52.5px;
+                  background: rgba(255,255,255,0.7);
+                  border: none;
+                  border-radius: 0 8px 8px 0;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #000;
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+                  z-index: 10;
+                  transition: all 0.2s ease;
+                }
+
+                .video-slider-section-{{ block.id }} .slide-prev-btn:hover {
+                  background: #000;
+                  color: #fff;
+                }
+
+                /* Next Button */
+                .video-slider-section-{{ block.id }} .slide-next-btn {
+                  position: absolute;
+                  right: 8px;
+                  top: 55%;
+                  transform: translateY(-70%);
+                  width: 35px;
+                  height: 52.5px;
+                  background: rgba(255,255,255,0.7);
+                  border: none;
+                  border-radius: 8px 0 0 8px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #000;
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+                  z-index: 10;
+                  transition: all 0.2s ease;
+                }
+
+                .video-slider-section-{{ block.id }} .slide-next-btn:hover {
+                  background: #000;
+                  color: #fff;
+                }
+
+                /* =============================================
+                  VIDEO MODAL STYLES - GLOBAL
+                  ============================================= */
+                .video-modal-fullscreen {
+                  position: fixed !important;
+                  top: 0 !important;
+                  left: 0 !important;
+                  width: 100vw !important;
+                  height: 100vh !important;
+                  background: rgba(0, 0, 0, 0.5) !important;
+                  z-index: 2147483647 !important; /* Maximum z-index */
+                  display: none;
+                  justify-content: center;
+                  align-items: center;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  border: none !important;
+                  transform: none !important;
+                }
+
+                .video-modal-fullscreen.active {
+                  display: flex !important;
+                }
+
+                /* Close Button */
+                .video-modal-fullscreen .modal-close-btn {
+                  position: fixed !important;
+                  top: 20px !important;
+                  right: 20px !important;
+                  width: 44px;
+                  height: 44px;
+                  background: rgba(255, 255, 255, 0.15);
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #fff;
+                  z-index: 2147483647 !important;
+                  transition: opacity 0.2s ease;
+                }
+
+                .video-modal-fullscreen .modal-close-btn:hover {
+                  opacity: 0.7;
+                }
+
+                /* Sound Button */
+                .video-modal-fullscreen .modal-sound-btn {
+                  position: fixed !important;
+                  top: 20px !important;
+                  left: 20px !important;
+                  width: 44px;
+                  height: 44px;
+                  background: rgba(255, 255, 255, 0.15);
+                  border: none;
+                  border-radius: 50%;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #fff;
+                  z-index: 2147483647 !important;
+                  transition: background 0.2s ease;
+                }
+
+                .video-modal-fullscreen .modal-sound-btn:hover {
+                  background: rgba(255, 255, 255, 0.25);
+                }
+
+                .video-modal-fullscreen .modal-sound-btn .icon-sound-off {
+                  display: none;
+                }
+
+                .video-modal-fullscreen .modal-sound-btn.muted .icon-sound-on {
+                  display: none;
+                }
+
+                .video-modal-fullscreen .modal-sound-btn.muted .icon-sound-off {
+                  display: block;
+                }
+
+                /* Video Wrapper */
+                .video-modal-fullscreen .modal-video-wrapper {
+                  position: relative;
+                  width: 100%;
+                  max-width: 420px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                }
+
+                .video-modal-fullscreen .modal-video-wrapper video {
+                  width: 100%;
+                  max-height: 85vh;
+                  object-fit: contain;
+                  border-radius: 10px;
+                  background: #000;
+                }
+
+                /* Navigation Buttons */
+                .video-modal-fullscreen .modal-nav-btn {
+                  position: fixed !important;
+                  top: 50% !important;
+                  transform: translateY(-50%) !important;
+                  width: 50px;
+                  height: 50px;
+                  background: rgb(93 93 99);
+                  border: none;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #fff;
+                  transition: all 0.2s ease;
+                  z-index: 2147483647 !important;
+                }
+
+                .video-modal-fullscreen .modal-nav-btn:hover {
+                  background: rgb(93 93 99);
+                }
+
+                .video-modal-fullscreen .modal-prev {
+                  left: 20px !important;
+                }
+
+                .video-modal-fullscreen .modal-next {
+                  right: 20px !important;
+                }
+
+                /* Mobile Responsive */
+                @media (max-width: 767px) {
+                  .video-slider-section-{{ block.id }} .video-section-heading {
+                    padding: 14px 0px 10px;
+                  }
+                  .video-slider-section-{{ block.id }} .video-slider-container {
+                    padding: 0 6px 14px;
+                  }
+                  .video-slider-section-{{ block.id }} .video-slider-track {
+                    gap: 6px;
+                  }
+                  .video-slider-section-{{ block.id }} .video-slide-item {
+                    flex: 0 0 calc((100% / 4) - ((6px + 3.0px) / 3));
+                    width: 100%;
+                    display: block;
+                    box-sizing: border-box !important;
+                    height: auto !important;
+                    overflow: hidden;
+                    position: relative;
+                    cursor: pointer;
+                  }
+                  .video-slider-section-{{ block.id }} .video-thumbnail {
+                    aspect-ratio: 9.6 / 16;
+                  }
+                  .video-slider-section-{{ block.id }} .play-button {
+                    width: 30px;
+                    height: 30px;
+                  }
+                  .video-slider-section-{{ block.id }} .play-button svg {
+                    width: 22px;
+                    height: 22px;
+                  }
+                  .video-slider-section-{{ block.id }} .slide-prev-btn {
+                    width: 30px;
+                    height: 45px;
+                    left: 6px;
+                    border-radius: 0 5px 5px 0;
+                  }
+                  .video-slider-section-{{ block.id }} .slide-prev-btn svg {
+                    width: 22px;
+                    height: 22px;
+                  }
+                  .video-slider-section-{{ block.id }} .slide-next-btn {
+                    width: 30px;
+                    height: 45px;
+                    right: 6px;
+                    border-radius: 5px 0 0 5px;
+                  }
+                  .video-slider-section-{{ block.id }} .slide-next-btn svg {
+                    width: 22px;
+                    height: 22px;
+                  }
+
+                  /* Modal Mobile */
+                  .video-modal-fullscreen .modal-video-wrapper {
+                    max-width: 90%;
+                  }
+
+                  .video-modal-fullscreen .modal-close-btn,
+                  .video-modal-fullscreen .modal-sound-btn {
+                    width: 40px;
+                    height: 40px;
+                    top: 15px !important;
+                  }
+
+                  .video-modal-fullscreen .modal-close-btn {
+                    right: 15px !important;
+                  }
+
+                  .video-modal-fullscreen .modal-sound-btn {
+                    left: 15px !important;
+                  }
+
+                  .video-modal-fullscreen .modal-nav-btn {
+                    width: 44px;
+                    height: 44px;
+                  }
+
+                  .video-modal-fullscreen .modal-prev {
+                    left: 10px !important;
+                  }
+
+                  .video-modal-fullscreen .modal-next {
+                    right: 10px !important;
+                  }
+                }
+              </style>
+
+              <script>
+                (function() {
+                  const blockId = '{{ block.id }}';
+                  
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const slider = document.getElementById('videoSlider-' + blockId);
+                    const nextBtn = document.getElementById('slideNext-' + blockId);
+                    const prevBtn = document.getElementById('slidePrev-' + blockId);
+                    
+                    let allThumbnails = [];
+                    let currentIndex = 0;
+
+                    // Function to get modal elements (ensures we always get fresh references)
+                    function getModalElements() {
+                      const modal = document.getElementById('videoModalFullscreen-' + blockId);
+                      if (!modal) return null;
+                      return {
+                        modal: modal,
+                        modalVideo: document.getElementById('modalVideoFullscreen-' + blockId),
+                        soundBtn: document.getElementById('soundBtnFullscreen-' + blockId),
+                        closeBtn: modal.querySelector('.modal-close-btn'),
+                        prevNav: modal.querySelector('.modal-prev'),
+                        nextNav: modal.querySelector('.modal-next')
+                      };
+                    }
+
+                    // Function to check scroll position and update button visibility
+                    function updateNavigationButtons() {
+                      if (!slider) return;
+                      
+                      const scrollLeft = slider.scrollLeft;
+                      const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
+                      
+                      if (scrollLeft > 5) {
+                        prevBtn.style.display = 'flex';
+                      } else {
+                        prevBtn.style.display = 'none';
+                      }
+                      
+                      if (scrollLeft >= maxScrollLeft - 5) {
+                        nextBtn.style.display = 'none';
+                      } else {
+                        nextBtn.style.display = 'flex';
+                      }
+                    }
+
+                    updateNavigationButtons();
+
+                    if (slider) {
+                      slider.addEventListener('scroll', updateNavigationButtons);
+                      window.addEventListener('resize', updateNavigationButtons);
+                    }
+
+                    // Create modal and append to body
+                    function createModal() {
+                      if (document.getElementById('videoModalFullscreen-' + blockId)) {
+                        return;
+                      }
+
+                      const modalHTML = `
+                        <div class="video-modal-fullscreen" id="videoModalFullscreen-${blockId}">
+                          <button class="modal-close-btn" aria-label="Close">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                          </button>
+
+                          <button class="modal-sound-btn muted" id="soundBtnFullscreen-${blockId}" aria-label="Toggle Sound">
+                            <svg class="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                            </svg>
+                            <svg class="icon-sound-off" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                            </svg>
+                          </button>
+
+                          <button class="modal-nav-btn modal-prev" aria-label="Previous">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M15 18l-6-6 6-6"/>
+                            </svg>
+                          </button>
+
+                          <div class="modal-video-wrapper">
+                            <video id="modalVideoFullscreen-${blockId}" playsinline autoplay loop></video>
+                          </div>
+
+                          <button class="modal-nav-btn modal-next" aria-label="Next">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                          </button>
+                        </div>
+                      `;
+
+                      document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                      const elements = getModalElements();
+                      if (!elements) return;
+
+                      elements.closeBtn.addEventListener('click', closeModal);
+                      elements.soundBtn.addEventListener('click', toggleSound);
+                      elements.prevNav.addEventListener('click', function() { goToVideo('prev'); });
+                      elements.nextNav.addEventListener('click', function() { goToVideo('next'); });
+
+                      elements.modal.addEventListener('click', function(e) {
+                        if (e.target === elements.modal) {
+                          closeModal();
+                        }
+                      });
+                    }
+
+                    // Slider Next Button
+                    if (nextBtn && slider) {
+                      nextBtn.addEventListener('click', function() {
+                        const slideItem = slider.querySelector('.video-slide-item');
+                        if (slideItem) {
+                          const slideWidth = slideItem.offsetWidth + 6;
+                          slider.scrollBy({ left: slideWidth * 2, behavior: 'smooth' });
+                        }
+                      });
+                    }
+
+                    // Slider Prev Button
+                    if (prevBtn && slider) {
+                      prevBtn.addEventListener('click', function() {
+                        const slideItem = slider.querySelector('.video-slide-item');
+                        if (slideItem) {
+                          const slideWidth = slideItem.offsetWidth + 6;
+                          slider.scrollBy({ left: -(slideWidth * 2), behavior: 'smooth' });
+                        }
+                      });
+                    }
+
+                    // Video Thumbnail Clicks
+                    const thumbnails = document.querySelectorAll('.video-slider-section-' + blockId + ' .video-thumbnail');
+                    allThumbnails = Array.from(thumbnails);
+                    
+                    thumbnails.forEach(function(thumb, idx) {
+                      thumb.addEventListener('click', function() {
+                        currentIndex = idx;
+                        openModal();
+                      });
+                    });
+
+                    // Open Modal
+                    function openModal() {
+                      createModal();
+                      const elements = getModalElements();
+                      if (!elements) return;
+                      
+                      const videoUrl = allThumbnails[currentIndex].getAttribute('data-video-url');
+                      elements.modalVideo.src = videoUrl;
+                      elements.modalVideo.muted = true;
+                      elements.soundBtn.classList.add('muted');
+                      elements.modal.classList.add('active');
+                      elements.modalVideo.play();
+                      document.body.style.overflow = 'hidden';
+                      document.documentElement.style.overflow = 'hidden';
+                    }
+
+                    // Close Modal
+                    function closeModal() {
+                      const elements = getModalElements();
+                      if (!elements) return;
+                      
+                      elements.modal.classList.remove('active');
+                      elements.modalVideo.pause();
+                      elements.modalVideo.src = '';
+                      document.body.style.overflow = '';
+                      document.documentElement.style.overflow = '';
+                    }
+
+                    // Navigate Videos
+                    function goToVideo(direction) {
+                      const elements = getModalElements();
+                      if (!elements) return;
+                      
+                      if (direction === 'next') {
+                        currentIndex = (currentIndex + 1) % allThumbnails.length;
+                      } else {
+                        currentIndex = (currentIndex - 1 + allThumbnails.length) % allThumbnails.length;
+                      }
+                      const videoUrl = allThumbnails[currentIndex].getAttribute('data-video-url');
+                      const wasMuted = elements.modalVideo.muted;
+                      elements.modalVideo.src = videoUrl;
+                      elements.modalVideo.muted = wasMuted;
+                      elements.modalVideo.play();
+                    }
+
+                    // Toggle Sound
+                    function toggleSound() {
+                      const elements = getModalElements();
+                      if (!elements) return;
+                      
+                      elements.modalVideo.muted = !elements.modalVideo.muted;
+                      if (elements.modalVideo.muted) {
+                        elements.soundBtn.classList.add('muted');
+                      } else {
+                        elements.soundBtn.classList.remove('muted');
+                      }
+                    }
+
+                    // Keyboard controls - scoped to THIS block's modal only
+                    document.addEventListener('keydown', function(e) {
+                      const elements = getModalElements();
+                      if (!elements || !elements.modal.classList.contains('active')) return;
+                      
+                      if (e.key === 'Escape') {
+                        closeModal();
+                      } else if (e.key === 'ArrowRight') {
+                        goToVideo('next');
+                      } else if (e.key === 'ArrowLeft') {
+                        goToVideo('prev');
+                      }
+                    });
+                  });
+                })();
+                </script>
+
+
+          {%- when 'sku' -%}
+            {% if product.selected_or_first_available_variant.sku != blank %}
+              <variant-sku class="variant-sku text-sm text-subdued">
+                {{- 'product.general.sku' | t }} {{ product.selected_or_first_available_variant.sku -}}
+              </variant-sku>
+            {%- endif -%}
+
+          {%- when 'badges' -%}
+            {%- if product != blank -%}
+              {%- render 'product-badges', product: product, variant: product.selected_or_first_available_variant, types: 'custom,discount', context: 'product' -%}
+            {%- endif -%}
+
+          {%- when 'price' -%}
+            {%- if product.selected_or_first_available_variant != nil -%}
+              <div class="v-stack inline-badge">
+                {%- render 'price-list', product: product, variant: product.selected_or_first_available_variant, types: 'custom,discount',context: 'product' -%}
+
+                {%- if block.settings.show_product_salebadge and product != blank -%}
+                  {%- render 'product-badges', product: product, variant: product.selected_or_first_available_variant, types: 'custom,discount', context: 'product' -%}
+                  <style>
+                    .v-stack.inline-badge { display: flex; align-items: center; gap: 20px; justify-content: space-between;}
+                    .v-stack.inline-badge .badge--on-sale {background: rgba(0, 0, 0, 0.06); color: #000;font-size: 12px !important;font-weight: 700;line-height: 100%;padding: 10px;}
+                  </style>
+                {%- endif -%}
+
+                {%- if block.settings.show_taxes_notice -%}
+                  <p class="text-sm text-subdued">
+                    {%- if cart.taxes_included -%}
+                      {{ 'product.general.taxes_included' | t }}
+                    {%- else -%}
+                      {{ 'product.general.taxes_excluded' | t }}
+                    {%- endif -%}
+
+                    {%- if shop.shipping_policy.body != blank -%}
+                      {{ 'product.general.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                    {%- endif -%}
+                  </p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+          {%- when 'payment_terms' -%}
+            {%- if product != blank -%}
+              <payment-terms class="payment-terms">
+                {%- capture product_installment_form_id -%}{{ product_form_id }}-payment-installment{%- endcapture -%}
+
+                {%- form 'product', product, id: product_installment_form_id -%}
+                  <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                  {{- form | payment_terms -}}
+                {%- endform -%}
+              </payment-terms>
+            {%- endif -%}
+
+          {%- when 'rating' -%}
+            {%- if product != blank -%}
+              {%- render 'product-rating', product: product, show_empty: block.settings.show_empty, display_mode: block.settings.rating_mode, show_placeholder: false -%}
+            {%- else -%}
+              {%- render 'product-rating', show_placeholder: true -%}
+            {%- endif -%}
+
+          {%- when 'separator' -%}
+            <hr>
+
+          {%- when 'description' -%}
+            {%- if product == blank -%}
+              {%- assign product_description = 'general.on_boarding.product_description' | t -%}
+            {%- else -%}
+              {%- assign product_description = product.description -%}
+            {%- endif -%}
+
+            {%- if product_description != blank -%}
+              {%- if block.settings.collapse_content -%}
+                {%- assign accordion_title = 'product.general.description' | t -%}
+                {%- render 'accordion', title: accordion_title, content: product_description, prose_content: true, block: block, open: block.settings.open -%}
+              {%- else -%}
+                <div class="prose">
+                  {{- product_description -}}
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+
+
+            {%- when 'variant_color' -%}
+            <div class="product-info__variant-color" {{ block.shopify_attributes }}>
+              <style>
+                .variant-color-picker {
+                  --swatch-size: {{ block.settings.swatch_size | default: 70 }}px;
+                  --swatch-gap: {{ block.settings.swatch_gap | default: 10 }}px;
+                  --border-color: {{ block.settings.border_color | default: '#e5e5e5' }};
+                  --border-color-active: {{ block.settings.border_color_active | default: '#000000' }};
+                  --border-width: {{ block.settings.border_width | default: 1 }}px;
+                  --border-width-active: {{ block.settings.border_width_active | default: 2 }}px;
+                  --label-color: {{ block.settings.label_color | default: '#000000' }};
+                  --label-font-size: {{ block.settings.label_font_size | default: 12 }}px;
+                }
+                .product-info__variant-color {
+                    margin: 10px 0;
+                }
+                .variant-color-picker__label {
+                  font-size: var(--label-font-size);
+                  color: var(--label-color);
+                  margin-bottom: 10px;
+                  font-weight: 400;
+                  letter-spacing: 0.5px;
+                  text-transform: uppercase;
+                }
+                .variant-color-picker__label span {
+                  font-weight: 600;
+                }
+                .variant-color-picker__swatches {
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: var(--swatch-gap);
+                }
+                .variant-color-picker__swatch {
+                  width: 53px;
+                  height: var(--swatch-size);
+                  border: var(--border-width) solid var(--border-color);
+                  cursor: pointer;
+                  transition: border-color 0.2s ease;
+                  overflow: hidden;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background-color: #fff;
+                  box-sizing: border-box;
+                }
+                .variant-color-picker__swatch:hover,
+                .variant-color-picker__swatch.is-active {
+                  border-width: var(--border-width-active);
+                  border-color: var(--border-color-active);
+                }
+                .variant-color-picker__swatch img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+                .variant-color-picker__swatch a {
+                  display: block;
+                  width: 100%;
+                  height: 100%;
+                }
+                @media screen and (max-width: 749px) {
+                  .variant-color-picker {
+                    --swatch-size: {{ block.settings.swatch_size_mobile | default: 60 }}px;
+                    --swatch-gap: {{ block.settings.swatch_gap_mobile | default: 8 }}px;
+                  }
+                  .variant-color-picker__label {
+                    font-size: {{ block.settings.label_font_size_mobile | default: 11 }}px;
+                  }
+                }
+              </style>
+
+              <div class="variant-color-picker">
+                {% comment %} Get current product color {% endcomment %}
+                {% assign current_color = '' %}
+                {% for option in product.options_with_values %}
+                  {% assign option_name_downcase = option.name | downcase %}
+                  {% if option_name_downcase == 'color' or option_name_downcase == 'colour' %}
+                    {% assign current_color = product.selected_or_first_available_variant.options[forloop.index0] %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+
+                {% if block.settings.show_label and block.settings.product_list != blank %}
+                  <div class="variant-color-picker__label">
+                    {{ block.settings.label_text | default: 'COLOR' }} : <span>{{ current_color | upcase }}</span>
+                  </div>
+                {% endif %}
+
+                <div class="variant-color-picker__swatches">
+                  {% for item in block.settings.product_list %}
+                    {% comment %} Get color name for this product {% endcomment %}
+                    {% assign item_color = item.title %}
+                    {% for option in item.options_with_values %}
+                      {% assign option_name_downcase = option.name | downcase %}
+                      {% if option_name_downcase == 'color' or option_name_downcase == 'colour' %}
+                        {% assign item_color = item.selected_or_first_available_variant.options[forloop.index0] %}
+                        {% break %}
+                      {% endif %}
+                    {% endfor %}
+
+                    {% assign is_current = false %}
+                    {% if item.id == product.id %}
+                      {% assign is_current = true %}
+                    {% endif %}
+
+                    <div class="variant-color-picker__swatch{% if is_current %} is-active{% endif %}" 
+                        data-color="{{ item_color }}"
+                        data-product-url="{{ item.url }}">
+                      <a href="{{ item.url }}" title="{{ item_color }}">
+                        {% if item.featured_image != blank %}
+                          <img src="{{ item.featured_image | image_url: width: 150 }}"
+                              alt="{{ item_color }}"
+                              loading="lazy"
+                              width="150"
+                              height="150">
+                        {% else %}
+                          {{ 'product-1' | placeholder_svg_tag }}
+                        {% endif %}
+                      </a>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <script>
+                (function() {
+                  const container = document.querySelector('.variant-color-picker');
+                  if (!container) return;
+                  
+                  const swatches = container.querySelectorAll('.variant-color-picker__swatch');
+                  const label = container.querySelector('.variant-color-picker__label span');
+                  
+                  swatches.forEach(swatch => {
+                    swatch.addEventListener('mouseenter', function() {
+                      if (label) {
+                        label.textContent = this.dataset.color.toUpperCase();
+                      }
+                    });
+                    
+                    swatch.addEventListener('mouseleave', function() {
+                      if (label) {
+                        const activeSwatch = container.querySelector('.variant-color-picker__swatch.is-active');
+                        if (activeSwatch) {
+                          label.textContent = activeSwatch.dataset.color.toUpperCase();
+                        }
+                      }
+                    });
+                  });
+                })();
+              </script>
+            </div>
+
+
+          {%- when 'variant_picker' -%}
+            {%- if product != blank -%}
+              {%- render 'variant-picker',
+                  product: product,
+                  form_id: product_form_id,
+                  context: context,
+                  hide_sold_out_variants: block.settings.hide_sold_out_variants,
+                  selector_style: block.settings.selector_style,
+                  swatch_selector_style: block.settings.swatch_selector_style,
+                  variant_image_options: block.settings.variant_image_options,
+                  size_chart_page: block.settings.size_chart_page -%}
+            {%- endif -%}
+            <style>
+              {% if block.settings.hide_colr_variant %}
+              .variant-picker .variant-picker__option.prod-var.v-Color {
+                display: none;
+              }
+              {% endif %}
+              .variant-picker__option-values.h-stack {gap: .500rem;}
+            </style>
+
+          {%- when 'product_variations' -%}
+            {%- liquid
+              assign contains_product = false
+
+              for product_variation in block.settings.products
+                if product_variation == product
+                  assign contains_product = true
+                endif
+              endfor
+            -%}
+
+            {%- if contains_product -%}
+              {%- comment -%}
+                IMPLEMENTATION NOTE: this feature allows to connect different products on the same page. It is therefore
+                visually similar to a variant picker, although it does not share the functionality
+              {%- endcomment -%}
+
+              <div class="variant-picker v-stack gap-4">
+                <div class="variant-picker__option aa v-stack gap-2">
+                  {%- assign metafield_parts = block.settings.option_value_metafield | split: '.' -%}
+                  {%- assign metafield_namespace = metafield_parts | first -%}
+                  {%- assign metafield_key = metafield_parts | last -%}
+
+                  {%- if block.settings.option_name != blank -%}
+                    <div class="h-stack gap-1">
+                      <p class="text-subdued">{{ block.settings.option_name | escape }}:</p>
+                      <span>{{ product.metafields[metafield_namespace][metafield_key].value | escape }}</span>
+                    </div>
+                  {%- endif -%}
+
+                  <div class="variant-picker__option-values h-stack gap-2.5 wrap">
+                    {%- liquid
+                      for product_variation in block.settings.products
+                        assign label = product_variation.metafields[metafield_namespace][metafield_key].value
+
+                        if product_variation == product
+                          assign selected = true
+                        else
+                          assign selected = false
+                        endif
+
+                        case block.settings.selector_style
+                          when 'swatch'
+                            render 'option-value', type: 'swatch', url: product_variation.url, label: label, selected: selected
+
+                          when 'variant_image'
+                            render 'option-value', type: 'thumbnail', url: product_variation.url, label: label, image: product_variation.featured_media, selected: selected
+
+                          when 'block'
+                            render 'option-value', type: 'block', url: product_variation.url, label: label, selected: selected
+
+                          when 'block_swatch'
+                            render 'option-value', type: 'block', url: product_variation.url, label: label, selected: selected, show_swatch: true
+                        endcase
+                      endfor
+                    -%}
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+
+          {%- when 'line_item_property' -%}
+            {%- if block.settings.label != blank -%}
+              {%- capture name -%}properties[{{ block.settings.label | escape }}]{%- endcapture -%}
+
+              <div class="line-item-property">
+                {%- liquid
+                  if block.settings.type == 'text'
+                    if block.settings.allow_long_text
+                      render 'input', label: block.settings.label, name: name, form: product_form_id, multiline: 4, required: block.settings.required, maxlength: block.settings.max_length
+                    else
+                      render 'input', type: 'text', label: block.settings.label, name: name, form: product_form_id, required: block.settings.required, maxlength: block.settings.max_length
+                    endif
+                  elsif block.settings.type == 'checkbox'
+                    render 'checkbox', label: block.settings.label, name: name, form: product_form_id, value: block.settings.checkbox_value, required: block.settings.required
+                  elsif block.settings.type == 'dropdown' and block.settings.select_values != blank
+                    assign option_values = block.settings.select_values | split: ','
+                    render 'select', label: block.settings.label, option_values: option_values, show_empty_value: true, name: name, form: product_form_id, required: block.settings.required
+                  endif
+                -%}
+              </div>
+            {%- endif -%}
+
+          {%- when 'quantity_selector' -%}
+            {%- if product.available -%}
+              <div class="v-stack gap-1 justify-items-start">
+                {%- liquid
+                  assign variant = product.selected_or_first_available_variant
+                  assign quantity_rules = ''
+
+                  render 'quantity-selector', variant: variant, form: product_form_id
+
+                  if variant.quantity_rule.min > 1
+                    assign rule = 'product.quantity.minimum_of' | t: min: variant.quantity_rule.min
+                    assign quantity_rules = quantity_rules | append: ' / ' | append: rule
+                  endif
+
+                  if variant.quantity_rule.max != nil
+                    assign rule = 'product.quantity.maximum_of' | t: max: variant.quantity_rule.max
+                    assign quantity_rules = quantity_rules | append: ' / ' | append: rule
+                  endif
+
+                  if variant.quantity_rule.increment > 1
+                    assign rule = 'product.quantity.increment_of' | t: step: variant.quantity_rule.increment
+                    assign quantity_rules = quantity_rules | append: ' / ' | append: rule
+                  endif
+                -%}
+
+                {%- if quantity_rules != blank -%}
+                  <p class="text-subdued text-sm">{{ quantity_rules | remove_first: ' / ' | capitalize }}</p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+          {%- when 'volume_pricing' -%}
+            {%- render 'volume-pricing-table', variant: variant -%}
+
+          {%- when 'inventory' -%}
+            {%- render 'inventory',
+                variant: product.selected_or_first_available_variant,
+                show_in_stock_quantity: block.settings.show_in_stock_quantity,
+                show_progress_bar: block.settings.show_progress_bar,
+                progress_bar_max_value: block.settings.progress_bar_max_value,
+                low_threshold: block.settings.low_inventory_threshold
+            -%}
+
+          {%- when 'buy_buttons' -%}
+            {%- render 'buy-buttons',
+                product: product,
+                form_id: product_form_id,
+                show_payment_button: block.settings.show_payment_button,
+                show_gift_card_recipient: block.settings.show_gift_card_recipient,
+                atc_button_background: block.settings.atc_button_background,
+                atc_button_text_color: block.settings.atc_button_text_color,
+                payment_button_background: block.settings.payment_button_background,
+                payment_button_text_color: block.settings.payment_button_text_color
+            -%}
+
+          {%- when 'pickup_availability' -%}
+            {%- if product != blank -%}
+              {%- render 'pickup-availability', product_variant: product.selected_or_first_available_variant -%}
+            {%- endif -%}
+
+          {%- when 'offers' -%}
+            {%- assign offers_count = 0 -%}
+
+            {%- capture offers_content -%}
+              {%- for i in (1..3) -%}
+                {%- assign title_setting = 'offer_' | append: i | append: '_title' -%}
+                {%- assign content_setting = 'offer_' | append: i | append: '_content' -%}
+
+                {%- if block.settings[title_setting] != blank or block.settings[content_setting] != blank -%}
+                  <div class="product-offers__item {% unless block.settings.stack_offers %}text-center{% endunless %} snap-center">
+                    <div class="v-stack gap-2.5">
+                      {%- if block.settings[title_setting] != blank -%}
+                        <p class="h6">{{ block.settings[title_setting] }}</p>
+                      {%- endif -%}
+
+                      {%- if block.settings[content_setting] != blank -%}
+                        <div class="prose">
+                          {{- block.settings[content_setting] -}}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- assign offers_count = offers_count | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endcapture -%}
+
+            {%- if offers_content != blank -%}
+              {%- assign carousel_id = 'product-offers-' | append: block.id -%}
+
+              <div class="product-offers border" style="{% render 'surface', background: block.settings.background, text_color: block.settings.text_color, border_color: block.settings.border_color %}">
+                <scroll-carousel id="{{ carousel_id }}" class="product-offers__list {% if block.settings.stack_offers or offers_count == 1 %}product-offers__list--stack divide-y{% else %}product-offers__list--carousel scroll-area snap-x{% endif %}">
+                  {{ offers_content }}
+                </scroll-carousel>
+
+                {%- if block.settings.stack_offers == false and offers_count > 1 -%}
+                  <carousel-navigation aria-controls="{{ carousel_id }}" class="page-dots">
+                    {%- for i in (1..offers_count) -%}
+                      <button class="tap-area" aria-current="{% if forloop.first %}true{% else %}false{% endif %}">
+                        <span class="sr-only">{{ 'general.accessibility.go_to_item' | t: index: forloop.index }}</span>
+                      </button>
+                    {%- endfor -%}
+                  </carousel-navigation>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+          {%- when 'breadcrumb' -%}
+            <nav class="product-breadcrumb" aria-label="{{ 'general.breadcrumb.label' | t | escape }}">
+              <ol class="product-breadcrumb__list">
+                {%- if block.settings.show_home -%}
+                  <li class="product-breadcrumb__item">
+                    <a href="{{ routes.root_url }}" class="product-breadcrumb__link">
+                      {{ block.settings.home_text | default: 'Home' }}
+                    </a>
+                  </li>
+                {%- endif -%}
+
+                {%- if block.settings.show_collection and product.collections.size > 0 -%}
+                  {%- assign breadcrumb_collection = product.collections | first -%}
+                  
+                  {%- if block.settings.use_main_collection and product.metafields.custom.main_collection != blank -%}
+                    {%- assign breadcrumb_collection = product.metafields.custom.main_collection.value -%}
+                  {%- endif -%}
+                  
+                  <li class="product-breadcrumb__item">
+                    <a href="{{ breadcrumb_collection.url }}" class="product-breadcrumb__link">
+                      {{ breadcrumb_collection.title }}
+                    </a>
+                  </li>
+                {%- endif -%}
+
+                {%- if block.settings.show_product_title -%}
+                  <li class="product-breadcrumb__item">
+                    <span class="product-breadcrumb__current" aria-current="page">
+                      {{ product.title }}
+                    </span>
+                  </li>
+                {%- endif -%}
+              </ol>
+            </nav>
+
+            <style>
+              .product-breadcrumb {
+                width: 100%;
+                margin: 0 0 30px;
+              }
+
+              .product-breadcrumb__list {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0;
+                padding: 0;
+                margin: 0;
+                list-style: none;
+                font-size: {{ block.settings.font_size }}px;
+                line-height: 1.4;
+              }
+
+              .product-breadcrumb__item {
+                display: flex;
+                align-items: center;
+                color: {{ block.settings.text_color }};
+              }
+
+              .product-breadcrumb__item:not(:last-child)::after {
+                content: "";
+                background: url(https://cdn.shopify.com/s/files/1/0865/8151/0478/files/arrow-img7424.svg?v=1766490219);
+                background-repeat: no-repeat;
+                background-size: cover;
+                margin: 0 8px;
+                color: {{ block.settings.separator_color }};
+                font-size: {{ block.settings.font_size | minus: 1 }}px;
+                width: 4px;
+                height: 8px;
+              }
+
+              .product-breadcrumb__link {
+                color: {{ block.settings.link_color }};
+                text-decoration: none;
+                transition: color 0.2s ease;
+              }
+
+              .product-breadcrumb__link:hover {
+                color: {{ block.settings.link_hover_color }};
+                text-decoration: underline;
+              }
+
+              .product-breadcrumb__current {
+                color: {{ block.settings.current_color }};
+              }
+
+              @media screen and (max-width: 749px) {
+                .product-breadcrumb__list {
+                  font-size: {{ block.settings.mobile_font_size }}px;
+                }
+
+                {%- if block.settings.hide_on_mobile -%}
+                  .product-breadcrumb {
+                    display: none;
+                  }
+                {%- endif -%}
+              }
+            </style>
+
+          {%- when 'complementary_products' -%}
+            {%- unless block.settings.show_below_gallery -%}
+              {%- render 'complementary-products', product: product, block: block -%}
+            {%- endunless -%}
+
+          {%- when 'text' -%}
+            {%- if block.settings.text != blank -%}
+              <div class="prose">
+                {{- block.settings.text -}}
+              </div>
+            {%- endif -%}
+
+          
+
+          {%- when 'icon-text-tooltip-block' -%}
+            <div class="icon-text-block icon-text-block--{{ block.id }}" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                <div class="icon-text-block__icon">
+                  <img
+                    src="{{ block.settings.icon | image_url: width: block.settings.icon_size }}"
+                    alt="{{ block.settings.icon.alt | default: block.settings.text | escape }}"
+                    width="{{ block.settings.icon_size }}"
+                    height="{{ block.settings.icon_size }}"
+                    loading="lazy"
+                  >
+                </div>
+              {%- endif -%}
+
+              <div class="icon-text-block__content">
+                {%- if block.settings.text != blank -%}
+                  <span class="icon-text-block__text">{{ block.settings.text }}</span>
+                {%- endif -%}
+
+                {%- if block.settings.enable_tooltip and block.settings.tooltip_text != blank -%}
+                  <div class="icon-text-block__tooltip-trigger">
+                    {%- if block.settings.tooltip_icon != blank -%}
+                      <img
+                        src="{{ block.settings.tooltip_icon | image_url: width: 14 }}"
+                        alt="Info"
+                        width="14"
+                        height="14"
+                        loading="lazy"
+                      >
+                    {%- else -%}
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 0.5C5.71442 0.5 4.45772 0.881218 3.3888 1.59545C2.31988 2.30968 1.48676 3.32484 0.994786 4.51256C0.502816 5.70028 0.374095 7.00721 0.624899 8.26809C0.875703 9.52896 1.49477 10.6872 2.40381 11.5962C3.31285 12.5052 4.47104 13.1243 5.73192 13.3751C6.99279 13.6259 8.29973 13.4972 9.48744 13.0052C10.6752 12.5132 11.6903 11.6801 12.4046 10.6112C13.1188 9.54229 13.5 8.28558 13.5 7C13.4967 5.27711 12.8108 3.62573 11.5925 2.40746C10.3743 1.18918 8.72289 0.503304 7 0.5ZM6.875 3.5C7.02334 3.5 7.16834 3.54399 7.29168 3.6264C7.41502 3.70881 7.51115 3.82594 7.56791 3.96299C7.62468 4.10003 7.63953 4.25083 7.61059 4.39632C7.58165 4.5418 7.51022 4.67544 7.40533 4.78033C7.30044 4.88522 7.16681 4.95665 7.02132 4.98559C6.87583 5.01453 6.72503 4.99968 6.58799 4.94291C6.45095 4.88614 6.33381 4.79001 6.2514 4.66668C6.16899 4.54334 6.125 4.39834 6.125 4.25C6.125 4.05109 6.20402 3.86032 6.34467 3.71967C6.48532 3.57902 6.67609 3.5 6.875 3.5ZM7.5 10.5H7C6.86739 10.5 6.74022 10.4473 6.64645 10.3536C6.55268 10.2598 6.5 10.1326 6.5 10V7C6.36739 7 6.24022 6.94732 6.14645 6.85355C6.05268 6.75979 6 6.63261 6 6.5C6 6.36739 6.05268 6.24021 6.14645 6.14645C6.24022 6.05268 6.36739 6 6.5 6H7C7.13261 6 7.25979 6.05268 7.35356 6.14645C7.44732 6.24021 7.5 6.36739 7.5 6.5V9.5C7.63261 9.5 7.75979 9.55268 7.85356 9.64645C7.94732 9.74021 8 9.86739 8 10C8 10.1326 7.94732 10.2598 7.85356 10.3536C7.75979 10.4473 7.63261 10.5 7.5 10.5Z" fill="{{ block.settings.tooltip_icon_color }}"/>
+                      </svg>
+                    {%- endif -%}
+                    <div class="icon-text-block__tooltip-content">
+                      <p>{{ block.settings.tooltip_text }}</p>
+                    </div>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+
+            <style>
+              .icon-text-block--{{ block.id }} {
+                display: flex;
+                align-items: center;
+                gap: {{ block.settings.icon_gap }}px;
+                margin-bottom: 10px;
+                {% if block.settings.background_color != blank and block.settings.background_color != 'rgba(0,0,0,0)' %}
+                  background-color: {{ block.settings.background_color }};
+                  padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+                  border-radius: {{ block.settings.border_radius }}px;
+                {% endif %}
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__icon img {
+                width: {{ block.settings.icon_size }}px;
+                height: {{ block.settings.icon_size }}px;
+                object-fit: contain;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__content {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-wrap: wrap;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__text {
+                font-size: {{ block.settings.font_size_desktop }}px;
+                line-height: {{ block.settings.line_height }};
+                color: {{ block.settings.text_color }};
+                font-weight: {{ block.settings.font_weight }};
+                {% if block.settings.text_transform != 'none' %}
+                  text-transform: {{ block.settings.text_transform }};
+                {% endif %}
+                {% if block.settings.letter_spacing != 0 %}
+                  letter-spacing: {{ block.settings.letter_spacing }}px;
+                {% endif %}
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-trigger {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                cursor: pointer;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-trigger svg,
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-trigger img {
+                display: block;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-content {
+                position: absolute;
+                bottom: calc(100% + 10px);
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: {{ block.settings.tooltip_bg_color }};
+                color: {{ block.settings.tooltip_text_color }};
+                padding: {{ block.settings.tooltip_padding }}px;
+                border-radius: {{ block.settings.tooltip_border_radius }}px;
+                min-width: {{ block.settings.tooltip_min_width }}px;
+                max-width: {{ block.settings.tooltip_max_width }}px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                z-index: 100;
+                pointer-events: none;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-content::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-top-color: {{ block.settings.tooltip_bg_color }};
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-trigger:hover .icon-text-block__tooltip-content {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+              }
+              .icon-text-block--{{ block.id }} .icon-text-block__tooltip-content p {
+                margin: 0;
+                font-size: {{ block.settings.tooltip_font_size }}px;
+                line-height: 1.5;
+              }
+              @media screen and (max-width: 749px) {
+                .icon-text-block--{{ block.id }} .icon-text-block__text {
+                  font-size: {{ block.settings.font_size_mobile }}px;
+                }
+                .icon-text-block--{{ block.id }} .icon-text-block__icon img {
+                  width: {{ block.settings.icon_size_mobile }}px;
+                  height: {{ block.settings.icon_size_mobile }}px;
+                }
+                .icon-text-block--{{ block.id }} .icon-text-block__tooltip-content {
+                  min-width: {{ block.settings.tooltip_min_width_mobile }}px;
+                  max-width: calc(100vw - 40px);
+                  left: auto;
+                  right: -10px;
+                  transform: none;
+                }
+                .icon-text-block--{{ block.id }} .icon-text-block__tooltip-content::after {
+                  left: auto;
+                  right: 12px;
+                  transform: none;
+                }
+              }
+            </style>
+
+          {%- when 'shipping-cutoff-block' -%}
+            {%- liquid
+              assign now = 'now' | date: '%s' | plus: 0
+              assign current_hour = 'now' | date: '%H' | plus: 0
+              assign current_minute = 'now' | date: '%M' | plus: 0
+              assign current_time_minutes = current_hour | times: 60 | plus: current_minute
+              
+              assign cutoff_hour = block.settings.cutoff_hour
+              assign cutoff_minute = block.settings.cutoff_minute
+              assign cutoff_time_minutes = cutoff_hour | times: 60 | plus: cutoff_minute
+              
+              assign days_to_add = block.settings.processing_days
+              assign exclude_weekends = block.settings.exclude_weekends
+              
+              if current_time_minutes < cutoff_time_minutes
+                assign is_before_cutoff = true
+              else
+                assign is_before_cutoff = false
+                assign days_to_add = days_to_add | plus: 1
+              endif
+              
+              assign current_day_of_week = 'now' | date: '%w' | plus: 0
+              
+              if exclude_weekends
+                if current_day_of_week == 6
+                  assign days_to_add = days_to_add | plus: 2
+                elsif current_day_of_week == 0
+                  assign days_to_add = days_to_add | plus: 1
+                endif
+              endif
+              
+              assign seconds_to_add = days_to_add | times: 86400
+              assign ship_date_timestamp = now | plus: seconds_to_add
+              
+              assign ship_day_of_week = ship_date_timestamp | date: '%w' | plus: 0
+              if exclude_weekends
+                if ship_day_of_week == 6
+                  assign ship_date_timestamp = ship_date_timestamp | plus: 172800
+                elsif ship_day_of_week == 0
+                  assign ship_date_timestamp = ship_date_timestamp | plus: 86400
+                endif
+              endif
+              
+              case block.settings.date_format
+                when 'full'
+                  assign formatted_date = ship_date_timestamp | date: '%B %d'
+                when 'short'
+                  assign formatted_date = ship_date_timestamp | date: '%b %d'
+                when 'numeric'
+                  assign formatted_date = ship_date_timestamp | date: '%m/%d'
+                when 'day_name'
+                  assign formatted_date = ship_date_timestamp | date: '%A, %B %d'
+                when 'relative'
+                  assign formatted_date = ship_date_timestamp | date: '%A'
+              endcase
+              
+              if block.settings.cutoff_minute < 10
+                assign display_minute = cutoff_minute | prepend: '0'
+              else
+                assign display_minute = cutoff_minute
+              endif
+              
+              if block.settings.time_format == '12h'
+                if cutoff_hour == 0
+                  assign display_hour = 12
+                  assign am_pm = 'AM'
+                elsif cutoff_hour < 12
+                  assign display_hour = cutoff_hour
+                  assign am_pm = 'AM'
+                elsif cutoff_hour == 12
+                  assign display_hour = 12
+                  assign am_pm = 'PM'
+                else
+                  assign display_hour = cutoff_hour | minus: 12
+                  assign am_pm = 'PM'
+                endif
+                assign display_time = display_hour | append: ':' | append: display_minute | append: ' ' | append: am_pm
+              else
+                if cutoff_hour < 10
+                  assign display_hour = cutoff_hour | prepend: '0'
+                else
+                  assign display_hour = cutoff_hour
+                endif
+                assign display_time = display_hour | append: ':' | append: display_minute
+              endif
+              
+              assign text_before = block.settings.text_before_cutoff
+              assign text_after = block.settings.text_after_cutoff
+              assign text_before_display = text_before | replace: '[time]', display_time | replace: '[date]', formatted_date
+              assign text_after_display = text_after | replace: '[time]', display_time | replace: '[date]', formatted_date
+            -%}
+
+            <div class="shipping-cutoff-block shipping-cutoff-block--{{ block.id }}" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                <div class="shipping-cutoff-block__icon">
+                  <img
+                    src="{{ block.settings.icon | img_url }}"
+                    alt="{{ block.settings.icon.alt | default: 'Shipping' | escape }}"
+                    width="{{ block.settings.icon_size }}"
+                    height="{{ block.settings.icon_size }}"
+                    loading="lazy"
+                  >
+                </div>
+              {%- elsif block.settings.show_default_icon -%}
+                <div class="shipping-cutoff-block__icon shipping-cutoff-block__icon--svg">
+                  <svg width="{{ block.settings.icon_size }}" height="{{ block.settings.icon_size }}" viewBox="0 0 576 512" fill="{{ block.settings.icon_color }}" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 32C0 14.3 14.3 0 32 0h72.9c27.5 0 52 17.6 60.7 43.8L257.7 320c30.1 .5 56.8 14.9 74 37l202.1-67.4c16.8-5.6 34.9 3.5 40.5 20.2s-3.5 34.9-20.2 40.5L352 417.7c-.9 52.2-43.5 94.3-96 94.3c-53 0-96-43-96-96c0-30.8 14.5-58.2 37-75.8L104.9 64H32C14.3 64 0 49.7 0 32zM244.8 134.5c-5.5-16.8 3.7-34.9 20.5-40.3L311 79.4l19.8 60.9 60.9-19.8L371.8 59.6l45.7-14.8c16.8-5.5 34.9 3.7 40.3 20.5l49.4 152.2c5.5 16.8-3.7 34.9-20.5 40.3L334.5 307.2c-16.8 5.5-34.9-3.7-40.3-20.5L244.8 134.5z"/>
+                  </svg>
+                </div>
+              {%- endif -%}
+
+              <div class="shipping-cutoff-block__content">
+                <p class="shipping-cutoff-block__text"
+                  data-cutoff-hour="{{ cutoff_hour }}" 
+                  data-cutoff-minute="{{ cutoff_minute }}" 
+                  data-processing-days="{{ block.settings.processing_days }}" 
+                  data-exclude-weekends="{{ exclude_weekends }}" 
+                  data-date-format="{{ block.settings.date_format }}" 
+                  data-time-format="{{ block.settings.time_format }}">
+                  {%- if is_before_cutoff -%}
+                    {{ text_before_display }}
+                  {%- else -%}
+                    {{ text_after_display }}
+                  {%- endif -%}
+                </p>
+                
+                {%- if block.settings.show_countdown and is_before_cutoff -%}
+                  <div class="shipping-cutoff-block__countdown" data-cutoff-hour="{{ cutoff_hour }}" data-cutoff-minute="{{ cutoff_minute }}">
+                    <span class="countdown-label">{{ block.settings.countdown_label }}</span>
+                    <span class="countdown-timer">
+                      <span class="countdown-hours">00</span>:<span class="countdown-minutes">00</span>:<span class="countdown-seconds">00</span>
+                    </span>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+
+            <style>
+              .shipping-cutoff-block--{{ block.id }} {
+                display: flex;
+                align-items: center;
+                gap: {{ block.settings.icon_gap }}px;
+                margin-bottom: 10px;
+                {% if block.settings.background_color != blank and block.settings.background_color != 'rgba(0,0,0,0)' %}
+                  background-color: {{ block.settings.background_color }};
+                  padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
+                  border-radius: {{ block.settings.border_radius }}px;
+                {% endif %}
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__icon img,
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__icon svg {
+                width: {{ block.settings.icon_size }}px;
+                height: {{ block.settings.icon_size }}px;
+                object-fit: contain;
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__content {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__text {
+                margin: 0;
+                font-size: {{ block.settings.font_size_desktop }}px;
+                line-height: {{ block.settings.line_height }};
+                color: {{ block.settings.text_color }};
+                font-weight: {{ block.settings.font_weight }};
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__countdown {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: {{ block.settings.countdown_font_size }}px;
+                color: {{ block.settings.countdown_color }};
+              }
+
+              .shipping-cutoff-block--{{ block.id }} .countdown-timer {
+                font-weight: 600;
+                font-variant-numeric: tabular-nums;
+              }
+
+              @media screen and (max-width: 749px) {
+                .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__text {
+                  font-size: {{ block.settings.font_size_mobile }}px;
+                }
+
+                .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__icon img,
+                .shipping-cutoff-block--{{ block.id }} .shipping-cutoff-block__icon svg {
+                  width: {{ block.settings.icon_size_mobile }}px;
+                  height: {{ block.settings.icon_size_mobile }}px;
+                }
+              }
+            </style>
+
+            <script>
+              (function() {
+                const block = document.querySelector('.shipping-cutoff-block--{{ block.id }}');
+                if (!block) return;
+
+                const textEl = block.querySelector('.shipping-cutoff-block__text');
+                const countdownEl = block.querySelector('.shipping-cutoff-block__countdown');
+                
+                if (!textEl) return;
+
+                const cutoffHour = parseInt(textEl.dataset.cutoffHour, 10);
+                const cutoffMinute = parseInt(textEl.dataset.cutoffMinute, 10);
+                const processingDays = parseInt(textEl.dataset.processingDays, 10);
+                const excludeWeekends = textEl.dataset.excludeWeekends === 'true';
+                const dateFormat = textEl.dataset.dateFormat;
+                const timeFormat = textEl.dataset.timeFormat;
+                
+                const textBefore = {{ block.settings.text_before_cutoff | json }};
+                const textAfter = {{ block.settings.text_after_cutoff | json }};
+
+                function formatTime(hour, minute) {
+                  const displayMinute = minute.toString().padStart(2, '0');
+                  if (timeFormat === '12h') {
+                    let displayHour, amPm;
+                    if (hour === 0) { displayHour = 12; amPm = 'AM'; }
+                    else if (hour < 12) { displayHour = hour; amPm = 'AM'; }
+                    else if (hour === 12) { displayHour = 12; amPm = 'PM'; }
+                    else { displayHour = hour - 12; amPm = 'PM'; }
+                    return `${displayHour}:${displayMinute} ${amPm}`;
+                  }
+                  return `${hour.toString().padStart(2, '0')}:${displayMinute}`;
+                }
+
+                function formatDate(date) {
+                  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                  const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  
+                  switch (dateFormat) {
+                    case 'full': return `${months[date.getMonth()]} ${date.getDate()}`;
+                    case 'short': return `${monthsShort[date.getMonth()]} ${date.getDate()}`;
+                    case 'numeric': return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+                    case 'day_name': return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+                    case 'relative': return days[date.getDay()];
+                    default: return `${months[date.getMonth()]} ${date.getDate()}`;
+                  }
+                }
+
+                function getShipDate(isBeforeCutoff) {
+                  const now = new Date();
+                  let daysToAdd = processingDays;
+                  
+                  if (!isBeforeCutoff) daysToAdd++;
+                  
+                  if (excludeWeekends) {
+                    const dayOfWeek = now.getDay();
+                    if (dayOfWeek === 6) daysToAdd += 2;
+                    else if (dayOfWeek === 0) daysToAdd += 1;
+                  }
+                  
+                  const shipDate = new Date(now.getTime() + daysToAdd * 86400000);
+                  
+                  if (excludeWeekends) {
+                    const shipDayOfWeek = shipDate.getDay();
+                    if (shipDayOfWeek === 6) shipDate.setDate(shipDate.getDate() + 2);
+                    else if (shipDayOfWeek === 0) shipDate.setDate(shipDate.getDate() + 1);
+                  }
+                  
+                  return shipDate;
+                }
+
+                function updateDisplay() {
+                  const now = new Date();
+                  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                  const cutoffMinutes = cutoffHour * 60 + cutoffMinute;
+                  const isBeforeCutoff = currentMinutes < cutoffMinutes;
+                  
+                  const shipDate = getShipDate(isBeforeCutoff);
+                  const formattedDate = formatDate(shipDate);
+                  const formattedTime = formatTime(cutoffHour, cutoffMinute);
+                  
+                  let text = isBeforeCutoff ? textBefore : textAfter;
+                  text = text.replace('[time]', formattedTime).replace('[date]', formattedDate);
+                  textEl.textContent = text;
+                  
+                  if (countdownEl) {
+                    if (isBeforeCutoff) {
+                      countdownEl.style.display = '';
+                      const cutoffToday = new Date(now);
+                      cutoffToday.setHours(cutoffHour, cutoffMinute, 0, 0);
+                      const diff = cutoffToday - now;
+                      
+                      if (diff > 0) {
+                        const hours = Math.floor(diff / 3600000);
+                        const minutes = Math.floor((diff % 3600000) / 60000);
+                        const seconds = Math.floor((diff % 60000) / 1000);
+                        
+                        countdownEl.querySelector('.countdown-hours').textContent = hours.toString().padStart(2, '0');
+                        countdownEl.querySelector('.countdown-minutes').textContent = minutes.toString().padStart(2, '0');
+                        countdownEl.querySelector('.countdown-seconds').textContent = seconds.toString().padStart(2, '0');
+                      }
+                    } else {
+                      countdownEl.style.display = 'none';
+                    }
+                  }
+                }
+
+                updateDisplay();
+                // Only tick when tab is visible to save CPU/repaints
+                var _countdownInterval = setInterval(updateDisplay, 1000);
+                document.addEventListener('visibilitychange', function() {
+                  if (document.hidden) {
+                    clearInterval(_countdownInterval);
+                    _countdownInterval = null;
+                  } else {
+                    updateDisplay(); // Immediate update on return
+                    if (!_countdownInterval) _countdownInterval = setInterval(updateDisplay, 1000);
+                  }
+                });
+              })();
+            </script>
+
+          {%- when 'accordion' -%}
+            {%- liquid
+              assign accordion_title = block.settings.title | default: block.settings.page.title
+              assign accordion_content = block.settings.page.content | default: block.settings.liquid | default: block.settings.content
+
+              if accordion_title != blank and accordion_content != blank
+                render 'accordion', title: accordion_title, content: accordion_content, prose_content: true, icon: block.settings.icon, custom_icon: block.settings.custom_icon, block: block, open: block.settings.open
+              endif
+            -%}
+      {% when 'size_guide' %}
+
+   {% comment %} Checks if the metafield is a true boolean OR the typed text "True" {% endcomment %}
+   {% if product.metafields.custom.size_gudie == true or product.metafields.custom.size_gudie == 'True' %}
+
+     {% assign fit_value = product.metafields.custom.fit_value | default: 3 | plus: 0 %}
+
+      <div class="fit-guide-wrap" role="region" aria-label="{{ block.settings.main_title }}">
+        <div class="fit-guide" role="group" aria-labelledby="fitguide-title">
+          <div>
+            <div id="fitguide-title" class="fit-guide__title">{{ block.settings.main_title }}</div>
+          </div>
+          <div class="fit-guide__link js-open-size-guide" title="View size guide">
+            <svg width="15" height="19" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M0.217445 0H3.8893C3.94703 0 4.00239 0.0229315 4.04321 0.0637498C4.08402 0.104568 4.10696 0.15993 4.10696 0.217656V14.8933H13.8552C13.9129 14.8933 13.9682 14.9163 14.009 14.9571C14.0498 14.9979 14.0727 15.0532 14.0727 15.1109V18.7823C14.0727 18.8109 14.0671 18.8392 14.0562 18.8656C14.0453 18.892 14.0292 18.916 14.0091 18.9362C13.9889 18.9565 13.9649 18.9725 13.9385 18.9834C13.9121 18.9944 13.8838 19 13.8552 19H0.217445C0.188872 19 0.160579 18.9944 0.134183 18.9834C0.107788 18.9725 0.0838079 18.9565 0.0636135 18.9362C0.0434192 18.916 0.0274067 18.892 0.0164915 18.8656C0.00557636 18.8392 -2.76383e-05 18.8109 1.02489e-07 18.7823V0.217656C-2.76383e-05 0.189083 0.00557636 0.160784 0.0164915 0.134378C0.0274067 0.107972 0.0434192 0.0839766 0.0636135 0.0637626C0.0838079 0.0435487 0.107788 0.027513 0.134183 0.0165722C0.160579 0.00563137 0.188872 -1.34664e-08 0.217445 0ZM12.9639 15.3284V16.1591C12.9639 16.2168 12.941 16.2722 12.9002 16.313C12.8593 16.3538 12.804 16.3767 12.7463 16.3767C12.6885 16.3767 12.6332 16.3538 12.5924 16.313C12.5515 16.2722 12.5286 16.2168 12.5286 16.1591V15.3284H11.6117V16.7738C11.6127 16.803 11.6077 16.832 11.5972 16.8592C11.5866 16.8864 11.5708 16.9112 11.5505 16.9321C11.5302 16.953 11.5059 16.9697 11.4791 16.981C11.4522 16.9924 11.4233 16.9983 11.3942 16.9983C11.365 16.9983 11.3362 16.9924 11.3093 16.981C11.2825 16.9697 11.2582 16.953 11.2379 16.9321C11.2176 16.9112 11.2017 16.8864 11.1912 16.8592C11.1807 16.832 11.1757 16.803 11.1766 16.7738V15.3284H10.2587V16.1591C10.257 16.2154 10.2334 16.2688 10.1929 16.308C10.1525 16.3472 10.0984 16.3691 10.042 16.3691C9.9857 16.3691 9.93158 16.3472 9.89113 16.308C9.85068 16.2688 9.82708 16.2154 9.82532 16.1591V15.3284H8.90762V16.7738C8.90762 16.8316 8.88469 16.8869 8.84387 16.9277C8.80305 16.9686 8.74769 16.9915 8.68997 16.9915C8.63224 16.9915 8.57688 16.9686 8.53606 16.9277C8.49524 16.8869 8.47231 16.8316 8.47231 16.7738V15.3284H7.55546V16.1591C7.55369 16.2156 7.53 16.2692 7.4894 16.3086C7.44879 16.3479 7.39446 16.37 7.33791 16.37C7.28135 16.37 7.22702 16.3479 7.18642 16.3086C7.14581 16.2692 7.12212 16.2156 7.12036 16.1591V15.3284H6.20329V16.7738C6.2042 16.803 6.19924 16.832 6.18872 16.8592C6.17819 16.8864 6.16231 16.9112 6.14202 16.9321C6.12173 16.953 6.09744 16.9697 6.07059 16.981C6.04375 16.9924 6.01489 16.9983 5.98574 16.9983C5.95659 16.9983 5.92773 16.9924 5.90088 16.981C5.87404 16.9697 5.84975 16.953 5.82946 16.9321C5.80916 16.9112 5.79328 16.8864 5.78276 16.8592C5.77224 16.832 5.76728 16.803 5.76819 16.7738V15.3284H4.85112V16.1591C4.84936 16.2156 4.82567 16.2692 4.78506 16.3086C4.74446 16.3479 4.69012 16.37 4.63357 16.37C4.57702 16.37 4.52269 16.3479 4.48208 16.3086C4.44148 16.2692 4.41778 16.2156 4.41602 16.1591V15.3284H3.8893C3.83161 15.3284 3.77628 15.3055 3.73547 15.2647C3.69466 15.2239 3.6717 15.1686 3.67164 15.1109V14.3188H2.8937C2.83718 14.3171 2.78356 14.2934 2.74419 14.2528C2.70483 14.2122 2.68282 14.1578 2.68282 14.1013C2.68282 14.0447 2.70483 13.9904 2.74419 13.9498C2.78356 13.9092 2.83718 13.8855 2.8937 13.8837H3.67164V12.9669H2.27831C2.22059 12.9669 2.16522 12.9439 2.12441 12.9031C2.08359 12.8623 2.06066 12.8069 2.06066 12.7492C2.06066 12.6915 2.08359 12.6361 2.12441 12.5953C2.16522 12.5545 2.22059 12.5316 2.27831 12.5316H3.67164V11.6147H2.8937C2.83718 11.6129 2.78356 11.5892 2.74419 11.5486C2.70483 11.508 2.68282 11.4537 2.68282 11.3972C2.68282 11.3406 2.70483 11.2863 2.74419 11.2457C2.78356 11.2051 2.83718 11.1814 2.8937 11.1796H3.67164V10.2625H2.27831C2.22179 10.2608 2.16817 10.2371 2.12881 10.1965C2.08944 10.1559 2.06743 10.1015 2.06743 10.045C2.06743 9.98843 2.08944 9.9341 2.12881 9.89349C2.16817 9.85289 2.22179 9.82919 2.27831 9.82743H3.67164V8.91037H2.8937C2.83718 8.90861 2.78356 8.88491 2.74419 8.84431C2.70483 8.8037 2.68282 8.74937 2.68282 8.69282C2.68282 8.63626 2.70483 8.58193 2.74419 8.54133C2.78356 8.50072 2.83718 8.47703 2.8937 8.47527H3.67164V7.55778H2.27831C2.22179 7.55602 2.16817 7.53232 2.12881 7.49172C2.08944 7.45111 2.06743 7.39678 2.06743 7.34023C2.06743 7.28368 2.08944 7.22934 2.12881 7.18874C2.16817 7.14813 2.22179 7.12444 2.27831 7.12268H3.67164V6.20667H2.8937C2.83718 6.20491 2.78356 6.18121 2.74419 6.14061C2.70483 6.1 2.68282 6.04567 2.68282 5.98912C2.68282 5.93256 2.70483 5.87823 2.74419 5.83763C2.78356 5.79702 2.83718 5.77333 2.8937 5.77157H3.67164V4.85408H2.27831C2.22179 4.85232 2.16817 4.82862 2.12881 4.78802C2.08944 4.74741 2.06743 4.69308 2.06743 4.63653C2.06743 4.57998 2.08944 4.52564 2.12881 4.48504C2.16817 4.44443 2.22179 4.42074 2.27831 4.41898H3.67164V3.50212H2.8937C2.83597 3.50212 2.78061 3.47919 2.73979 3.43837C2.69898 3.39755 2.67604 3.34219 2.67604 3.28447C2.67604 3.22674 2.69898 3.17138 2.73979 3.13056C2.78061 3.08974 2.83597 3.06681 2.8937 3.06681H3.67164V2.14996H2.27831C2.22179 2.14819 2.16817 2.1245 2.12881 2.0839C2.08944 2.04329 2.06743 1.98896 2.06743 1.93241C2.06743 1.87585 2.08944 1.82152 2.12881 1.78092C2.16817 1.74031 2.22179 1.71662 2.27831 1.71486H3.67164V0.4351H0.435311V18.5649H13.6374V15.3284H12.9639ZM13.2702 12.7241L12.9639 13.0306V3.28447C12.9639 3.22676 12.9409 3.17143 12.9001 3.13062C12.8593 3.08982 12.804 3.06687 12.7463 3.06681H6.11061L6.41693 2.76049C6.45772 2.7197 6.48064 2.66438 6.48064 2.60669C6.48064 2.54901 6.45772 2.49369 6.41693 2.4529C6.37614 2.41211 6.32082 2.3892 6.26314 2.3892C6.20546 2.3892 6.15013 2.41211 6.10934 2.4529L5.43379 3.12846C5.42625 3.1355 5.4192 3.14305 5.41268 3.15104C5.40944 3.15527 5.40627 3.1597 5.40318 3.16434C5.40022 3.16878 5.39748 3.17342 5.39494 3.17807C5.37701 3.21036 5.36761 3.24669 5.36761 3.28362C5.36761 3.32056 5.37701 3.35689 5.39494 3.38918C5.39748 3.39382 5.40022 3.39847 5.40318 3.4029C5.40641 3.40754 5.40958 3.41198 5.41268 3.4162C5.4192 3.42419 5.42625 3.43174 5.43379 3.43879L6.10934 4.11434C6.15013 4.15513 6.20546 4.17805 6.26314 4.17805C6.32082 4.17805 6.37614 4.15513 6.41693 4.11434C6.45772 4.07356 6.48064 4.01823 6.48064 3.96055C6.48064 3.90287 6.45772 3.84754 6.41693 3.80676L6.11061 3.50043H12.5284V13.0306L12.2221 12.7241C12.1809 12.6851 12.1261 12.6638 12.0694 12.6646C12.0128 12.6654 11.9586 12.6883 11.9186 12.7284C11.8785 12.7685 11.8556 12.8226 11.8549 12.8793C11.8541 12.936 11.8755 12.9907 11.9145 13.0319L12.59 13.7074C12.5971 13.7147 12.6046 13.7214 12.6126 13.7275C12.6169 13.7309 12.6213 13.7341 12.6259 13.737C12.6306 13.7397 12.635 13.7427 12.6396 13.7452C12.6719 13.7632 12.7083 13.7726 12.7452 13.7726C12.7821 13.7726 12.8185 13.7632 12.8508 13.7452C12.8554 13.7427 12.86 13.74 12.8645 13.737C12.8691 13.7341 12.8735 13.7309 12.8778 13.7275C12.8858 13.7214 12.8933 13.7147 12.9004 13.7074L13.5759 13.0319C13.6149 12.9907 13.6363 12.936 13.6355 12.8793C13.6348 12.8226 13.6119 12.7685 13.5718 12.7284C13.5318 12.6883 13.4776 12.6654 13.421 12.6646C13.3643 12.6638 13.3095 12.6851 13.2683 12.7241H13.2702Z" fill="black"/>
+            </svg> 
+            <span class="size_guide_title ">{{ block.settings.size_guide_text }}</span>
+          </div>
+        </div>
+
+        <div class="fit-guide__rule" aria-hidden="true"></div>
+
+        <div class="fit-guide__visual" aria-hidden="false">
+          <div class="fit-guide__bar" role="img" aria-label="Fit indicator">
+            <div class="fit-guide__segment {% if fit_value == 1 %}is-active{% endif %}"></div>
+            <div class="fit-guide__segment {% if fit_value == 2 %}is-active{% endif %}"></div>
+            <div class="fit-guide__segment {% if fit_value == 3 %}is-active{% endif %}"></div>
+            <div class="fit-guide__segment {% if fit_value == 4 %}is-active{% endif %}"></div>
+            <div class="fit-guide__segment {% if fit_value == 5 %}is-active{% endif %}"></div>
+          </div>
+
+          <div class="fit-guide__labels" aria-hidden="true">
+            <div class="left">{{ block.settings.label_1 }}</div>
+            <div class="center">
+              {% if fit_value == 2 %}{{ block.settings.label_2 }}
+              {% elsif fit_value == 4 %}{{ block.settings.label_4 }}
+              {% else %}{{ block.settings.label_3 }}{% endif %}
+            </div>
+            <div class="right" style="text-align:right;">{{ block.settings.label_5 }}</div>
+          </div>
+        </div>
+      </div>
+
+   {% endif %}
+
+          {%- when 'feature_with_icon' -%}
+            {%- if block.settings.text != blank or block.settings.icon != 'none' or block.settings.custom_icon != blank -%}
+              {%- capture feature_content -%}
+                {%- if block.settings.custom_icon != blank -%}
+                  {%- capture sizes -%}{{ block.settings.icon_width }}px{%- endcapture -%}
+                  {%- capture widths -%}{{ block.settings.icon_width }}, {{ block.settings.icon_width | times: 2 | at_most: block.settings.custom_icon.width }}{%- endcapture -%}
+                  {%- capture style -%}--image-max-width: {{ block.settings.icon_width }}px{%- endcapture -%}
+                  {{- block.settings.custom_icon | image_url: width: block.settings.custom_icon.width | image_tag: sizes: sizes, widths: widths, class: 'constrained-image', style: style -}}
+                {%- else -%}
+                  {%- render 'icon' with block.settings.icon, width: block.settings.icon_width -%}
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                  <p>{{ block.settings.text }}</p>
+                {%- endif -%}
+              {%- endcapture -%}
+
+              {%- assign has_border = false -%}
+
+              {%- if block.settings.border_color != blank and block.settings.border_color != 'rgba(0,0,0,0)' -%}
+                {%- assign has_border = true -%}
+              {%- endif -%}
+
+              {%- if block.settings.link -%}
+                <a href="{{ block.settings.link }}" class="feature-badge {% if has_border %}border{% endif %}" style="{% render 'surface', background: block.settings.background, text_color: block.settings.text_color, border_color: block.settings.border_color %}">
+                  {{- feature_content -}}
+                </a>
+              {%- else -%}
+                <div class="feature-badge {% if has_border %}border{% endif %}" style="{% render 'surface', background: block.settings.background, text_color: block.settings.text_color, border_color: block.settings.border_color %}">
+                  {{- feature_content -}}
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+
+          {%- when 'liquid' -%}
+            {%- if block.settings.liquid != blank -%}
+              <div class="liquid">
+                {{- block.settings.liquid -}}
+              </div>
+            {%- endif -%}
+
+          {%- when 'modal' -%}
+            {%- if block.settings.button_title != blank and block.settings.modal_content != blank -%}
+              {%- assign modal_id = product_form_id | append: block.id -%}
+
+              {%- render 'button', content: block.settings.button_title, aria_controls: modal_id, style: block.settings.button_style, stretch: block.settings.stretch_button, background: block.settings.button_background, text_color: block.settings.button_text_color -%}
+
+              <x-modal id="{{ modal_id | escape }}" class="modal modal--lg color-scheme color-scheme--dialog">
+                <span class="h5" slot="header">{{ block.settings.modal_title }}</span>
+
+                <div class="prose">
+                  {{- block.settings.modal_content -}}
+                </div>
+              </x-modal>
+            {%- endif -%}
+
+          {%- when 'image' -%}
+            {%- if block.settings.image != blank -%}
+              {%- capture image_style_attribute -%}{% if block.settings.alignment == 'center' %}margin-inline: auto;{% elsif block.settings.alignment == 'end' %}margin-inline-start: auto;{% endif %}{%- endcapture -%}
+
+              {%- if block.settings.width_mode == 'custom' -%}
+                {%- capture image_style_attribute -%}{{ image_style_attribute }} --image-max-width: {{ block.settings.max_width }}px; --image-mobile-max-width: {{ block.settings.mobile_max_width }}px{%- endcapture -%}
+                {%- capture image_sizes_attribute -%}(max-width: 699px) min({{ block.settings.mobile_max_width }}px, 100vw), min({{ block.settings.max_width }}px, 100vw){%- endcapture -%}
+              {%- else -%}
+                {%- capture image_sizes_attribute -%}min(600px, 100vw){%- endcapture -%}
+                {%- capture image_style_attribute -%}width: 100%;{%- endcapture -%}
+              {%- endif -%}
+
+              {{- block.settings.image | image_url: width: block.settings.image.width | image_tag: sizes: image_sizes_attribute, widths: '200,300,400,500,600,800,1000,1200,1400', class: 'constrained-image', style: image_style_attribute -}}
+            {%- endif -%}
+
+          {%- when 'button' -%}
+            {%- if block.settings.text != blank -%}
+              {%- render 'button', href: block.settings.link, content: block.settings.text, stretch: block.settings.stretch, background: block.settings.background, text_color: block.settings.text_color -%}
+            {%- endif -%}
+
+          {%- when 'share_buttons' -%}
+            <share-button>
+              <button class="share-buttons share-buttons--native link-faded" hidden>
+                <span class="smallcaps text-xxs">{{- 'general.social.share' | t -}}</span>
+                {%- render 'icon' with 'share' -%}
+              </button>
+
+              <div class="share-buttons">
+                <span class="smallcaps text-xxs text-subdued">{{- 'general.social.share' | t -}}</span>
+                {%- render 'share-buttons', url: product.url, title: product.title, description: product.description, layout: 'list' -%}
+              </div>
+            </share-button>
+
+            {% when 'offer' %}
+            {%if block.settings.offer_title != blank %}
+            <div class="offer_box">
+              <h4 class="offer_title"> {{ block.settings.offer_title }} </h4>
+              <div class="offer_desc">
+                {{block.settings.offer_descrptions }}
+              </div>
+              <div class="offer_grid">
+                <div class="offer_row">
+                  <div class="offer_heading"> {{block.settings.offer_heading }} </div>
+                  <div class="offer_discount"> {{block.settings.offer_discount }} </div>
+                </div> 
+                 <div class="offer_row">
+                  <div class="offer_heading"> {{block.settings.offer_heading_2 }} </div>
+                  <div class="offer_discount"> {{block.settings.offer_discount_2 }} </div>
+                </div> 
+                 <div class="offer_row">
+                  <div class="offer_heading"> {{block.settings.offer_heading_3 }} </div>
+                  <div class="offer_discount"> {{block.settings.offer_discount_3 }} </div>
+                </div> 
+              </div>
+            </div>
+            {%endif %}
+
+          {%- when 'more_information' -%}
+            {%- comment -%}We need at least one block compatible with below gallery information{%- endcomment -%}
+            {%- if block.settings.text != blank and has_content_below_gallery -%}
+              <a href="#product-extra-information" class="product-info__more-info md-max:hidden">
+                <span class="smallcaps text-xxs">{{- block.settings.text -}}</span>
+                {%- render 'icon' with 'chevron-right' -%}
+              </a>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endcapture -%}
+      
+      {%- if allow_block_group and inside_block_group_context == false -%}
+        {%- assign inside_block_group_context = true -%}
+        <div class="product-info__block-group {{ block_group_class }}" data-group-type="{{ block_group_name }}">
+      {%- endif -%}
+
+      <div class="product-info__block-item" data-block-id="{{ block.id }}" data-block-type="{{ block.type | replace: '_', '-' }}" {% unless block.type == '@app' or block.type == 'accordion' %}{{ block.shopify_attributes }}{% endunless %}>
+        {{- block_content -}}
+      </div>
+
+      {%- if inside_block_group_context and allow_block_group == false -%}
+        {%- assign inside_block_group_context = false -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%}
+    IMPLEMENTATION NOTE: under rare circumstances, merchant may want to show selectors to allow variant selection, but hide
+    the add to cart button. This is however problematic as product info is changed based on the form, so we create a default
+    one if no buy buttons exists
+  {%- endcomment -%}
+
+  {%- assign buy_buttons_block = section.blocks | where: 'type', 'buy_buttons' | first -%}
+
+  {%- unless buy_buttons_block != blank or product == blank -%}
+    {%- form 'product', product, id: product_form_id, hidden: true -%}
+      <input type="hidden" disabled name="id" value="{{ product.selected_or_first_available_variant.id }}">
+    {%- endform -%}
+  {%- endunless -%}
+</safe-sticky>

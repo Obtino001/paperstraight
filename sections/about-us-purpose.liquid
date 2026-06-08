@@ -1,0 +1,1042 @@
+{{ 'about-us-purpose.css' | asset_url | stylesheet_tag }}
+
+<section class="about-purpose-section container section-{{ section.id }}">
+  <div class="about-purpose-container">
+    <!-- Left Content -->
+    <div class="about-purpose-content">
+      {% if section.settings.subtitle != blank %}
+        <span class="about-purpose-subtitle">{{ section.settings.subtitle }}</span>
+      {% endif %}
+      
+      {% if section.settings.heading != blank %}
+        <h2 class="about-purpose-heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+
+      <div class="about-purpose-text-blocks">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'paragraph' %}
+              <p class="about-purpose-paragraph">{{ block.settings.text }}</p>
+            
+            {% when 'subheading' %}
+              <h3 class="about-purpose-subheading">{{ block.settings.subheading_text }}</h3>
+            
+            {% when 'button' %}
+              <a href="{{ block.settings.button_link }}" class="about-purpose-button" {% if block.settings.open_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                {{ block.settings.button_text }}
+              </a>
+          {% endcase %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Right Image -->
+    <div class="about-purpose-image-wrapper">
+      {% if section.settings.image != blank %}
+        <img 
+          src="{{ section.settings.image | image_url: width: 800 }}"
+          srcset="{{ section.settings.image | image_url: width: 400 }} 400w,
+                  {{ section.settings.image | image_url: width: 600 }} 600w,
+                  {{ section.settings.image | image_url: width: 800 }} 800w,
+                  {{ section.settings.image | image_url: width: 1000 }} 1000w"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          alt="{{ section.settings.image_alt | default: section.settings.heading }}"
+          class="about-purpose-image"
+          loading="lazy"
+        >
+      {% else %}
+        <div class="about-purpose-placeholder">
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-{{ section.id }} {
+    --about-bg-color: {{ section.settings.background_color }};
+    --about-text-color: {{ section.settings.text_color }};
+    --about-heading-color: {{ section.settings.heading_color }};
+    --about-subtitle-color: {{ section.settings.subtitle_color }};
+    --about-button-bg: {{ section.settings.button_bg_color }};
+    --about-button-text: {{ section.settings.button_text_color }};
+    --about-button-hover-bg: {{ section.settings.button_hover_bg }};
+    --about-button-hover-text: {{ section.settings.button_hover_text }};
+    --about-padding-top: {{ section.settings.padding_top }}px;
+    --about-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --about-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --about-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+
+  .about-purpose-section {
+    background: var(--about-bg-color);
+    padding-top: var(--about-padding-top);
+    padding-bottom: var(--about-padding-bottom);
+  }
+
+  .about-purpose-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 0;
+     max-width: 100%;
+    margin: 0;
+    min-height: {{ section.settings.section_min_height }}px;
+  }
+
+  .about-purpose-content {
+    padding: {{ section.settings.content_padding_top }}px {{ section.settings.content_padding_right }}px {{ section.settings.content_padding_bottom }}px {{ section.settings.content_padding_left }}px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  .about-purpose-subtitle {
+    font-size: {{ section.settings.subtitle_font_size }}px;
+    color: var(--about-subtitle-color);
+    text-transform: uppercase;
+    letter-spacing: {{ section.settings.subtitle_letter_spacing }}px;
+    margin-bottom: {{ section.settings.subtitle_margin_bottom }}px;
+    font-weight: {{ section.settings.subtitle_font_weight }};
+  }
+
+  .about-purpose-heading {
+    font-size: {{ section.settings.heading_font_size }}px;
+    color: var(--about-heading-color);
+    font-weight: {{ section.settings.heading_font_weight }};
+    line-height: {{ section.settings.heading_line_height }};
+    margin: 0 0 {{ section.settings.heading_margin_bottom }}px 0;
+    letter-spacing: {{ section.settings.heading_letter_spacing }}px;
+    text-transform: {{ section.settings.heading_text_transform }};
+  }
+
+  .about-purpose-text-blocks {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-purpose-paragraph {
+    font-size: {{ section.settings.paragraph_font_size }}px;
+    color: var(--about-text-color);
+    line-height: {{ section.settings.paragraph_line_height }};
+    margin: 0 0 {{ section.settings.paragraph_margin_bottom }}px 0;
+    font-weight: {{ section.settings.paragraph_font_weight }};
+  }
+
+  .about-purpose-subheading {
+    font-size: {{ section.settings.subheading_font_size }}px;
+    color: var(--about-heading-color);
+    font-weight: {{ section.settings.subheading_font_weight }};
+    margin: {{ section.settings.subheading_margin_top }}px 0 {{ section.settings.subheading_margin_bottom }}px 0;
+  }
+
+  .about-purpose-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--about-button-bg);
+    color: var(--about-button-text);
+    padding: {{ section.settings.button_padding_y }}px {{ section.settings.button_padding_x }}px;
+    font-size: {{ section.settings.button_font_size }}px;
+    font-weight: {{ section.settings.button_font_weight }};
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: {{ section.settings.button_margin_top }}px;
+    width: fit-content;
+    border-radius: {{ section.settings.button_border_radius }}px;
+    letter-spacing: {{ section.settings.button_letter_spacing }}px;
+    text-transform: {{ section.settings.button_text_transform }};
+  }
+
+  .about-purpose-button:hover {
+    background-color: var(--about-button-hover-bg);
+    color: var(--about-button-hover-text);
+  }
+
+  .about-purpose-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    padding-top: {{ section.settings.image_padding_top }}px;
+    padding-bottom: {{ section.settings.image_padding_bottom }}px;
+    padding-right: 0px;
+    min-height: {{ section.settings.image_min_height }}px;
+  }
+
+  .about-purpose-image {
+    width: 100%;
+    height: 100%;
+    object-fit: {{ section.settings.image_fit }};
+    object-position: {{ section.settings.image_position }};
+    display: block;
+  }
+
+  .about-purpose-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .about-purpose-placeholder svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Tablet Styles */
+  @media screen and (max-width: 990px) {
+    .about-purpose-container {
+      grid-template-columns: {{ section.settings.tablet_layout }};
+      min-height: auto;
+    }
+
+    .about-purpose-content {
+      padding: 40px 30px;
+      max-width: 100%;
+    }
+
+    .about-purpose-heading {
+      font-size: {{ section.settings.heading_font_size_tablet }}px;
+    }
+
+    .about-purpose-image-wrapper {
+      min-height: 400px;
+    }
+  }
+
+  /* Mobile Styles */
+  @media screen and (max-width: 768px) {
+    .about-purpose-section {
+      padding-top: var(--about-padding-top-mobile);
+      padding-bottom: var(--about-padding-bottom-mobile);
+    }
+
+    .about-purpose-container {
+      grid-template-columns: 1fr;
+    }
+
+    .about-purpose-content {
+      padding: {{ section.settings.content_padding_mobile }}px;
+      order: {{ section.settings.mobile_content_order }};
+    }
+
+    .about-purpose-image-wrapper {
+      order: {{ section.settings.mobile_image_order }};
+      min-height: {{ section.settings.image_min_height_mobile }}px;
+    }
+
+    .about-purpose-heading {
+      font-size: {{ section.settings.heading_font_size_mobile }}px;
+    }
+
+    .about-purpose-subtitle {
+      font-size: {{ section.settings.subtitle_font_size_mobile }}px;
+    }
+
+    .about-purpose-paragraph {
+      font-size: {{ section.settings.paragraph_font_size_mobile }}px;
+    }
+
+    .about-purpose-button {
+      width: {{ section.settings.button_full_width_mobile | default: 'fit-content' }};
+      justify-content: center;
+    }
+  }
+
+  /* Small Mobile */
+  @media screen and (max-width: 480px) {
+    .about-purpose-content {
+      padding: {{ section.settings.content_padding_small_mobile }}px;
+    }
+
+    .about-purpose-image-wrapper {
+      min-height: {{ section.settings.image_min_height_small_mobile }}px;
+      padding: 10px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "About Us - Purpose",
+  "tag": "section",
+  "class": "about-purpose-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "ABOUT US"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "CRAFTED WITH PURPOSE"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image Alt Text"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_background",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Button Colors"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg",
+      "label": "Button Hover Background",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_text",
+      "label": "Button Hover Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Subtitle Typography"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size",
+      "label": "Subtitle Font Size",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "default": 11,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size_mobile",
+      "label": "Subtitle Font Size (Mobile)",
+      "min": 8,
+      "max": 20,
+      "step": 1,
+      "default": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_letter_spacing",
+      "label": "Subtitle Letter Spacing",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "default": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_margin_bottom",
+      "label": "Subtitle Margin Bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 10,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "subtitle_font_weight",
+      "label": "Subtitle Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Heading Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading Font Size",
+      "min": 18,
+      "max": 72,
+      "step": 1,
+      "default": 28,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_tablet",
+      "label": "Heading Font Size (Tablet)",
+      "min": 16,
+      "max": 60,
+      "step": 1,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading Font Size (Mobile)",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "default": 22,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "heading_font_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "label": "Heading Line Height",
+      "min": 1,
+      "max": 2,
+      "step": 0.1,
+      "default": 1.2
+    },
+    {
+      "type": "range",
+      "id": "heading_letter_spacing",
+      "label": "Heading Letter Spacing",
+      "min": -2,
+      "max": 10,
+      "step": 0.5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "heading_margin_bottom",
+      "label": "Heading Margin Bottom",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "heading_text_transform",
+      "label": "Heading Text Transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "header",
+      "content": "Paragraph Typography"
+    },
+    {
+      "type": "range",
+      "id": "paragraph_font_size",
+      "label": "Paragraph Font Size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "paragraph_font_size_mobile",
+      "label": "Paragraph Font Size (Mobile)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 13,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "paragraph_line_height",
+      "label": "Paragraph Line Height",
+      "min": 1.2,
+      "max": 2.5,
+      "step": 0.1,
+      "default": 1.7
+    },
+    {
+      "type": "range",
+      "id": "paragraph_margin_bottom",
+      "label": "Paragraph Margin Bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "paragraph_font_weight",
+      "label": "Paragraph Font Weight",
+      "options": [
+        { "value": "300", "label": "Light" },
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "header",
+      "content": "Subheading Typography"
+    },
+    {
+      "type": "range",
+      "id": "subheading_font_size",
+      "label": "Subheading Font Size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "subheading_font_weight",
+      "label": "Subheading Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "subheading_margin_top",
+      "label": "Subheading Margin Top",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subheading_margin_bottom",
+      "label": "Subheading Margin Bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button Font Size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "default": 13,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_x",
+      "label": "Button Horizontal Padding",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "label": "Button Vertical Padding",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "default": 14,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "button_margin_top",
+      "label": "Button Margin Top",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "button_letter_spacing",
+      "label": "Button Letter Spacing",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "button_text_transform",
+      "label": "Button Text Transform",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "uppercase", "label": "Uppercase" },
+        { "value": "lowercase", "label": "Lowercase" },
+        { "value": "capitalize", "label": "Capitalize" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "button_full_width_mobile",
+      "label": "Button Width on Mobile",
+      "options": [
+        { "value": "fit-content", "label": "Auto" },
+        { "value": "100%", "label": "Full Width" }
+      ],
+      "default": "fit-content"
+    },
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "range",
+      "id": "image_padding_top",
+      "label": "Image Padding Top",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_padding_bottom",
+      "label": "Image Padding Bottom",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image Fit",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" },
+        { "value": "fill", "label": "Fill" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Position",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center", "label": "Top" },
+        { "value": "bottom center", "label": "Bottom" },
+        { "value": "left center", "label": "Left" },
+        { "value": "right center", "label": "Right" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "range",
+      "id": "image_min_height",
+      "label": "Image Min Height (Desktop)",
+      "min": 300,
+      "max": 800,
+      "step": 10,
+      "default": 500,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_min_height_mobile",
+      "label": "Image Min Height (Mobile)",
+      "min": 200,
+      "max": 600,
+      "step": 10,
+      "default": 350,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_min_height_small_mobile",
+      "label": "Image Min Height (Small Mobile)",
+      "min": 150,
+      "max": 500,
+      "step": 10,
+      "default": 300,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "section_min_height",
+      "label": "Section Min Height (Desktop)",
+      "min": 300,
+      "max": 900,
+      "step": 10,
+      "default": 500,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content Max Width",
+      "min": 400,
+      "max": 900,
+      "step": 10,
+      "default": 700,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Content Padding (Desktop)"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top",
+      "label": "Content Padding Top",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_right",
+      "label": "Content Padding Right",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom",
+      "label": "Content Padding Bottom",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_left",
+      "label": "Content Padding Left",
+      "min": 0,
+      "max": 150,
+      "step": 5,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_mobile",
+      "label": "Content Padding (Mobile)",
+      "min": 15,
+      "max": 80,
+      "step": 5,
+      "default": 30,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "content_padding_small_mobile",
+      "label": "Content Padding (Small Mobile)",
+      "min": 15,
+      "max": 60,
+      "step": 5,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding Top (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding Bottom (Desktop)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding Top (Mobile)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding Bottom (Mobile)",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Responsive Settings"
+    },
+    {
+      "type": "select",
+      "id": "tablet_layout",
+      "label": "Tablet Layout",
+      "options": [
+        { "value": "1fr 1fr", "label": "50/50 Split" },
+        { "value": "1fr", "label": "Stacked" }
+      ],
+      "default": "1fr 1fr"
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_order",
+      "label": "Mobile: Content Order",
+      "options": [
+        { "value": "1", "label": "First (Above Image)" },
+        { "value": "2", "label": "Second (Below Image)" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_order",
+      "label": "Mobile: Image Order",
+      "options": [
+        { "value": "1", "label": "First (Above Content)" },
+        { "value": "2", "label": "Second (Below Content)" }
+      ],
+      "default": "1"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "paragraph",
+      "name": "Paragraph",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Paragraph Text",
+          "default": "Add your paragraph text here."
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading_text",
+          "label": "Subheading Text",
+          "default": "Subheading"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_new_tab",
+          "label": "Open in New Tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "About Us - Purpose",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "settings": {
+            "text": "Paper Straight is a modern clothing label from Amsterdam, shaped by today's cultural movements, from hiphop to design, from skate to street photography."
+          }
+        },
+        {
+          "type": "paragraph",
+          "settings": {
+            "text": "We make streetwear for grownups, blending bold silhouettes with functional workwear aesthetics, inspired by icons like Pharrell Williams, who bridges music, design and community, and Jean-Michel Basquiat, whose raw artistic vision still shapes modern expression."
+          }
+        },
+        {
+          "type": "paragraph",
+          "settings": {
+            "text": "Our pieces are made to last worn with oversized denim, under a hoodie, or styled sharp with a clean pair of Derbys."
+          }
+        },
+        {
+          "type": "subheading",
+          "settings": {
+            "subheading_text": "Where the name comes from"
+          }
+        },
+        {
+          "type": "paragraph",
+          "settings": {
+            "text": "The name Paper Straight is inspired by Brent Faiyaz' track \"Been Away\", a song about the tension between chasing success (\"paper\") and staying true (\"straight\")."
+          }
+        },
+        {
+          "type": "paragraph",
+          "settings": {
+            "text": "It reflects our mindset: build your future, stay grounded, and never lose yourself in the process."
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_text": "Learn more",
+            "button_link": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

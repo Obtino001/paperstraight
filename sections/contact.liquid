@@ -1,0 +1,588 @@
+{%- assign color_scheme_hash = section.settings.color_scheme.settings.background_gradient | default: section.settings.color_scheme.settings.background | md5 -%}
+
+<div class="section-spacing color-scheme color-scheme--{{ section.settings.color_scheme.id }} color-scheme--bg-{{ color_scheme_hash }} {% if section.settings.separate_section_with_border %}bordered-section{% endif %}">
+  <div class="container">
+    {%- render 'section-header', subheading: section.settings.subheading, heading: section.settings.title, content: section.settings.content, text_alignment: 'center' -%}
+
+    <div class="contact-grid">
+      <!-- Left Side: Original Contact Form -->
+      <div class="contact-form-wrapper">
+        {%- form 'contact', class: 'form' -%}
+          {%- if form.posted_successfully? -%}
+            {%- assign content = 'contact.form.success_message' | t -%}
+            {%- render 'banner', status: 'success', content: content -%}
+          {%- endif -%}
+
+          {%- if form.errors -%}
+            {%- capture content -%}{{ form.errors.translated_fields[form.errors.first] | capitalize }} {{ form.errors.messages[form.errors.first] }}{%- endcapture -%}
+            {%- render 'banner', status: 'error', content: content -%}
+          {%- endif -%}
+
+          <div class="fieldset">
+            <div class="fieldset-row">
+              {%- assign label  = 'contact.form.name' | t -%}
+              {%- render 'input', type: 'text', name: 'contact[name]', label: label, value: customer.name, required: true, autocomplete: 'name' -%}
+
+              {%- assign label  = 'contact.form.email' | t -%}
+              {%- render 'input', type: 'email', name: 'contact[email]', label: label, value: customer.email, required: true, autocomplete: 'email' -%}
+            </div>
+
+            {%- for block in section.blocks -%}
+              {%- assign field_title = block.settings.title -%}
+
+              {%- if field_title == blank -%}
+                {%- capture field_title -%}Custom field {% increment custom_field %}{%- endcapture -%}
+              {%- endif -%}
+
+              {%- capture name -%}contact[{{ field_title | escape }}]{%- endcapture -%}
+
+              {%- if block.type == 'text' -%}
+                {%- if block.settings.use_long_text -%}
+                  {%- render 'input', name: name, label: block.settings.title, required: block.settings.required, multiline: 4 -%}
+                {%- else -%}
+                  {%- render 'input', type: 'text', name: name, label: block.settings.title, required: block.settings.required -%}
+                {%- endif -%}
+              {%- elsif block.type == 'dropdown' and block.settings.values != blank -%}
+                {%- assign values = block.settings.values | split: ',' -%}
+                {%- render 'select', option_values: values, show_empty_value: true, name: name, label: block.settings.title, required: true -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- assign label = 'contact.form.message' | t -%}
+            {%- render 'input', name: 'contact[body]', label: label, multiline: 4, required: true -%}
+          </div>
+
+          {%- assign button_content = 'contact.form.submit' | t -%}
+          {%- render 'button', content: button_content, type: 'submit' -%}
+        {%- endform -%}
+      </div>
+
+      <!-- Right Side: Info Card -->
+      {%- if section.settings.show_info_card -%}
+        <div class="contact-info-card">
+          <div class="contact-info-card__inner">
+            {%- if section.settings.info_subheading != blank -%}
+              <span class="contact-info-card__subheading">{{ section.settings.info_subheading }}</span>
+            {%- endif -%}
+
+            {%- if section.settings.info_heading != blank -%}
+              <h3 class="contact-info-card__heading">{{ section.settings.info_heading }}</h3>
+            {%- endif -%}
+
+            <div class="contact-info-card__details">
+              {%- if section.settings.address != blank -%}
+                <p>{{ section.settings.address }}</p>
+              {%- endif -%}
+
+              {%- if section.settings.company_number != blank -%}
+                <p>Company number: {{ section.settings.company_number }}</p>
+              {%- endif -%}
+
+              {%- if section.settings.vat_number != blank -%}
+                <p>VAT number: {{ section.settings.vat_number }}</p>
+              {%- endif -%}
+
+              {%- if section.settings.contact_email != blank -%}
+                <p>E-mail: <a href="mailto:{{ section.settings.contact_email }}">{{ section.settings.contact_email }}</a></p>
+              {%- endif -%}
+
+              {%- if section.settings.phone_number != blank -%}
+                <p>Phone: <a href="tel:{{ section.settings.phone_number | remove: ' ' }}">{{ section.settings.phone_number }}</a></p>
+              {%- endif -%}
+            </div>
+
+            {%- if section.settings.business_hours != blank -%}
+              <p class="contact-info-card__hours">{{ section.settings.business_hours }}</p>
+            {%- endif -%}
+
+            {%- if section.settings.info_button_text != blank and section.settings.info_button_link != blank -%}
+              <a href="{{ section.settings.info_button_link }}" class="contact-info-card__btn">
+                {{ section.settings.info_button_text }}
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .container {
+    display: grid;
+    gap: 50px;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .contact-form-wrapper {
+    width: 100%;
+    padding: 24px;
+  }
+
+  /* Info Card Styles */
+  .contact-info-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #f2f2f2;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .05);
+  }
+
+  .contact-info-card__inner {
+    background-color: {{ section.settings.info_card_bg_color }};
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: {{ section.settings.info_card_border_radius }}px;
+    width: 100%;
+  }
+
+  .contact-info-card__subheading {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: {{ section.settings.info_card_text_color }};
+    margin-bottom: 10px;
+  }
+
+  .contact-info-card__heading {
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: {{ section.settings.info_card_text_color }};
+    margin: 0 0 8px 0;
+  }
+
+  .contact-info-card__details {
+    margin-bottom: 20px;
+  }
+
+  .contact-info-card__details p {
+    {% comment %} margin: 5px 0; {% endcomment %}
+    font-size: 16px;
+    line-height: 1.6;
+    color: {{ section.settings.info_card_text_color }};
+  }
+
+  .contact-info-card__details a {
+    color: {{ section.settings.info_card_text_color }};
+    text-decoration: none;
+  }
+
+  .contact-info-card__details a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-info-card__hours {
+    font-size: 16px;
+    color: {{ section.settings.info_card_text_color }};
+    margin: 14px 0 10px;
+  }
+
+  .contact-info-card__btn {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #000;
+    transition: background .15s ease, transform .15s ease;
+    color: #fff;
+    padding: 20px 14px;
+    text-transform: uppercase;
+    font-size: 14px;
+    line-height: 100%;
+    font-weight: 600;
+  }
+
+  .contact-info-card__btn:hover {
+    opacity: 0.85;
+  }
+
+  /* Mobile Responsive */
+  @media screen and (max-width: 990px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .contact-info-card__inner {
+      padding: 40px 30px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .contact-info-card__heading {
+      font-size: 25px;
+    }
+    .container {
+      gap: 0px;
+    }
+
+    .contact-info-card__inner {
+      padding: 30px 20px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.contact.name",
+  "class": "shopify-section--contact",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:global.colors.scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading",
+      "default": "Contact"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "t:global.text.content"
+    },
+    {
+      "type": "header",
+      "content": "Info Card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_info_card",
+      "label": "Show Info Card",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "info_card_bg_color",
+      "label": "Card Background Color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "info_card_text_color",
+      "label": "Card Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "info_card_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Card Border Radius",
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "info_subheading",
+      "label": "Subheading",
+      "default": "HERE TO HELP"
+    },
+    {
+      "type": "text",
+      "id": "info_heading",
+      "label": "Heading",
+      "default": "FRIENDLY SUPPORT, REAL PEOPLE"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Address",
+      "default": "Paper Straight RKV Jan van Zutphenstraat 437, 1069 RR Amsterdam"
+    },
+    {
+      "type": "text",
+      "id": "company_number",
+      "label": "Company Number",
+      "default": "70623651"
+    },
+    {
+      "type": "text",
+      "id": "vat_number",
+      "label": "VAT Number",
+      "default": "NL002199001B71"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Email Address",
+      "default": "info@paperstraight.com"
+    },
+    {
+      "type": "text",
+      "id": "phone_number",
+      "label": "Phone Number"
+    },
+    {
+      "type": "text",
+      "id": "business_hours",
+      "label": "Business Hours",
+      "default": "Monday to Friday 9:00 AM to 5:00 PM"
+    },
+    {
+      "type": "header",
+      "content": "Info Card Button"
+    },
+    {
+      "type": "text",
+      "id": "info_button_text",
+      "label": "Button Text",
+      "default": "FAQ & HELP CENTER"
+    },
+    {
+      "type": "url",
+      "id": "info_button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "info_button_bg_color",
+      "label": "Button Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "info_button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "t:sections.contact.blocks.text.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.contact.blocks.text.name_label",
+          "default": "Custom field"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_long_text",
+          "label": "t:sections.contact.blocks.text.use_long_text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.contact.blocks.text.required",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "t:sections.contact.blocks.dropdown.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.contact.blocks.dropdown.name_label",
+          "default": "Custom field"
+        },
+        {
+          "type": "text",
+          "id": "values",
+          "label": "t:sections.contact.blocks.dropdown.values",
+          "info": "t:sections.contact.blocks.dropdown.values_info",
+          "default": "value 1, value 2, value 3"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.contact.presets.contact_form.name",
+      "category": "t:global.categories.call_to_action",
+      "settings": {}
+    }
+  ]
+}
+{% endschema %}
+
+
+{% comment %} {%- assign color_scheme_hash = section.settings.color_scheme.settings.background_gradient | default: section.settings.color_scheme.settings.background | md5 -%}
+
+<div class="section-spacing color-scheme color-scheme--{{ section.settings.color_scheme.id }} color-scheme--bg-{{ color_scheme_hash }} {% if section.settings.separate_section_with_border %}bordered-section{% endif %}">
+  <div class="container container--xs">
+    <div class="section-stack text-center">
+      {%- render 'section-header', subheading: section.settings.subheading, heading: section.settings.title, content: section.settings.content, text_alignment: 'center' -%}
+
+      {%- form 'contact', class: 'form' -%}
+        {%- if form.posted_successfully? -%}
+          {%- assign content = 'contact.form.success_message' | t -%}
+          {%- render 'banner', status: 'success', content: content -%}
+        {%- endif -%}
+
+        {%- if form.errors -%}
+          {%- capture content -%}{{ form.errors.translated_fields[form.errors.first] | capitalize }} {{ form.errors.messages[form.errors.first] }}{%- endcapture -%}
+          {%- render 'banner', status: 'error', content: content -%}
+        {%- endif -%}
+
+        <div class="fieldset">
+          <div class="fieldset-row">
+            {%- assign label  = 'contact.form.name' | t -%}
+            {%- render 'input', type: 'text', name: 'contact[name]', label: label, value: customer.name, required: true, autocomplete: 'name' -%}
+
+            {%- assign label  = 'contact.form.email' | t -%}
+            {%- render 'input', type: 'email', name: 'contact[email]', label: label, value: customer.email, required: true, autocomplete: 'email' -%}
+          </div>
+
+          {%- for block in section.blocks -%}
+            {%- assign field_title = block.settings.title -%}
+
+            {%- if field_title == blank -%}
+              {%- capture field_title -%}Custom field {% increment custom_field %}{%- endcapture -%}
+            {%- endif -%}
+
+            {%- capture name -%}contact[{{ field_title | escape }}]{%- endcapture -%}
+
+            {%- if block.type == 'text' -%}
+              {%- if block.settings.use_long_text -%}
+                {%- render 'input', name: name, label: block.settings.title, required: block.settings.required, multiline: 4 -%}
+              {%- else -%}
+                {%- render 'input', type: 'text', name: name, label: block.settings.title, required: block.settings.required -%}
+              {%- endif -%}
+            {%- elsif block.type == 'dropdown' and block.settings.values != blank -%}
+              {%- assign values = block.settings.values | split: ',' -%}
+              {%- render 'select', option_values: values, show_empty_value: true, name: name, label: block.settings.title, required: true -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- assign label = 'contact.form.message' | t -%}
+          {%- render 'input', name: 'contact[body]', label: label, multiline: 4, required: true -%}
+        </div>
+
+        {%- assign button_content = 'contact.form.submit' | t -%}
+        {%- render 'button', content: button_content, type: 'submit' -%}
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.contact.name",
+  "class": "shopify-section--contact",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "custom.overlay"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:global.colors.scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "t:global.text.heading",
+      "default": "Contact"
+    },
+    {
+      "type": "richtext",
+      "id": "content",
+      "label": "t:global.text.content"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "t:sections.contact.blocks.text.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.contact.blocks.text.name_label",
+          "default": "Custom field"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_long_text",
+          "label": "t:sections.contact.blocks.text.use_long_text",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.contact.blocks.text.required",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "t:sections.contact.blocks.dropdown.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.contact.blocks.dropdown.name_label",
+          "default": "Custom field"
+        },
+        {
+          "type": "text",
+          "id": "values",
+          "label": "t:sections.contact.blocks.dropdown.values",
+          "info": "t:sections.contact.blocks.dropdown.values_info",
+          "default": "value 1, value 2, value 3"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.contact.presets.contact_form.name",
+      "category": "t:global.categories.call_to_action",
+      "settings": {}
+    }
+  ]
+}
+{% endschema %} {% endcomment %}

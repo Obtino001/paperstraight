@@ -1,0 +1,465 @@
+<style>
+/* Drawer wrapper */
+.size-guide-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.size-guide-drawer[open] {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* Overlay fade */
+.size-guide-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.size-guide-drawer[open] .size-guide-overlay {
+  opacity: 1;
+}
+
+/* Right-side drawer panel */
+.size-guide-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 600px;
+  max-width: 90%;
+  height: 100%;
+  background: #fff;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  opacity: 0;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease;
+  will-change: transform, opacity;
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: 0;
+}
+
+/* When open — slide in */
+.size-guide-drawer.show .size-guide-panel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* When closing — smooth slide out */
+.size-guide-drawer.hide .size-guide-panel {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Close button */
+.size-guide-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f6f6f6;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.3s ease;
+}
+.size-guide-close:hover {
+  background: #eee;
+  transform: rotate(90deg);
+}
+
+/* Header */
+.size-guide-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  margin-top: 12px;
+}
+.size-guide-product-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.size-guide-header-text h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.size-guide-subtitle {
+  font-size: 0.9rem;
+  color: #777;
+  margin: 2px 0 0;
+}
+
+/* Body */
+.size-guide-body {
+  padding-top: 10px;
+}
+.size-guide-body-img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.size-guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.size-guide-table th,
+.size-guide-table td {
+  border-bottom: 1px solid #eee;
+  padding: 8px;
+  text-align: left;
+}
+.size-guide-table thead th {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+/* Smooth scrollbar */
+.size-guide-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.size-guide-panel::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+.size-guide-panel::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.size-guide-scr.basic {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.size-guide-scr.basic table {
+  min-width: 300px;
+}
+
+h3.size-guide-title {
+  font-size: 20px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.size-guide-desc {
+  font-size: 16px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+.size-guide-below-desc.size-guide-desc {
+  margin-top: 15px;
+}
+
+/* Mobile: slide from bottom */
+@media (max-width: 640px) {
+  .size-guide-panel {
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    top: auto;
+    right: 0;
+    transform: translateX(100%);
+    opacity: 0;
+    transition:
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.45s ease;
+  }
+  
+  /* When open — slide in */
+  .size-guide-drawer.show .size-guide-panel {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* When closing — smooth slide out */
+  .size-guide-drawer.hide .size-guide-panel {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  
+  h3.size-guide-title {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+}
+</style>
+
+<!-- Size Guide Drawer -->
+<div id="size-guide-drawer"
+  class="size-guide-drawer"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="size-guide-title">
+
+  <!-- Overlay -->
+  <div class="size-guide-overlay" data-close></div>
+
+  <!-- Drawer Content -->
+  <div class="size-guide-panel" role="document" tabindex="-1">
+    <button class="size-guide-close" type="button" aria-label="Close Size Guide" data-close>
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    </button>
+
+    <div class="size-guide-header">
+      <img class="size-guide-product-img"
+        src="{{ product.featured_image | image_url: width: 200 }}"
+        alt="{{ product.title }}"
+        loading="lazy">
+      <div class="size-guide-header-text">
+        <h3 id="size-guide-title" class="size-guide-title">{{ product.title }}</h3>
+        <p class="size-guide-subtitle">Size Guide</p>
+      </div>
+    </div>
+
+    {% if product.metafields.custom.size_guide.value != blank %}
+      <div class="size-guide-body">
+        <h3 class="size-guide-title">{{ product.metafields.custom.size_guide.value.title | metafield_text }}</h3>
+        <div class="size-guide-above-desc size-guide-desc">{{ product.metafields.custom.size_guide.value.above_description | metafield_tag }}</div>
+        {% if product.metafields.custom.size_guide.value.size_guide_image != blank %}
+          <img src="{{ product.metafields.custom.size_guide.value.size_guide_image | img_url : 'master' }}" width="100%" height="auto" class="size-guide-img">
+        {% else %}
+          <div>{{ product.metafields.custom.size_guide.value.size_guide_html }}</div>
+        {% endif %}
+        <div class="size-guide-below-desc size-guide-desc">{{ product.metafields.custom.size_guide.value.below_descriptions | metafield_tag }}</div>
+      </div>
+
+    {% else %}
+
+      <div class="size-guide-body">
+        {% if product.tags contains 'coat' %}
+          <div class="size-guide-scr basic">
+            <h2>Oversized Coat</h2>
+            <table class="size-guide-table">
+              <tr><th scope="col">Size</th><th scope="col">Chest Size</th><th scope="col">Length</th><th scope="col">Sleeve</th><th scope="col">Shoulder</th></tr>
+              <tr><td>M</td><td>126</td><td>99</td><td>54</td><td>57.5</td></tr>
+              <tr><td>L</td><td>130</td><td>101</td><td>55</td><td>59</td></tr>
+              <tr><td>XL</td><td>134</td><td>103</td><td>56</td><td>60.5</td></tr>
+              <tr><td>2XL</td><td>138</td><td>105</td><td>57</td><td>62</td></tr>
+            </table>
+            <div class="size-guide-bottom-description">
+              <p><strong>How to measure</strong></p>
+              <p><strong>Chest/Chest: </strong>Keep your arms relaxed at your sides and measure around the fullest part of your chest.</p>
+              <p><strong>Waist: </strong>Measure around your natural waist, the narrowest part of your waist.</p>
+              <p><strong>Hips:</strong> Stand with your legs together and measure around the fullest part of your hips.</p>
+              <p><strong>Inseam: </strong>Measure the inside of your leg from the crotch to the bottom of your ankle.</p>
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzM1LXNhdWNvbnktYXBwYXJlbFNpemluZ0d1aWRlLndlYnAiLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjMwMCwiZml0IjoiY29udGFpbiJ9fX0="></p>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Tops' %}
+          <div class="size-guide-scr basic">
+            <h2>Paper Straight Vintage Sweater</h2>
+            <div class="size-guide-top-description">
+              <table class="size-guide-table">
+                <tr><th>Size</th><th>Height</th></tr>
+                <tr><td>XS</td><td>1.50-1.61m</td></tr>
+                <tr><td>S</td><td>1.62-1.67m</td></tr>
+                <tr><td>M</td><td>1.68-1.72m</td></tr>
+                <tr><td>L</td><td>1.73-1.77m</td></tr>
+                <tr><td>XL</td><td>1.78-1.84m</td></tr>
+                <tr><td>XXL</td><td>1.85-1.90m+</td></tr>
+              </table>
+            </div>
+            <table class="size-guide-table">
+              <tr><th>Size</th><th>Shoulder</th><th>Chest</th><th>Length</th><th>Sleeves</th></tr>
+              <tr><td>S</td><td>50</td><td>112</td><td>66</td><td>58</td></tr>
+              <tr><td>M</td><td>52</td><td>114</td><td>67</td><td>60</td></tr>
+              <tr><td>L</td><td>54</td><td>116</td><td>68</td><td>62</td></tr>
+              <tr><td>XL</td><td>56</td><td>118</td><td>69</td><td>64</td></tr>
+            </table>
+            <div class="size-guide-bottom-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzE0LXNob3AtOGU0Yi1hYWNkZmUzZDA4NzgtMTYwMzM1Mjk3MDIxOTMucG5nIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2NjAsImZpdCI6ImNvbnRhaW4ifX19"></p>
+              <p><strong>How to measure a jacket</strong></p>
+              <p><em>Note: Measurements provided are of the product when laid flat, not body measurements.</em></p>
+              <ul>
+                <li>Chest is measured along line 1.</li>
+                <li>Shoulder is measured along line 2, from shoulder tip to shoulder tip.</li>
+                <li>Sleeve Length is measured from point 3 to 4. (Point 3 is the centre seam on the inside of the jacket neck).</li>
+                <li>Back Length is measured along line 5, on the back of the jacket. (From the seam at the base of the collar to the bottom hem of the jacket).</li>
+              </ul>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Hoodie' %}
+          <div class="size-guide-scr basic">
+            <h2>Paper Straight Washed Hoodie with Zipper</h2>
+            <div class="size-guide-top-description">
+              <table class="size-guide-table">
+                <tr><th>Size</th><th>Height</th></tr>
+                <tr><td>XS</td><td>1.50-1.61m</td></tr>
+                <tr><td>S</td><td>1.62-1.67m</td></tr>
+                <tr><td>M</td><td>1.68-1.72m</td></tr>
+                <tr><td>L</td><td>1.73-1.77m</td></tr>
+                <tr><td>XL</td><td>1.78-1.84m</td></tr>
+                <tr><td>XXL</td><td>1.85-1.90m+</td></tr>
+              </table>
+            </div>
+            <table class="size-guide-table">
+              <tr><th></th><th>Chest</th><th>Shoulder</th><th>Length</th><th>Sleeve</th><th>Height</th><th>Body Weight</th></tr>
+              <tr><td>S</td><td>68cm</td><td>64cm</td><td>61cm</td><td>51.5cm</td><td>160cm - 170cm</td><td>45kg - 55kg</td></tr>
+              <tr><td>M</td><td>70cm</td><td>66cm</td><td>63cm</td><td>52.5cm</td><td>170cm - 175cm</td><td>55kg - 65kg</td></tr>
+              <tr><td>L</td><td>72cm</td><td>68cm</td><td>65cm</td><td>53.5cm</td><td>175cm - 180cm</td><td>60kg - 75kg</td></tr>
+              <tr><td>XL</td><td>74cm</td><td>70cm</td><td>67cm</td><td>54.5cm</td><td>175cm - 185cm</td><td>70kg - 85kg</td></tr>
+              <tr><td>XXL</td><td>76cm</td><td>72cm</td><td>69cm</td><td>55.5cm</td><td>180cm - 195cm</td><td>75kg - 90kg</td></tr>
+            </table>
+          </div>
+
+        {% elsif product.tags contains 'T-Shirts' %}
+          <div class="size-guide-scr basic">
+            <h2>T-Shirts Paper Straight</h2>
+            <table class="size-guide-table">
+              <tr><th scope="col">Size</th><th scope="col">Shoulder</th><th scope="col">Chest</th><th scope="col">Sleeves</th><th scope="col">Length</th></tr>
+              <tr><td>M</td><td>62</td><td>120</td><td>22</td><td>76</td></tr>
+              <tr><td>L</td><td>64</td><td>124</td><td>23</td><td>78</td></tr>
+              <tr><td>XL</td><td>66</td><td>128</td><td>24</td><td>80</td></tr>
+            </table>
+            <div class="size-guide-bottom-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzE3LXNob3AtOGU0Yi1hYWNkZmUzZDA4NzgtMTYwMjg0MzIzMTkxMy5wbmciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjY2MCwiZml0IjoiY29udGFpbiJ9fX0="></p>
+              <p><strong>Neck to Shoulder:</strong> Measure from the middle of the neck to end of shoulder (where the sleeve starts).</p>
+              <p><strong>Sleeve length (A):</strong> Measure from the center back of collar to the end of shoulder.</p>
+              <p><strong>Sleeve length (B):</strong> Measure from the shoulder to the wrist.</p>
+              <p><strong>Shoulder to Shoulder:</strong> Measure this length from one shoulder to another.</p>
+              <p><strong>Chest:</strong> Measure around the fullest part, place the tape close under the arms and make sure the tape is flat across the back.</p>
+              <p><strong>Front Length:</strong> Measure from the highest point of the shoulder to the desired hemline.</p>
+              <p><strong>Hem:</strong> Measure from one side to another, but it is vital to take this measurement from above the elastic area (If sweatshirt have any).</p>
+              <p><strong>Sleeve cuff:</strong> At the widest point of the wrist, measure its circumference. Leave enough room for watches or jewelry worn often.</p>
+              <p><strong>Sizes can vary from 2-3 centimeters because they are measured by hand. 1inch=2.54cm. The size matched on a label can differ from the one you have ordered.</strong></p>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Knit' %}
+          <div class="size-guide-scr basic">
+            <h2>Sweaters</h2>
+            <table class="size-guide-table">
+              <tr><th scope="col">Size</th><th scope="col">Shoulder</th><th scope="col">Chest</th><th scope="col">Sleeve</th><th scope="col">Length</th></tr>
+              <tr><td>S</td><td>61</td><td>120</td><td>51</td><td>68</td></tr>
+              <tr><td>M</td><td>63</td><td>124</td><td>53</td><td>70</td></tr>
+              <tr><td>L</td><td>65</td><td>128</td><td>55</td><td>72</td></tr>
+              <tr><td>XL</td><td>67</td><td>132</td><td>57</td><td>74</td></tr>
+              <tr><td>XXL</td><td>69</td><td>136</td><td>59</td><td>76</td></tr>
+            </table>
+            <div class="size-guide-bottom-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzIxLXNob3AtOGU0Yi1hYWNkZmUzZDA4NzgtMTYwMjg0MzIzMTkxMzEucG5nIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2NjAsImZpdCI6ImNvbnRhaW4ifX19"></p>
+              <ul>
+                <li><strong>Neck to Shoulder:</strong> Measure from the middle of the neck to end of shoulder (where the sleeve starts).</li>
+                <li><strong>Sleeve length (A):</strong> Measure from the center back of collar to the end of shoulder.</li>
+                <li><strong>Sleeve length (B):</strong> Measure from the shoulder to the wrist.</li>
+                <li><strong>Shoulder to Shoulder:</strong> Measure this length from one shoulder to another.</li>
+                <li><strong>Chest:</strong> Measure around the fullest part, place the tape close under the arms and make sure the tape is flat across the back.</li>
+                <li><strong>Front Length:</strong> Measure from the highest point of the shoulder to the desired hemline.</li>
+                <li><strong>Hem:</strong> Measure from one side to another, but it is vital to take this measurement from above the elastic area (If sweatshirt have any).</li>
+                <li><strong>Sleeve cuff:</strong> At the widest point of the wrist, measure its circumference. Leave enough room for watches or jewelry worn often.</li>
+              </ul>
+              <p><strong>Sizes can vary from 2-3 centimeters because they are measured by hand. 1inch=2.54cm. The size matched on a label can differ from the one you have ordered.</strong></p>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Tee' or product.tags contains 'tee' %}
+          <div class="size-guide-scr basic">
+            <h2>Paper Straight Modern Portrait Tee</h2>
+            <div class="size-guide-top-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzU1LWh6dWFpZWMtMTcxMTQyNDg3NTcxOTExLnBuZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6NjQ2LCJmaXQiOiJjb250YWluIn19fQ=="></p>
+            </div>
+            <div class="size-guide-bottom-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzU1LWh6dWFpZWMtMTcxNTU4MTk0NjUwNDYucG5nIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2NTEsImZpdCI6ImNvbnRhaW4ifX19"></p>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Jeans' %}
+          <div class="size-guide-scr basic">
+            <h2>Size Guide</h2>
+            <table class="size-guide-table">
+              <tr><th scope="col">SIZE</th><th scope="col">HEIGHT (cm)</th></tr>
+              <tr><td>XS</td><td>155-165</td></tr>
+              <tr><td>S</td><td>165-175</td></tr>
+              <tr><td>M</td><td>175-184</td></tr>
+              <tr><td>L</td><td>184-190</td></tr>
+              <tr><td>XL</td><td>190-195</td></tr>
+            </table>
+          </div>
+
+        {% elsif product.tags contains 'Duty-Jeans' %}
+          <div class="size-guide-scr basic">
+            <h2>Paper Straight Wash Heavy-Duty Jeans</h2>
+            <div class="size-guide-top-description">
+              <p><img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzUyLTJfODAwX3hfODAwXzNkM2ZjOGJkLWFiNzAtNDNmMC1hMGRjLTRkOWFlMzU3NGQwMi53ZWJwIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2NjAsImZpdCI6ImNvbnRhaW4ifX19"></p>
+            </div>
+          </div>
+
+        {% elsif product.tags contains 'Midnight' %}
+          <div class="size-guide-scr basic">
+            <h2>Midnight Fleece</h2>
+            <table class="size-guide-table">
+              <tr><th></th><th>Bust</th><th>Length</th><th>Shoulder</th><th>Sleeve Length</th></tr>
+              <tr><td>S</td><td>123</td><td>67</td><td>59.5</td><td>54.5</td></tr>
+              <tr><td>M</td><td>128</td><td>68</td><td>61.5</td><td>55.5</td></tr>
+              <tr><td>L</td><td>133</td><td>69</td><td>63.5</td><td>56.5</td></tr>
+              <tr><td>XL</td><td>138</td><td>70</td><td>65.5</td><td>57.5</td></tr>
+              <tr><td>XXL</td><td>143</td><td>71</td><td>67.5</td><td>58.5</td></tr>
+            </table>
+          </div>
+
+        {% else %}
+          <img src="https://d17fzo7x83uajt.cloudfront.net/eyJidWNrZXQiOiJzaXplY2hhcnRzcmVsZW50bGVzcyIsImtleSI6IjFxdGVocS1lOC5teXNob3BpZnkuY29tLzU2LVNJWkVHVUlERVBBUEVSU1RSQUlHSFQxLnBuZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6NjYwLCJmaXQiOiJjb250YWluIn19fQ==" alt="Size Guide" class="size-guide-default-img">
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const drawer = document.getElementById("size-guide-drawer");
+  const openBtn = document.querySelector(".js-open-size-guide");
+  const overlay = drawer.querySelector(".size-guide-overlay");
+  const closeBtns = drawer.querySelectorAll("[data-close]");
+  const panel = drawer.querySelector(".size-guide-panel");
+  let lastFocused = null;
+
+  const openDrawer = () => {
+    lastFocused = document.activeElement;
+    drawer.setAttribute("open", "");
+    drawer.classList.remove("hide");
+    requestAnimationFrame(() => drawer.classList.add("show"));
+    document.documentElement.style.overflow = "hidden";
+  };
+
+  const closeDrawer = () => {
+    drawer.classList.remove("show");
+    drawer.classList.add("hide");
+    document.documentElement.style.overflow = "";
+
+    // Wait for transition before removing [open]
+    setTimeout(() => {
+      drawer.removeAttribute("open");
+      drawer.classList.remove("hide");
+      if (lastFocused) lastFocused.focus();
+    }, 500); // must match CSS transition time
+  };
+
+  if (openBtn) {
+    openBtn.addEventListener("click", openDrawer);
+  }
+  
+  overlay.addEventListener("click", closeDrawer);
+  closeBtns.forEach(btn => btn.addEventListener("click", closeDrawer));
+  drawer.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+});
+</script>

@@ -1,0 +1,388 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+BACK IN STOCK FORM MODAL
+----------------------------------------------------------------------------------------------------------------------
+This snippet renders a beautiful, modern Back In Stock modal form.
+It uses a `<dialog>` element and the native Shopify contact form to send an email.
+
+Supported variables:
+- product: The product object.
+{%- endcomment -%}
+
+<dialog id="back-in-stock-modal" class="bis-modal">
+  <div class="bis-modal-inner">
+    <button type="button" class="bis-close-button" onclick="document.getElementById('back-in-stock-modal').close()" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="icon icon-close"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    
+    <div class="bis-header">
+      <h2 class="bis-title">{{ product.title }}</h2>
+      <p class="bis-description">Register to receive a notification when this item comes back in stock.</p>
+    </div>
+
+    {%- assign form_id = 'bis-form-' | append: product.id -%}
+    {%- form 'contact', id: form_id, class: 'bis-form' -%}
+      
+      {%- if form.posted_successfully? -%}
+        <div class="bis-success-message">
+          <p>Thank you! We will notify you when this item is available.</p>
+        </div>
+      {%- endif -%}
+
+      {%- if form.errors -%}
+        <div class="bis-error-message">
+          {{ form.errors | default_errors }}
+        </div>
+      {%- endif -%}
+
+      <div class="bis-field-group">
+        <label for="bis-variant-{{ product.id }}" class="sr-only">Select Variant</label>
+        <div class="bis-select-wrapper">
+          <select id="bis-variant-{{ product.id }}" name="contact[Variant]" class="bis-select" required>
+            {%- for variant in product.variants -%}
+              {%- if variant.available == false -%}
+                <option value="{{ variant.title | escape }}" {% if product.selected_or_first_available_variant.id == variant.id %}selected{% endif %}>
+                  {{ variant.title }}
+                </option>
+              {%- endif -%}
+            {%- endfor -%}
+          </select>
+          <div class="bis-select-icon">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bis-field-group">
+        <label for="bis-email-{{ product.id }}" class="sr-only">Email</label>
+        <input 
+          id="bis-email-{{ product.id }}" 
+          type="email" 
+          name="contact[email]" 
+          class="bis-input" 
+          value="{% if customer %}{{ customer.email }}{% endif %}"
+          placeholder="Contact Email"
+          required
+        >
+      </div>
+
+      <input type="hidden" name="contact[body]" value="Please notify me when {{ product.title }} is back in stock.">
+
+      <div class="bis-checkbox-group">
+        <label class="bis-checkbox-label">
+          <input type="checkbox" name="contact[accepts_marketing]" class="bis-checkbox" checked>
+          <span class="bis-checkbox-text">Add me to your email list.</span>
+        </label>
+      </div>
+
+      <button type="submit" class="bis-submit-btn">
+        <span>Notify me when available</span>
+      </button>
+      
+    {%- endform -%}
+  </div>
+</dialog>
+
+<style>
+/* Modern styling for the BIS modal */
+.bis-modal {
+  padding: 0;
+  border: none;
+  background: transparent;
+  max-width: 460px;
+  width: 90%;
+  {% comment %} border-radius: 16px; {% endcomment %}
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0,0,0,0.1);
+}
+
+.bis-modal::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: bisFadeIn 0.3s ease-out;
+}
+
+.bis-modal[open] {
+  animation: bisSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.bis-modal-inner {
+  background: #ffffff;
+  {% comment %} border-radius: 16px; {% endcomment %}
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bis-close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #a0aec0;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bis-close-button:hover {
+  background: #f7fafc;
+  color: #1a202c;
+  transform: rotate(90deg);
+}
+
+.bis-header {
+  text-align: center;
+}
+
+.bis-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #1a202c;
+  line-height: 1.3;
+}
+
+.bis-description {
+  font-size: 0.95rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bis-field-group {
+  position: relative;
+}
+
+.bis-select-wrapper {
+  position: relative;
+}
+
+.bis-select, .bis-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  {% comment %} border-radius: 8px; {% endcomment %}
+  font-size: 1rem;
+  color: #2d3748;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  appearance: none;
+}
+
+.bis-select:focus, .bis-input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.bis-select:hover, .bis-input:hover {
+  border-color: #cbd5e0;
+}
+
+.bis-select-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #a0aec0;
+}
+
+.bis-checkbox-group {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.bis-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.bis-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #cbd5e0;
+  border-radius: 4px;
+  accent-color: #1a202c;
+  cursor: pointer;
+  margin: 0;
+}
+
+.bis-checkbox-text {
+  font-size: 0.9rem;
+  color: #4a5568;
+  user-select: none;
+}
+
+.bis-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background-color: black;
+    color: #fff;
+    border: none;
+    /* border-radius: 8px; */
+    font-size: 1rem;
+    /* font-weight: 600; */
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bis-submit-btn:hover {
+  background-color: #2d3748;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.bis-submit-btn:active {
+  transform: translateY(0);
+}
+
+.bis-success-message {
+  padding: 16px;
+  background-color: #f0fff4;
+  border: 1px solid #c6f6d5;
+  color: #276749;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.bis-error-message {
+  padding: 16px;
+  background-color: #fff5f5;
+  border: 1px solid #fed7d7;
+  color: #c53030;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes bisFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bisSlideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Close dialog when clicking the backdrop */
+.bis-modal::backdrop {
+  cursor: pointer;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('back-in-stock-modal');
+  if (!modal) return;
+
+  // Close modal when clicking on the backdrop
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.close();
+    }
+  });
+
+  // Open modal if form had errors or success to show messages (fallback if JS fails)
+  const errorMsg = modal.querySelector('.bis-error-message');
+  const successMsg = modal.querySelector('.bis-success-message');
+  if (errorMsg || successMsg) {
+    modal.showModal();
+  }
+
+  // AJAX form submission
+  const bisForm = document.getElementById('bis-form-{{ product.id }}');
+  if (bisForm) {
+    bisForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = bisForm.querySelector('.bis-submit-btn');
+      const originalBtnContent = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span>Sending...</span>';
+      submitBtn.disabled = true;
+
+      const formData = new FormData(bisForm);
+
+      try {
+        await fetch(bisForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'text/html'
+          }
+        });
+
+        // Create success state
+        bisForm.innerHTML = `
+          <div class="bis-success-message" style="margin-top: 20px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="margin: 0 auto 16px; display: block; color: #276749;">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 4L12 14.01l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 8px; color: #1a202c;">You're on the list!</h3>
+            <p style="margin: 0; color: #4a5568;">We will notify you by email as soon as this item becomes available again.</p>
+          </div>
+        `;
+      } catch (error) {
+        submitBtn.innerHTML = originalBtnContent;
+        submitBtn.disabled = false;
+        
+        let errorDiv = bisForm.querySelector('.bis-error-message');
+        if (!errorDiv) {
+          errorDiv = document.createElement('div');
+          errorDiv.className = 'bis-error-message';
+          bisForm.insertBefore(errorDiv, bisForm.firstChild);
+        }
+        errorDiv.innerHTML = '<p>Something went wrong. Please try again later.</p>';
+      }
+    });
+  }
+});
+
+// Global function to open the modal
+window.openBISModal = function() {
+  const modal = document.getElementById('back-in-stock-modal');
+  if (modal) {
+    modal.showModal();
+  }
+};
+</script>

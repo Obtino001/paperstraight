@@ -1,0 +1,242 @@
+{%- comment -%}
+Countdown Pre-Order Bar — Exact style (black bar + blue border + spaced colons)
+{%- endcomment -%}
+
+<section id="cdp-{{ section.id }}" class="cdp">
+<div class="container">
+<div class="cdp__bar" role="status" aria-live="polite">
+<span class="cdp__prefix">{{ section.settings.prefix }}</span>
+
+<span class="cdp__group">
+<span class="cdp__num" data-cdp="days">0</span>
+<span class="cdp__label">{{ section.settings.days_label }}</span>
+</span>
+
+<span class="cdp__sep">:</span>
+
+<span class="cdp__group">
+<span class="cdp__num" data-cdp="hours">0</span>
+<span class="cdp__label">{{ section.settings.hours_label }}</span>
+</span>
+
+<span class="cdp__sep">:</span>
+
+<span class="cdp__group">
+<span class="cdp__num" data-cdp="minutes">0</span>
+<span class="cdp__label">{{ section.settings.minutes_label }}</span>
+</span>
+
+<span class="cdp__sep">:</span>
+
+<span class="cdp__group">
+<span class="cdp__num" data-cdp="seconds">0</span>
+<span class="cdp__label">{{ section.settings.seconds_label }}</span>
+</span>
+</div>
+</div>
+</section>
+
+<style>
+/* container */
+#cdp-{{ section.id }}{
+--cdp-bg: {{ section.settings.bg }};
+--cdp-text: {{ section.settings.text }};
+--cdp-accent: {{ section.settings.accent }};
+--cdp-height: {{ section.settings.bar_height }}px;
+--cdp-radius: {{ section.settings.radius }}px;
+--cdp-weight: {{ section.settings.font_weight }};
+--cdp-size: {{ section.settings.font_size }}px;
+--cdp-sep-gap: 14px;
+--cdp-border: {{ section.settings.border_width }}px;
+padding: {{ section.settings.outer_padding_top }}px 0 {{ section.settings.outer_padding_bottom }}px;
+background: transparent;
+}
+#cdp-{{ section.id }} .cdp__wrap{
+max-width: {{ section.settings.max_width }}px;
+margin: 0 auto;
+padding: 0 12px;
+}
+/* bar */
+#cdp-{{ section.id }} .cdp__bar{
+min-height: var(--cdp-height);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 16px;
+color: var(--cdp-text);
+background: var(--cdp-bg);
+border: var(--cdp-border) solid var(--cdp-accent);
+border-radius: var(--cdp-radius);
+line-height: 1;
+text-transform: none;
+padding: 18px 0 16px 0;
+box-sizing: border-box;
+text-align: center;
+font-weight: var(--cdp-weight);
+position: relative;
+}
+#cdp-{{ section.id }} .cdp__prefix{
+opacity: 0.95;
+font-size: var(--cdp-size);
+letter-spacing: .02em;
+margin-right: 4px;
+}
+#cdp-{{ section.id }} .cdp__group{
+display: inline-flex;
+align-items: baseline;
+gap: 6px;
+font-size: var(--cdp-size);
+}
+#cdp-{{ section.id }} .cdp__num{
+font-weight: 700;
+letter-spacing: .02em;
+min-width: 20px;
+display: inline-block;
+text-align: right;
+font-size: 16px;
+color: rgba(255, 255, 255, 1);
+}
+#cdp-{{ section.id }} .cdp__label{
+font-weight: 400;
+font-size: 14px;
+color: rgba(255, 255, 255, 1);
+}
+#cdp-{{ section.id }} .cdp__sep{
+display: inline-block;
+margin: 0;
+font-weight: 700;
+font-size: var(--cdp-size);
+}
+/* responsive */
+@media (max-width: 768px){
+#cdp-{{ section.id }}   .cdp__bar {
+gap: 8px;
+padding: 18px 10px;
+flex-wrap: wrap;
+}
+#cdp-{{ section.id }}  .cdp__prefix {
+width:100%;
+}
+}
+</style>
+
+<script>
+(function(){
+const root = document.getElementById('cdp-{{ section.id }}');
+if(!root) return;
+
+// Build end date from settings (store local time unless offset provided)
+const dateStr = "{{ section.settings.end_date }}";
+const timeStr = "{{ section.settings.end_time }}";
+const tzOffsetMin = parseInt("{{ section.settings.tz_offset_minutes }}", 10) || null;
+
+if(!dateStr){ return; }
+
+function toDate(){
+// YYYY-MM-DD + HH:mm
+let iso = dateStr.trim();
+if(timeStr){ iso += 'T' + timeStr.trim(); } else { iso += 'T23:59:59'; }
+// If custom offset provided, append it like +05:30; else leave as local
+if(tzOffsetMin !== null){
+const sign = tzOffsetMin >= 0 ? '+' : '-';
+const abs = Math.abs(tzOffsetMin);
+const hh = String(Math.floor(abs/60)).padStart(2,'0');
+const mm = String(abs%60).padStart(2,'0');
+iso += sign + hh + ':' + mm;
+return new Date(iso);
+}
+return new Date(iso);
+}
+
+const endDate = toDate();
+
+const els = {
+days:   root.querySelector('[data-cdp="days"]'),
+hours:  root.querySelector('[data-cdp="hours"]'),
+minutes:root.querySelector('[data-cdp="minutes"]'),
+seconds:root.querySelector('[data-cdp="seconds"]'),
+bar:    root.querySelector('.cdp__bar')
+};
+
+function tick(){
+const now = new Date().getTime();
+const dist = endDate.getTime() - now;
+
+if(dist <= 0){
+els.days.textContent = '0';
+els.hours.textContent = '0';
+els.minutes.textContent = '0';
+els.seconds.textContent = '0';
+// Optional: change text when expired
+// els.bar.firstElementChild.textContent = "{{ section.settings.expired_prefix }}";
+clearInterval(timer);
+return;
+}
+const d = Math.floor(dist / (1000*60*60*24));
+const h = Math.floor((dist % (1000*60*60*24)) / (1000*60*60));
+const m = Math.floor((dist % (1000*60*60)) / (1000*60));
+const s = Math.floor((dist % (1000*60)) / 1000);
+
+els.days.textContent    = d;
+els.hours.textContent   = h;
+els.minutes.textContent = m;
+els.seconds.textContent = s;
+}
+
+tick();
+var timer = setInterval(tick, 1000);
+// Pause timer when tab is hidden to save CPU
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    clearInterval(timer);
+    timer = null;
+  } else {
+    tick();
+    if (!timer) timer = setInterval(tick, 1000);
+  }
+});
+})();
+</script>
+
+{% schema %}
+{
+"name": "Countdown Pre-Order Bar",
+"settings": [
+{ "type": "text", "id": "prefix", "label": "Prefix text", "default": "PRE-ORDER BEFORE" },
+
+{ "type": "text", "id": "days_label", "label": "Days label", "default": "Days" },
+{ "type": "text", "id": "hours_label", "label": "Hours label", "default": "Hours" },
+{ "type": "text", "id": "minutes_label", "label": "Minutes label", "default": "Minutes" },
+{ "type": "text", "id": "seconds_label", "label": "Seconds label", "default": "Seconds" },
+
+{ "type": "text", "id": "end_date", "label": "End date (YYYY-MM-DD)", "default": "2025-12-31" },
+{ "type": "text", "id": "end_time", "label": "End time (HH:MM, 24h)", "default": "23:59:59" },
+{ "type": "number", "id": "tz_offset_minutes", "label": "Timezone offset minutes", "default": 0 },
+
+{ "type": "color", "id": "bg", "label": "Bar background", "default": "#000000" },
+{ "type": "color", "id": "text", "label": "Text color", "default": "#FFFFFF" },
+{ "type": "color", "id": "accent", "label": "Border color", "default": "#1C9CF6" },
+
+{ "type": "range", "id": "bar_height", "label": "Bar height (px)", "min": 36, "max": 80, "step": 1, "default": 51 },
+{ "type": "range", "id": "border_width", "label": "Border width (px)", "min": 1, "max": 4, "step": 1, "default": 2 },
+{ "type": "range", "id": "radius", "label": "Corner radius (px)", "min": 0, "max": 16, "step": 1, "default": 0 },
+
+{ "type": "select", "id": "font_weight", "label": "Font weight", "options": [
+{ "value": "500", "label": "Medium" },
+{ "value": "600", "label": "Semibold" },
+{ "value": "700", "label": "Bold" }
+], "default": "600" },
+
+{ "type": "range", "id": "font_size", "label": "Font size (px)", "min": 12, "max": 20, "step": 1, "default": 14 },
+
+{ "type": "range", "id": "max_width", "label": "Max width (px)", "min": 1000, "max": 1800, "step": 20, "default": 1400 },
+{ "type": "range", "id": "outer_padding_top", "label": "Top spacing (px)", "min": 0, "max": 30, "step": 1, "default": 8 },
+{ "type": "range", "id": "outer_padding_bottom", "label": "Bottom spacing (px)", "min": 0, "max": 30, "step": 1, "default": 8 },
+
+{ "type": "text", "id": "expired_prefix", "label": "Expired message (optional)", "default": "PRE-ORDER CLOSED" }
+],
+"presets": [
+{ "name": "Countdown Pre-Order Bar", "category": "Banner" }
+]
+}
+{% endschema %}

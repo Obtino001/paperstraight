@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" dir="{% render 'direction' %}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, maximum-scale=5.0">
+
+    <script>
+      (function(){
+        if(window.__d)return;window.__d=1;
+        var R=/intelligems\.io|klaviyo\.com|sc-static\.net|snapchat\.com|connect\.facebook\.net|facebook\.com\/tr|triplewhale|getelevar|elevar\.com|loox\.io|analytics\.tiktok\.com|googletagmanager\.com\/gtag|googletagmanager\.com\/gtm/i;
+        var q=[],u=0;
+        var m=new MutationObserver(function(muts){
+          for(var i=0;i<muts.length;i++){
+            var a=muts[i].addedNodes;
+            for(var j=0;j<a.length;j++){
+              var n=a[j];
+              if(n.tagName==='SCRIPT'&&n.src&&R.test(n.src)&&n.type!=='javascript/blocked'){
+                n.type='javascript/blocked';n.setAttribute('data-src',n.src);n.removeAttribute('src');q.push(n);
+              }
+            }
+          }
+        });
+        m.observe(document.documentElement,{childList:true,subtree:true});
+        function go(){
+          if(u)return;u=1;m.disconnect();
+          for(var i=0;i<q.length;i++){
+            var o=q[i],s=document.createElement('script');
+            for(var k=0;k<o.attributes.length;k++){
+              var at=o.attributes[k];
+              if(at.name==='type'||at.name==='data-src')continue;
+              s.setAttribute(at.name,at.value);
+            }
+            s.src=o.getAttribute('data-src');
+            if(o.parentNode){o.parentNode.insertBefore(s,o);o.parentNode.removeChild(o);}
+          }
+          q=[];
+        }
+        ['mousemove','scroll','touchstart','keydown','click'].forEach(function(e){
+          window.addEventListener(e,go,{once:true,passive:true,capture:true});
+        });
+        setTimeout(go,12000);
+      })();
+    </script>
+
+    {{- 'theme.css' | asset_url | stylesheet_tag: preload: true -}}
+    {{- 'custom.css' | asset_url | stylesheet_tag: preload: true -}}
+
+    <title>{% if page_title == blank %}{{ shop.name }}{% else %}{{ page_title }}{% if current_page != 1 %} &ndash; {{ 'general.page' | t: page: current_page }}{% endif %}{% endif %}</title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon -%}
+      <link rel="shortcut icon" href="{{ settings.favicon | image_url: width: 96 }}">
+      <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180 }}">
+    {%- endif -%}
+
+    {%- comment -%} Preconnects: only what we actually use {%- endcomment -%}
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+
+    {%- comment -%} Preload only Shopify-hosted theme fonts. Pick ONE font system — don't double up. {%- endcomment -%}
+    {%- unless settings.heading_font.system? -%}
+      <link rel="preload" href="{{ settings.heading_font | font_url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
+    {%- endunless -%}
+    {%- unless settings.text_font.system? -%}
+      <link rel="preload" href="{{ settings.text_font | font_url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
+    {%- endunless -%}
+
+    {%- comment -%}
+      Google Fonts removed. You were loading Instrument Sans, Montserrat, AND Roboto with full weight ranges
+      while ALSO loading theme fonts from Shopify. That's ~500KB+ of duplicate font data on every page.
+      If you truly need a Google font, set it in Theme Settings → Typography so Shopify can self-host it
+      via fonts.shopifycdn.com (faster, cached, no third-party connection).
+    {%- endcomment -%}
+
+    {%- render 'social-meta-tags' -%}
+    {%- render 'microdata-schema' -%}
+    {%- render 'css-variables' -%}
+    {%- render 'js-variables' -%}
+
+    {%- if request.page_type == 'gift_card' -%}
+      <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+    {%- endif -%}
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vendor": "{{ 'vendor.min.js' | asset_url }}",
+          "theme": "{{ 'theme.js' | asset_url }}",
+          "photoswipe": "{{ 'photoswipe.min.js' | asset_url }}"
+        }
+      }
+    </script>
+
+      <script type="module" src="{{ 'vendor.min.js' | asset_url }}" defer></script>
+      <script type="module" src="{{ 'theme.js' | asset_url }}" defer></script>
+      <script src="{{ 'custom.js' | asset_url }}" defer></script>
+
+    {{ content_for_header }}
+  </head>
+
+  {%- liquid
+    assign features_class = ''
+    if settings.show_button_transition
+      assign features_class = features_class | append: 'features--button-transition '
+    endif
+    if settings.show_image_zoom_on_hover
+      assign features_class = features_class | append: 'features--zoom-image '
+    endif
+  -%}
+
+  <body class="{{ features_class }} color-scheme color-scheme--{{ settings.default_color_scheme.id }}">
+    {%- render 'shadow-dom-templates' -%}
+
+    <loading-bar class="loading-bar" aria-hidden="true"></loading-bar>
+    <a href="#main" allow-hash-change class="skip-to-content sr-only">{{ 'general.accessibility.skip_to_content' | t }}</a>
+
+    <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      <span id="status-announcement"></span>
+    </div>
+    <div class="sr-only" role="alert" aria-live="assertive" aria-atomic="true">
+      <span id="error-announcement"></span>
+    </div>
+
+    <span id="header-scroll-tracker" style="position:absolute;width:1px;height:1px;top:var(--header-scroll-tracker-offset,10px);left:0;"></span>
+
+    {%- if request.page_type != 'password' -%}
+      {%- sections 'header-group' -%}
+      {%- sections 'overlay-group' -%}
+    {%- endif -%}
+
+    <main id="main" class="anchor">
+      {{ content_for_layout }}
+
+      {%- if request.page_type != 'password' -%}
+        {%- sections 'footer-group' -%}
+      {%- endif -%}
+    </main>
+
+    {%- comment -%}
+      Video click handler: only load on templates that can contain video media.
+      Previously this script + MutationObserver ran on EVERY page (cart, account,
+      policies, 404, etc.) observing the entire body. Now scoped.
+    {%- endcomment -%}
+    {%- if template contains 'product' or template contains 'index' or template contains 'collection' or template contains 'page' -%}
+      <script src="{{ 'video-click-handler.js' | asset_url }}" defer></script>
+    {%- endif -%}
+  </body>
+</html>

@@ -1,0 +1,19 @@
+.Button--primary {
+    background: #fff;
+    padding: 15px 30px;
+    color: black;
+    border: 1px solid white;
+    font-weight: 600;
+    /* Added transition here */
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.Button--primary:hover {
+    background: none;
+    border-color: white;
+    color: white;
+}
+
+.ButtonGroup {
+    margin-top: 15px;
+}

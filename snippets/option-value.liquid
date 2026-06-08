@@ -1,0 +1,292 @@
+{%- comment -%}
+----------------------------------------------------------------------------------------------------------------------
+OPTION VALUE
+----------------------------------------------------------------------------------------------------------------------
+
+This component renders a single option value. It is a generic component that is used both on product and collection
+pages (for metaobject filtering). It ca be used to render a swatch, a block, a thumbnail or an image. As of today,
+the "image_filter" type is only used for filters.
+
+********************************************
+Supported variables
+********************************************
+
+* type: control the presentational type of the option value. Can be "swatch", "block", "thumbnail" or "image_filter". [REQUIRED]
+* form: the form ID to which the option value belongs. [REQUIRED FOR PRODUCT OPTION]
+* option_value: in the case of a product option, the option_value object. [REQUIRED FOR PRODUCT OPTION]
+* filter_value: in the case of a collection filter option, the filter_value object. [REQUIRED FOR COLLECTION FILTER]
+* param_name: the param_name attribute when field is submitted to the server [REQUIRED FOR PRODUCT OPTION, NOT NEEDED FOR COLLECTION FILTER]
+* option_position: the position of the option in the list of options [REQUIRED FOR PRODUCT OPTION]
+* output_variant_media: if set to true, the variant media will be outputted as a data attribute of the associated form control. This is
+                        done on card swatches to allow for a quick preview of the variant media.
+* url: if defined, option value will be used as a plain link tag instead of an input. If passing an option_value object, the product_url
+       will be used as the link target automatically. [OPTIONAL]
+* reload_page_for_combined_products: if set to true, when a given option value is connected to a combined product, the option will be generated
+                                     as a link instead, and will reload the whole page. This is needed for main page product, as other sections
+                                     might be different based on the other sections.
+* hide_if_disabled: if true, the option value will not be rendered if the option value is disabled. [OPTIONAL]
+* id_prefix: an optional prefix to be used to dissociate the ID
+
+Block specific parameters
+
+* show_swatch: if set to true, show the colors as a small tile.
+
+Color swatch specific parameters:
+
+* show_tooltip: if set to true, display a tooltip on hover
+
+Thumbnail specific parameters:
+
+* image: a specific image to use for the thumbnail. Most of the time this must not be set explicitly, as the theme will use the variant image as a default.
+
+{%- endcomment -%}
+
+{%- liquid
+  if option_value
+    assign label = label | default: option_value.name
+    assign value = option_value.id
+    assign disabled = false
+    assign selected = option_value.selected
+    assign allow_multiple = false
+    assign variant = option_value.variant
+    assign swatch = option_value.swatch
+
+    if option_value.product_url != blank and reload_page_for_combined_products
+      assign url = option_value.product_url
+    endif
+
+    if option_value.available == false
+      assign disabled = true
+    endif
+  elsif filter_value
+    assign label = label | default: filter_value.label
+    assign value = filter_value.value
+    assign param_name = filter_value.param_name
+    assign disabled = false
+    assign selected = filter_value.active
+    assign allow_multiple = true
+    assign variant = filter_value.variant
+    assign swatch = filter_value.swatch
+  endif
+
+  assign downcase_label = label | downcase | strip
+-%}
+
+{%- capture id -%}option-value-{{ id_prefix }}-{{ section.id }}-{{ param_name }}-{{ value | handle }}{%- endcapture -%}
+
+{%- liquid
+  assign matched = false
+  assign swatch_style = ''
+
+  if type == 'swatch' or type == 'block' and show_swatch
+    if swatch.image != blank
+      assign swatch_image = swatch.image | image_url: width: 72
+      assign swatch_style = '--swatch-background: url(' | append: swatch_image | append: ')'
+      assign matched = true
+    elsif swatch.color != blank
+      assign swatch_style = '--swatch-background: linear-gradient(to right, ' | append: swatch.color | append: ', ' | append: swatch.color | append: ')'
+      assign matched = true
+    else
+      # When color or image is not explicitly passed, we parse the config
+      assign swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />'
+      assign swatch_style = '--swatch-background: linear-gradient(to right, ' | append: downcase_label | append: ', ' | append: downcase_label | append: ')'
+
+      for swatch_item in swatch_config
+        assign swatch_parts = swatch_item | split: ':'
+        assign swatch_name = swatch_parts.first | downcase | strip
+
+        if downcase_label == swatch_name
+          assign swatch_value = swatch_parts.last | strip
+
+          if swatch_value contains '#'
+            assign swatch_style = '--swatch-background: linear-gradient(to right, ' | append: swatch_value | append: ', ' | append: swatch_value | append: ')'
+          elsif swatch_value contains 'linear-gradient('
+            assign swatch_style = '--swatch-background: ' | append: swatch_value
+          elsif images[swatch_value] != blank
+            assign swatch_image = images[swatch_value] | image_url: width: 72
+            assign swatch_style = '--swatch-background: url(' | append: swatch_image | append: ')'
+          endif
+
+          assign matched = true
+          break
+        endif
+      endfor
+    endif
+  endif
+-%}
+
+{%- comment -%} KEYWORD COLOR FALLBACK - Only runs if no match was found above {%- endcomment -%}
+{%- if matched == false and type == 'swatch' or matched == false and type == 'block' and show_swatch -%}
+  {%- liquid
+    # --- Normalize label for matching ---
+    assign normalized_label = downcase_label | strip
+
+    # remove common separators/punctuations
+    assign normalized_label = normalized_label | replace: '-', ' ' | replace: '_', ' ' | replace: '/', ' ' | replace: '&', ' '
+    assign normalized_label = normalized_label | replace: '(', ' ' | replace: ')', ' ' | replace: '.', ' ' | replace: ',', ' '
+
+    # collapse double spaces
+    assign normalized_label = normalized_label | replace: '  ', ' '
+    assign normalized_label = normalized_label | replace: '  ', ' '
+    assign normalized_label = normalized_label | replace: '  ', ' '
+    assign normalized_label = normalized_label | strip
+
+    # default fallback
+    assign fallback_hex = '#d1d5db'
+
+    # ---- MATCH BY KEYWORD (multilingual) ----
+    if normalized_label contains 'black' or normalized_label contains 'noir' or normalized_label contains 'schwarz' or normalized_label contains 'nero' or normalized_label contains 'negro' or normalized_label contains 'preto'
+      assign fallback_hex = '#000000'
+    elsif normalized_label contains 'white' or normalized_label contains 'blanc' or normalized_label contains 'weiss' or normalized_label contains 'bianco' or normalized_label contains 'blanco' or normalized_label contains 'branco'
+      assign fallback_hex = '#ffffff'
+    elsif normalized_label contains 'ivory' or normalized_label contains 'ivoire' or normalized_label contains 'avorio'
+      assign fallback_hex = '#fffff0'
+    elsif normalized_label contains 'beige' or normalized_label contains 'creme' or normalized_label contains 'cream'
+      assign fallback_hex = '#f5f5dc'
+    elsif normalized_label contains 'light grey' or normalized_label contains 'light gray' or normalized_label contains 'gris claro' or normalized_label contains 'hellgrau'
+      assign fallback_hex = '#d3d3d3'
+    elsif normalized_label contains 'dark grey' or normalized_label contains 'dark gray' or normalized_label contains 'gris oscuro' or normalized_label contains 'dunkelgrau'
+      assign fallback_hex = '#4b5563'
+    elsif normalized_label contains 'grey' or normalized_label contains 'gray' or normalized_label contains 'gris' or normalized_label contains 'grau' or normalized_label contains 'grigio'
+      assign fallback_hex = '#808080'
+    elsif normalized_label contains 'navy' or normalized_label contains 'marine' or normalized_label contains 'bleu marine'
+      assign fallback_hex = '#001f3f'
+    elsif normalized_label contains 'sky blue' or normalized_label contains 'celeste' or normalized_label contains 'azul claro'
+      assign fallback_hex = '#87ceeb'
+    elsif normalized_label contains 'blue' or normalized_label contains 'bleu' or normalized_label contains 'blau' or normalized_label contains 'azul' or normalized_label contains 'blu'
+      assign fallback_hex = '#1e3a8a'
+    elsif normalized_label contains 'teal' or normalized_label contains 'turquoise' or normalized_label contains 'turquesa'
+      assign fallback_hex = '#008080'
+    elsif normalized_label contains 'olive' or normalized_label contains 'oliva'
+      assign fallback_hex = '#808000'
+    elsif normalized_label contains 'green' or normalized_label contains 'vert' or normalized_label contains 'grun' or normalized_label contains 'grün' or normalized_label contains 'verde'
+      assign fallback_hex = '#15803d'
+    elsif normalized_label contains 'khaki'
+      assign fallback_hex = '#c3b091'
+    elsif normalized_label contains 'tan'
+      assign fallback_hex = '#d2b48c'
+    elsif normalized_label contains 'sand' or normalized_label contains 'sable' or normalized_label contains 'arena'
+      assign fallback_hex = '#e5d3b3'
+    elsif normalized_label contains 'camel' or normalized_label contains 'kamel'
+      assign fallback_hex = '#c19a6b'
+    elsif normalized_label contains 'brown' or normalized_label contains 'braun' or normalized_label contains 'marron' or normalized_label contains 'marrom' or normalized_label contains 'castano' or normalized_label contains 'castaño'
+      assign fallback_hex = '#8b5a2b'
+    elsif normalized_label contains 'burgundy' or normalized_label contains 'bordeaux' or normalized_label contains 'borgona' or normalized_label contains 'burgunder'
+      assign fallback_hex = '#800020'
+    elsif normalized_label contains 'maroon'
+      assign fallback_hex = '#7f1d1d'
+    elsif normalized_label contains 'wine' or normalized_label contains 'vino'
+      assign fallback_hex = '#722f37'
+    elsif normalized_label contains 'red' or normalized_label contains 'rouge' or normalized_label contains 'rot' or normalized_label contains 'rosso' or normalized_label contains 'rojo'
+      assign fallback_hex = '#dc2626'
+    elsif normalized_label contains 'pink' or normalized_label contains 'rose' or normalized_label contains 'rosa' or normalized_label contains 'roze' or normalized_label contains 'rosado'
+      assign fallback_hex = '#ec4899'
+    elsif normalized_label contains 'lilac' or normalized_label contains 'lila'
+      assign fallback_hex = '#c8a2c8'
+    elsif normalized_label contains 'purple' or normalized_label contains 'violet' or normalized_label contains 'violeta' or normalized_label contains 'violett' or normalized_label contains 'viola'
+      assign fallback_hex = '#6d28d9'
+    elsif normalized_label contains 'mustard' or normalized_label contains 'mostaza' or normalized_label contains 'senf'
+      assign fallback_hex = '#e0b000'
+    elsif normalized_label contains 'yellow' or normalized_label contains 'jaune' or normalized_label contains 'gelb' or normalized_label contains 'giallo' or normalized_label contains 'amarillo'
+      assign fallback_hex = '#f59e0b'
+    elsif normalized_label contains 'gold' or normalized_label contains 'or' or normalized_label contains 'oro' or normalized_label contains 'dore' or normalized_label contains 'doré'
+      assign fallback_hex = '#d4af37'
+    elsif normalized_label contains 'coral'
+      assign fallback_hex = '#ff7f50'
+    elsif normalized_label contains 'orange' or normalized_label contains 'naranja' or normalized_label contains 'arancione'
+      assign fallback_hex = '#f97316'
+    endif
+
+    assign swatch_style = '--swatch-background: ' | append: fallback_hex
+  -%}
+{%- endif -%}
+
+{%- capture attributes -%}
+  {%- if url == blank -%}
+    {%- assign option_value_tag = 'label' -%}
+    for="{{ id | escape }}"
+  {%- else -%}
+    {%- assign option_value_tag = 'a' -%}
+    href="{{ option_value.variant.url | default: url }}" {% if hide_if_disabled and disabled and selected == false %}hidden{% endif %}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- assign is_swatch_wrapper = false -%}
+{%- if type == 'thumbnail' or type == 'swatch' -%}
+  {%- assign is_swatch_wrapper = true -%}
+{%- endif -%}
+
+{%- if is_swatch_wrapper -%}
+<span class="swatch-input-wrapper">
+{%- endif -%}
+
+{%- if url == blank -%}
+  {%- capture variant_attributes -%}
+    {%- if output_variant_media and option_value != blank and variant != blank -%}
+      {%- liquid
+        assign variant_media = variant.featured_media
+
+        if option_value.product_url != blank
+          assign variant_media = variant_media | default: variant.product.featured_media
+        endif
+
+        if variant_media
+          assign secondary_variant_media = variant.product.media[variant_media.position] | default: variant.product.media[1]
+        endif
+      -%}
+
+      data-variant-id="{{ variant.id }}" {% if variant_media %}data-variant-media="{{ variant_media | json | escape }}" {% if secondary_variant_media %}data-variant-secondary-media="{{ secondary_variant_media | json | escape }}"{% endif %}{% endif %}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  <input class="sr-only" type="{% if allow_multiple %}checkbox{% else %}radio{% endif %}" name="{{ param_name }}" id="{{ id | escape }}" value="{{ value | escape }}" {% if form %}form="{{ form }}"{% endif %} {% if selected %}checked="checked"{% endif %} {% if hide_if_disabled and disabled and selected == false %}disabled{% endif %} {% if option_value and option_value.product_url %}data-product-url="{{ option_value.product_url | escape }}"{% endif %} {% if option_position %}data-option-position="{{ option_position }}"{% endif %} {{ variant_attributes }}>
+{%- elsif option_value and option_value.selected -%}
+  <input class="sr-only" type="radio" name="{{ param_name }}" id="{{ id | escape }}" value="{{ value | escape }}" data-option-position="{{ option_position }}" {% if form %}form="{{ form }}"{% endif %} checked="checked">
+{%- endif -%}
+
+{%- case type -%}
+  {%- when 'thumbnail' -%}
+    {%- assign image = image | default: variant.featured_media | default: variant.product.featured_media -%}
+
+    {%- if image != blank -%}
+      <{{ option_value_tag }} class="thumbnail-swatch {% if disabled %}is-disabled{% endif %} {% if selected and option_value_tag == 'a' %}is-selected{% endif %}" {{ attributes }}>
+        <span class="sr-only">{{ label | default: value }}</span>
+        {{- image | image_url: width: image.width | image_tag: loading: 'lazy', sizes: '(max-width: 699px) 48px, 68px', widths: '48,68,96,136', class: 'object-contain' -}}
+      </{{ option_value_tag }}>
+    {%- else -%}
+      <{{ option_value_tag }} class="block-swatch {% if disabled %}is-disabled{% endif %} {% if selected and option_value_tag == 'a' %}is-selected{% endif %}" {{ attributes }}>
+        {{ label | default: value }}
+      </{{ option_value_tag }}>
+    {%- endif -%}
+
+  {%- when 'block' -%}
+    {%- assign white_label = 'general.label.white' | t | downcase -%}
+
+    <{{ option_value_tag }} class="block-swatch {% if disabled %}is-disabled{% endif %} {% if selected and option_value_tag == 'a' %}is-selected{% endif %}" {{ attributes }}>
+      {%- if show_swatch -%}
+        <span class="block-swatch__color {% if settings.round_color_swatches %}rounded-full{% endif %} {% if white_label == downcase_label %}border{% endif %}" style="{{ swatch_style }}"></span>
+      {%- endif -%}
+
+      <span>{{ label | default: value }}</span>
+    </{{ option_value_tag }}>
+
+  {%- when 'swatch' -%}
+    {%- assign white_label = 'general.label.white' | t | downcase -%}
+
+    <{{ option_value_tag }} class="color-swatch {% if disabled %}is-disabled{% endif %} {% if selected and option_value_tag == 'a' %}is-selected{% endif %} {% if settings.round_color_swatches %}rounded-full{% endif %} {% if white_label == downcase_label %}border{% endif %}" {{ attributes }} {% if show_tooltip %}data-tooltip="{{ label | default: value | escape }}"{% endif %} style="{{ swatch_style }}">
+      <span class="sr-only">{{ label | default: value }}</span>
+    </{{ option_value_tag }}>
+
+  {%- when 'image_filter' -%}
+    <label class="image-filter {% if disabled %}is-disabled{% endif %}" for="{{ id | escape }}">
+      {%- if filter_value.image -%}
+        {{- filter_value.image | image_url: width: filter_value.image.width | image_tag: loading: 'lazy', sizes: '48px', widths: '48,96,144', class: 'image-filter__image' -}}
+      {%- endif -%}
+
+      <span class="image-filter__label link-faded">{{ filter_value.label }}</span>
+    </label>
+{%- endcase -%}
+
+{%- if is_swatch_wrapper -%}
+</span>
+{%- endif -%}

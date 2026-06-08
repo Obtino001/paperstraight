@@ -1,0 +1,366 @@
+{%- if section.blocks.size > 0 -%}
+  <style>
+    #shopify-section-{{ section.id }} {
+      --product-list-items-per-row: {{ section.settings.products_per_row_mobile | times: 1 }};
+      --product-list-horizontal-spacing-factor: {{ section.settings.horizontal_spacing_factor }};
+      --product-list-vertical-spacing-factor: {{ section.settings.vertical_spacing_factor }};
+    }
+    #shopify-section-{{ section.id }} .section-stack {
+        row-gap: 30px;
+    }
+    #shopify-section-{{ section.id }} .section-spacing {
+        padding-top: 42px;
+        padding-bottom: 42px;
+    }
+
+    @media screen and (min-width: 700px) {
+      #shopify-section-{{ section.id }} {
+        --product-list-items-per-row: {{ section.settings.products_per_row_desktop }};
+      }
+    }
+    #shopify-section-{{ section.id }} .slider_content_heading, 
+    #shopify-section-{{ section.id }} .h2.slider_content_heading {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 100%;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', sans-serif; 
+    }
+    #shopify-section-{{ section.id }} compare-at-price.h6.text-subdued.line-through {
+      font-size: 14px;
+      line-height: 100%;
+      color: rgba(0, 0, 0, 1);
+      margin-left: 16px;
+    }
+    #shopify-section-{{ section.id }} .section-stack .v-stack.t-heading {
+      display: flex;
+      justify-content: space-between;
+    }
+    #shopify-section-{{ section.id }} .section-stack .button {
+      margin-right: 20px;
+      background: #fff;
+      color: #000;
+      padding: 16px 32px;
+      font-size: 12px;
+      line-height: 100%;
+      letter-spacing: 0;
+    }
+    #shopify-section-{{ section.id }} .floating-controls-container {
+     position: relative;
+   }
+   #shopify-section-{{ section.id }} .floating-controls-container__control {
+     z-index: 2;
+   }
+   #shopify-section-{{ section.id }} .prev-next-button:not([disabled]) {
+     cursor: pointer;
+     pointer-events: auto;
+   }
+   #shopify-section-{{ section.id }} .prev-next-button[disabled] {
+     opacity: 0.3;
+     cursor: not-allowed;
+   }
+
+
+
+@media (min-width: 700px) {
+  .variant-more-count .mobile-only {
+    display: none !important;
+  }
+  
+  .variant-more-count .desktop-only {
+    display: inline !important;
+  }
+  
+  .swatch-wrapper.hidden-on-mobile {
+    display: inline-flex !important;
+  }
+}
+/* Variant More Count Badge */
+.variant-more-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  background-color: #f5f5f5;
+  border-radius: 16px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.variant-more-count:hover {
+  background-color: #e5e5e5;
+  color: #333;
+}
+    
+  @media screen and (max-width: 500px) {
+    #shopify-section-{{ section.id }} .section-stack .v-stack {
+      align-items: end;
+    }
+    #shopify-section-{{ section.id }} .h2.slider_content_heading {
+      font-size: 24px;
+    }
+    #shopify-section-{{ section.id }} .section-stack .button {
+      margin-right: 0px;
+    }
+  }
+  </style>
+
+  {%- assign color_scheme_hash = section.settings.color_scheme.settings.background_gradient | default: section.settings.color_scheme.settings.background | md5 -%}
+
+  <div class="section-spacing color-scheme color-scheme--{{ section.settings.color_scheme.id }} color-scheme--bg-{{ color_scheme_hash }} {% if section.settings.separate_section_with_border %}bordered-section{% endif %}">
+    <div class="container">
+      {%- assign wrapper_carousel_id = 'featured-collections-carousel-' | append: section.id -%}
+
+      <div class="section-stack">
+        <div class="v-stack t-heading gap-4  sm:gap-5 d-flex">
+          {%- if section.settings.subheading != blank -%}
+            <p class="h6 text-center">{{- section.settings.subheading -}}</p>
+          {%- endif -%}
+
+          {%- if section.blocks.size > 1 -%}
+            <carousel-navigation align-selected class="featured-collections-navigation scroll-area bleed" aria-controls="{{ wrapper_carousel_id }}">
+              {%- for block in section.blocks -%}
+                <button class="h2" aria-current="{% if forloop.first %}true{% else %}false{% endif %}">
+                  {{- block.settings.title | default: block.settings.collection.title | default: 'Collection' -}}
+                </button>
+              {%- endfor -%}
+            </carousel-navigation>
+          {%- else -%}
+            <h2 class="h2 slider_content_heading">{{ section.blocks.first.settings.title | default: section.blocks.first.settings.collection.title | default: 'Collection' }}</h2>
+          {%- endif -%}
+           {%- for block in section.blocks -%}
+          {%- if block.settings.link_text != blank -%}
+                {%- assign button_link = block.settings.link_url | default: block.settings.collection.url | default: '#' -%}
+                <div class="justify-self-center view_all_btn">
+                  {%- render 'button', href: button_link, content: block.settings.link_text -%}
+                </div>
+              {%- endif -%}
+            {% endfor %}
+        </div>
+
+        <featured-collections-carousel id="{{ wrapper_carousel_id }}" class="featured-collections-carousel">
+          {%- for block in section.blocks -%}
+            <div class="featured-collections-carousel__item {% if forloop.first %}is-selected{% endif %}" {{ block.shopify_attributes }}>
+              {%- capture product_list -%}
+                {%- assign should_reveal = false -%}
+
+                {%- if settings.stagger_products_apparition and forloop.first -%}
+                  {%- assign should_reveal = true -%}
+                {%- endif -%}
+
+                {%- for product in block.settings.collection.products limit: block.settings.products_count -%}
+                  {%- render 'product-card', product: product, reveal: should_reveal, position: forloop.index, hide_product_information: section.settings.hide_product_information, block: block -%}
+                {%- else -%}
+                  {%- for i in (1..block.settings.products_count) -%}
+                    {%- render 'product-card-placeholder', reveal: should_reveal, loop_index: forloop.index0, hide_product_information: section.settings.hide_product_information -%}
+                  {%- endfor -%}
+                {%- endfor -%}
+              {%- endcapture -%}
+
+              {%- if section.settings.stack_products -%}
+                <product-list class="product-list {% if section.settings.hide_product_information %}product-list--compact{% endif %} justify-center">
+                  {{- product_list -}}
+                </product-list>
+              {%- else -%}
+                {%- assign product_carousel_id = 'featured-collections-product-list-carousel-' | append: block.id -%}
+
+                <product-list class="floating-controls-container floating-controls-container--inside floating-controls-container--on-hover">
+                  <carousel-prev-button class="floating-controls-container__control" aria-controls="{{ product_carousel_id }}">
+                    <button type="button" class="prev-next-button prev-next-button--prev circle-button" disabled>
+                      <span class="sr-only">{{ 'general.accessibility.previous' | t }}</span>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 6L9 12L15 18" stroke="black" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  </carousel-prev-button>
+
+                  <scroll-carousel id="{{ product_carousel_id }}" group-cells allow-drag class="product-list {% if section.settings.hide_product_information %}product-list--compact{% endif %} product-list--carousel scroll-area bleed md:unbleed">
+                    {{- product_list -}}
+                  </scroll-carousel>
+                  
+                  <carousel-next-button class="floating-controls-container__control" aria-controls="{{ product_carousel_id }}">
+                    <button type="button" class="prev-next-button prev-next-button--next circle-button">
+                      <span class="sr-only">{{ 'general.accessibility.next' | t }}</span>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 6L15 12L9 18" stroke="black" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  </carousel-next-button>
+                </product-list>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </featured-collections-carousel>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.featured_collections.name",
+  "class": "shopify-section--featured-collections",
+  "tag": "section",
+  "disabled_on": {
+    "templates": ["password"],
+    "groups": ["header", "custom.overlay"]
+  },
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:global.colors.scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "separate_section_with_border",
+      "label": "t:global.section.separate_section_with_border",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_product_information",
+      "label": "t:global.product_list.hide_product_information",
+      "info": "t:global.product_list.hide_product_information_info"
+    },
+    {
+      "type": "header",
+      "content": "t:global.product_list.product_list_category"
+    },
+    {
+      "type": "checkbox",
+      "id": "stack_products",
+      "label": "t:global.product_list.stack_products",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "products_per_row_mobile",
+      "label": "t:global.product_list.products_per_row_mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2",
+      "visible_if": "{{ section.settings.stack_products }}"
+    },
+    {
+      "type": "range",
+      "id": "products_per_row_desktop",
+      "min": 2,
+      "max": 6,
+      "label": "t:global.product_list.products_per_row_desktop",
+      "info": "t:global.product_list.products_per_row_desktop_info",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_featured_vendor",
+      "label": "Show Product Vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_featured_swatches",
+      "label": "Show Product Swatches",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:global.product_list.spacing_category",
+      "info": "t:global.product_list.spacing_category_info"
+    },
+    {
+      "type": "range",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1,
+      "id": "horizontal_spacing_factor",
+      "label": "Horizontal spacing factor",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "min": 0.2,
+      "max": 2,
+      "step": 0.1,
+      "id": "vertical_spacing_factor",
+      "label": "Vertical spacing factor",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "t:global.section.header_category"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "label": "t:global.text.subheading",
+      "default": "Featured collection"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.featured_collections.blocks.collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.featured_collections.blocks.collection.collection"
+        },
+        {
+          "type": "range",
+          "id": "products_count",
+          "min": 2,
+          "max": 50,
+          "label": "t:global.product_list.products_to_show",
+          "default": 8
+        },
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "t:global.text.heading",
+          "info": "t:sections.featured_collections.blocks.collection.title_info"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "t:global.text.link_url",
+          "info": "t:sections.featured_collections.blocks.collection.default_link_url"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "t:global.text.link_text",
+          "default": "View all"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured_collections.presets.featured_collections.name",
+      "category": "t:global.categories.collections",
+      "blocks": [
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
