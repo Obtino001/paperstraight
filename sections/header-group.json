@@ -25,11 +25,18 @@
           "settings": {
             "text": "Free shipping on orders above €200/$230/DKK1.500"
           }
+        },
+        "message_L6izXR": {
+          "type": "message",
+          "settings": {
+            "text": "Duties & taxes included for US/UK orders"
+          }
         }
       },
       "block_order": [
         "message_3r9pFP",
-        "message_Fhmxfb"
+        "message_Fhmxfb",
+        "message_L6izXR"
       ],
       "name": "t:sections.announcement_bar.name",
       "settings": {
