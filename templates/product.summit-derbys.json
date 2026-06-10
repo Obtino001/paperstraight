@@ -220,6 +220,38 @@
             "border_radius": 0
           }
         },
+        "icon_text_tooltip_block_Gxcti8": {
+          "type": "icon-text-tooltip-block",
+          "settings": {
+            "icon": "shopify://shop_images/father-day-icon-with-mustaches-and-hat-vector-holiday-greeting-gift-fathers-day-and-daddy-family-celebration-gentleman-hat-and-dad-mustaches-2G7C8FD.jpg",
+            "icon_size": 20,
+            "icon_size_mobile": 18,
+            "icon_gap": 10,
+            "text": "Father's Day: spend $200, get $50 back in credit",
+            "font_size_desktop": 12,
+            "font_size_mobile": 12,
+            "font_weight": "400",
+            "line_height": "1.4",
+            "text_transform": "none",
+            "letter_spacing": 0,
+            "text_color": "#000000",
+            "enable_tooltip": true,
+            "tooltip_icon_color": "#000000",
+            "tooltip_text": "",
+            "tooltip_font_size": 13,
+            "tooltip_bg_color": "#000000",
+            "tooltip_text_color": "#ffffff",
+            "tooltip_padding": 12,
+            "tooltip_border_radius": 4,
+            "tooltip_min_width": 150,
+            "tooltip_max_width": 280,
+            "tooltip_min_width_mobile": 200,
+            "background_color": "",
+            "padding_vertical": 10,
+            "padding_horizontal": 0,
+            "border_radius": 0
+          }
+        },
         "liquid_pDbQwH": {
           "type": "liquid",
           "disabled": true,
@@ -389,6 +421,7 @@
         "shipping_cutoff_block_QK7Vrg",
         "icon_text_tooltip_block_xLEERj",
         "icon_text_tooltip_block_VrYEWU",
+        "icon_text_tooltip_block_Gxcti8",
         "liquid_pDbQwH",
         "liquid_TDUDbF",
         "multi_icon_XNypkX",
