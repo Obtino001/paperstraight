@@ -1,0 +1,26 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "parent": "product.summit-derbys-vegan.json",
+  "context": {
+    "market": "united-kingdom"
+  },
+  "sections": {
+    "main": {
+      "blocks": {
+        "icon_text_tooltip_block_dY4RKc": {
+          "settings": {
+            "text": "OVER £160: FREE SHIPPING + £40 OFF WITH CODE DAD50"
+          }
+        }
+      }
+    }
+  }
+}
