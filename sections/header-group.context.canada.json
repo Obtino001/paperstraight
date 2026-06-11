@@ -8,12 +8,19 @@
  * ------------------------------------------------------------
  */
 {
-  "markets": {
-    "united-kingdom": {
-      "parent": "@default"
-    },
-    "canada": {
-      "parent": "@default"
+  "parent": "header-group.json",
+  "context": {
+    "market": "canada"
+  },
+  "sections": {
+    "announcement_bar_733kjQ": {
+      "blocks": {
+        "message_3r9pFP": {
+          "settings": {
+            "text": "OVER C$280: FREE SHIPPING + C$70 OFF WITH CODE DAD50"
+          }
+        }
+      }
     }
   }
 }
