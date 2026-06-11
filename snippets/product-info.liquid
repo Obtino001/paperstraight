@@ -1801,7 +1801,7 @@ Supported variables
                   const formattedTime = formatTime(cutoffHour, cutoffMinute);
                   
                   let text = isBeforeCutoff ? textBefore : textAfter;
-                  text = text.replace(/\[(time|tid|zeit)\]/gi, formattedTime).replace(/\[(date|dato|datum)\]/gi, formattedDate);
+                  text = text.replace(/\[(time|tid|zeit|uhrzeit)\]/gi, formattedTime).replace(/\[(date|dato|datum)\]/gi, formattedDate);
                   textEl.textContent = text;
                   
                   if (countdownEl) {
