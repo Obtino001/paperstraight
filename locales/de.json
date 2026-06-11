@@ -93,7 +93,7 @@
     "general": {
       "description": "Beschreibung",
       "add_to_cart_button": "In den Warenkorb",
-      "pre_order_button": "Vorbestellen",
+      "pre_order_button": "Jetzt vorbestellen",
       "sold_out_button": "Ausverkauft",
       "unavailable_button": "Nicht verfügbar",
       "choose_options": "Optionen auswählen",
@@ -101,13 +101,13 @@
       "added_to_cart": "Zum Warenkorb hinzugefügt!",
       "added_to_cart_with_title": "{{ product_title }} wurde dem Warenkorb hinzugefügt.",
       "sold_out_badge": "Ausverkauft",
-      "on_sale_badge": "Sale",
+      "on_sale_badge": "SALE",
       "discount_badge_html": "Spare {{ savings }}",
       "sku": "SKU:",
       "variant": "Variante",
       "view_in_space": "In deinem Bereich ansehen",
-      "taxes_included": "inkl. MwSt.",
-      "taxes_excluded": "zzgl. MwSt.",
+      "taxes_included": "Inkl. MwSt.",
+      "taxes_excluded": "Zzgl. MwSt.",
       "shipping_policy_html": "<a href=\"{{ link }}\" class=\"link\">Versandkosten</a> werden an der Kasse berechnet",
       "size_chart": "Größentabelle",
       "available_colors_count": {
@@ -147,7 +147,7 @@
     },
     "inventory": {
       "in_stock": "Auf Lager",
-      "low_stock": "Nur noch wenige Einheiten übrig",
+      "low_stock": "Nur noch wenige Stück verfügbar",
       "in_stock_with_quantity_count": {
         "one": "{{ count }} auf Lager",
         "other": "{{ count }} auf Lager"
