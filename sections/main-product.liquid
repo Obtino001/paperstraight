@@ -87,6 +87,47 @@
   #shopify-section-{{ section.id }} .product-sticky-bar__info .price-list { padding: 0; }
   #shopify-section-{{ section.id }} product-sticky-bar buy-buttons.buy-buttons button {padding: 12px 20px !important;}
 
+/* Prijzen: zwart + grijs, badge neutraal */
+#shopify-section-{{ section.id }} .price-list sale-price,
+#shopify-section-{{ section.id }} .price-list .text-on-sale {
+  color: #000 !important;
+}
+#shopify-section-{{ section.id }} .price-list compare-at-price {
+  color: #8a8a8a !important;
+}
+#shopify-section-{{ section.id }} .price-list .badge,
+#shopify-section-{{ section.id }} .price-list .badge--on-sale,
+#shopify-section-{{ section.id }} .price-list .on-sale-badge {
+  background: #f2f2f2 !important;
+  color: #000 !important;
+}
+
+/* Voorraadmelding: rood -> grijs, geen pulse */
+#shopify-section-{{ section.id }} .inventory,
+#shopify-section-{{ section.id }} .product__inventory {
+  color: #444 !important;
+}
+#shopify-section-{{ section.id }} .inventory svg,
+#shopify-section-{{ section.id }} .product__inventory svg {
+  color: #8a8a8a !important;
+  fill: #8a8a8a !important;
+  animation: none !important;
+}
+
+/* Maten: één rij op desktop, kleinere font */
+@media screen and (min-width: 750px) {
+  #shopify-section-{{ section.id }} .variant-picker__option-values {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px;
+  }
+  #shopify-section-{{ section.id }} .variant-picker__option-values .block-swatch,
+  #shopify-section-{{ section.id }} .variant-picker__option-values label {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}
+
   #shopify-section-{{ section.id }} .variant-picker.v-stack {
     padding-bottom: 10px;
   }
