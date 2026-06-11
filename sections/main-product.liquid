@@ -119,19 +119,27 @@
   #shopify-section-{{ section.id }} .variant-picker__option-values {
     display: flex !important;
     flex-wrap: nowrap !important;
-    gap: 6px;
-    width: 100%;
+    gap: 4px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
-  #shopify-section-{{ section.id }} .variant-picker__option-values .block-swatch,
-  #shopify-section-{{ section.id }} .variant-picker__option-values label {
+  #shopify-section-{{ section.id }} .variant-picker__option-values > * {
     flex: 1 1 0 !important;
     min-width: 0 !important;
     width: auto !important;
+  }
+  #shopify-section-{{ section.id }} .variant-picker__option-values .block-swatch,
+  #shopify-section-{{ section.id }} .variant-picker__option-values label {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
     font-size: 11px;
-    padding: 8px 4px !important;
+    padding: 8px 2px !important;
     text-align: center;
     justify-content: center;
-    white-space: nowrap;
+    align-items: center;
+  }
+}
   }
 }
 }
