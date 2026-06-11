@@ -64,6 +64,9 @@ Supported variables
               <on-sale-badge class="badge badge--on-sale custom-sale-badge">
                 {%- liquid
                   assign custom_save_text = settings.custom_text_save_badge | default: 'SAVE'
+                  if request.locale.iso_code == 'de' and custom_save_text == 'SAVE'
+                    assign custom_save_text = 'SPAREN'
+                  endif
                   if context == 'product'
                     echo custom_save_text | append: ' ' | append: savings
                   elsif context == 'card'

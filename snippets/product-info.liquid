@@ -1599,8 +1599,8 @@ Supported variables
               
               assign text_before = block.settings.text_before_cutoff
               assign text_after = block.settings.text_after_cutoff
-              assign text_before_display = text_before | replace: '[time]', display_time | replace: '[date]', formatted_date
-              assign text_after_display = text_after | replace: '[time]', display_time | replace: '[date]', formatted_date
+              assign text_before_display = text_before | replace: '[time]', display_time | replace: '[Uhrzeit]', display_time | replace: '[date]', formatted_date | replace: '[Datum]', formatted_date
+              assign text_after_display = text_after | replace: '[time]', display_time | replace: '[Uhrzeit]', display_time | replace: '[date]', formatted_date | replace: '[Datum]', formatted_date
             -%}
 
             <div class="shipping-cutoff-block shipping-cutoff-block--{{ block.id }}" {{ block.shopify_attributes }}>
