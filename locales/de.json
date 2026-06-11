@@ -363,11 +363,11 @@
       "edit_order_note": "Bestellhinweis bearbeiten",
       "order_note": "Bestellhinweis",
       "save_note": "Speichern",
-      "note_placeholder": "Wie können wir Ihnen helfen?",
+      "note_placeholder": "Wie können wir dir helfen?",
       "update_cart": "Warenkorb aktualisieren",
       "view_cart": "Warenkorb ansehen",
       "checkout": "Zur Kasse",
-      "we_accept": "Wir akzeptieren"
+      "we_accept": "Wir akzeptieren folgende Zahlungsmittel"
     },
     "order": {
       "product": "Produkt",
@@ -377,13 +377,13 @@
       "remove_with_title": "Entfernen {{ title }}"
     },
     "free_shipping_bar": {
-      "limit_unreached_html": "Füge deiner Bestellung Artikel im Wert von {{ remaining_amount }} hinzu und erhalte kostenlosen Versand!",
+      "limit_unreached_html": "Noch {{remaining_amount}} bis zum kostenlosen Versand!",
       "limit_reached_html": "Deine Bestellung ist für kostenlosen Versand qualizifiert."
     },
     "shipping_estimator": {
       "estimate_shipping": "Versandkosten berechnen",
       "country": "Land",
-      "province": "Bundesland/Kanton",
+      "province": "Bundesland",
       "zip": "PLZ",
       "estimate": "Berechnen",
       "no_results": "Tut uns leid, aber wir verschicken leider nicht an deine Adresse.",
