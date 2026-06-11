@@ -45,7 +45,15 @@ Supported variables
         endcomment
         if product.has_only_default_variant == false and product.selected_variant == nil and product.variants.size > 1
           assign requires_size_selection = true
-          assign button_content = settings.custom_text_select_size | default: 'SELECT A SIZE'
+          
+          assign select_size_text = settings.custom_text_select_size | default: 'SELECT A SIZE'
+          if request.locale.iso_code == 'de' and select_size_text == 'SELECT A SIZE'
+            assign select_size_text = 'GRÖSSE WÄHLEN'
+          elsif request.locale.iso_code == 'da' and select_size_text == 'SELECT A SIZE'
+            assign select_size_text = 'VÆLG STØRRELSE'
+          endif
+
+          assign button_content = select_size_text
         elsif product.selected_or_first_available_variant == nil
           assign button_disabled = true
           assign button_content = 'product.general.unavailable_button' | t
