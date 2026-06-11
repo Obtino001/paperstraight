@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "general": {
     "page": "Seite {{ page }}",
@@ -99,7 +108,7 @@
       "view_in_space": "In deinem Bereich ansehen",
       "taxes_included": "inkl. MwSt.",
       "taxes_excluded": "zzgl. MwSt.",
-      "shipping_policy_html": "<a href=\"{{ link }}\" class=\"link\">Versandkosten<\/a> werden an der Kasse berechnet",
+      "shipping_policy_html": "<a href=\"{{ link }}\" class=\"link\">Versandkosten</a> werden an der Kasse berechnet",
       "size_chart": "Größentabelle",
       "available_colors_count": {
         "one": "{{ count }} Farbe verfügbar",
@@ -238,7 +247,7 @@
       "tagline": "Bestellübersicht ansehen und Kundenkonto verwalten.",
       "orders": "Bestellungen",
       "logout": "Abmelden",
-      "no_orders": "Du hast noch nichts bestellt.",
+      "no_orders": "Noch keine Bestellungen vorhanden.",
       "continue_shopping": "Weiter einkaufen"
     },
     "login": {
@@ -254,7 +263,7 @@
     "recover_password": {
       "title": "Passwort zurücksetzen",
       "instructions": "E-Mail-Adresse eingeben, um das Passwort wiederherzustellen:",
-      "remember_password": "Passwort speichern?",
+      "remember_password": "Passwort noch parat?",
       "email": "E-Mail",
       "submit": "Zurücksetzen",
       "back_to_login": "Zurück zur Anmeldung",
@@ -292,7 +301,7 @@
       "order_name": "Bestellung {{name}}",
       "view_details": "Bestelldetails",
       "created_at": "Bestellung aufgegeben am {{created_at}}",
-      "back": "Zurück",
+      "back": "Zurück zum Konto",
       "date": "Datum",
       "payment_status": "Zahlungsstatus",
       "fulfillment_status": "Lieferstatus",
