@@ -184,7 +184,7 @@
       "filters": "Filter",
       "filter_button": "Filtern",
       "clear_filters": "Zurücksetzen",
-      "apply_filters": "Anwenden",
+      "apply_filters": "Ergebnisse anzeigen",
       "sort_by": "Sortieren nach",
       "remove_filter": "Filter \"{{ name }}\" entfernen",
       "no_results": "Keine Produkte, die diesen Filterkriterien entsprechen.",
@@ -192,7 +192,7 @@
       "price_filter_from": "Preis von",
       "price_filter_to": "Preis bis",
       "price_filter": "{{ min_price }} - {{ max_price }}",
-      "in_stock_only": "Nur lagernde Artikel"
+      "in_stock_only": "Nur verfügbare Artikel"
     }
   },
   "blog_post": {
