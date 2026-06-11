@@ -136,7 +136,7 @@
       "cannot_add_more": "Sie können nicht mehr hinzufügen"
     },
     "volume_pricing": {
-      "title": "Volumenabhängige Preisgestaltung",
+      "title": "Mengenrabatt",
       "minimum": "{{ quantity }}+",
       "price_at_each": "bei {{ price }}/Stück"
     },
