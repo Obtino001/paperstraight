@@ -19,10 +19,10 @@
       "item_nth_of_count": "Element {{ index }} von {{ count }}",
       "drag": "Ziehen",
       "close": "Schließen",
-      "next": "Vor",
-      "previous": "Zurück",
+      "next": "Weiter",
+      "previous": "Zurückgehen",
       "play_video": "Video abspielen",
-      "navigate_to_next_section": "Navigieren Sie zum nächsten Abschnitt",
+      "navigate_to_next_section": "Zum nächsten Abschnitt navigieren",
       "mute_video": "Video stumm schalten",
       "unmute_video": "Videoton einschalten",
       "rss_feed": "RSS-Feed"
@@ -63,7 +63,7 @@
     },
     "privacy_banner": {
       "accept": "Akzeptieren",
-      "decline": "Verweigern"
+      "decline": "Ablehnen"
     },
     "form": {
       "max_characters": "Maximal {{ max_chars }} Zeichen"
