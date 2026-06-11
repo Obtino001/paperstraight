@@ -510,5 +510,12 @@
       },
       "product_subtotal": "Zwischensumme der Produkte"
     }
+  },
+  "shopify": {
+    "checkout": {
+      "general": {
+        "breadcrumb": "Breadcrumb-Navigation"
+      }
+    }
   }
 }
