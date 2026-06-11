@@ -204,7 +204,7 @@
   "blog": {
     "general": {
       "empty_blog": "Dieser Blog ist leer",
-      "back_to_home": "Zurück",
+      "back_to_home": "Zurück zur Startseite",
       "view": "Ansehen",
       "all_posts": "Alle Artikel",
       "read_more": "Weiterlesen"
