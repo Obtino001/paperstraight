@@ -207,6 +207,13 @@
   if product.has_only_default_variant == false and product.selected_variant == nil and product.variants.size > 1
     assign requires_size_selection = true
   endif
+
+  assign select_size_text = 'SELECT A SIZE'
+  if request.locale.iso_code == 'de'
+    assign select_size_text = 'GRÖSSE WÄHLEN'
+  elsif request.locale.iso_code == 'da'
+    assign select_size_text = 'VÆLG STØRRELSE'
+  endif
 -%}
 
 <product-sticky-bar form="{{ product_form_id }}" class="product-sticky-bar">
@@ -226,7 +233,7 @@
 
         {%- if requires_size_selection -%}
           <button type="button" class="product-sticky-bar__size-link text-xs text-subdued underline" style="text-align: left; background: none; border: none; padding: 0; cursor: pointer; margin-top: 4px;" onclick="(function(){var picker=document.querySelector('variant-picker');if(picker){picker.scrollIntoView({behavior:'smooth',block:'center'});picker.classList.remove('size-selection-shake');void picker.offsetWidth;picker.classList.add('size-selection-shake');var err=picker.querySelector('.size-selection-error');if(err){err.removeAttribute('hidden');setTimeout(function(){err.setAttribute('hidden','');},3000);}setTimeout(function(){picker.classList.remove('size-selection-shake');},600);}})()">
-            SELECT A SIZE
+            {{ select_size_text }}
           </button>
         {%- endif -%}
     </div>
@@ -239,7 +246,7 @@
       assign button_style = 'solid'
 
       if requires_size_selection
-        assign button_content = 'SELECT A SIZE'
+        assign button_content = select_size_text
       elsif product.selected_or_first_available_variant == nil
         assign button_disabled = true
         assign button_style = 'outline'
