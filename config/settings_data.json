@@ -79,11 +79,6 @@
         "disabled": false,
         "settings": {}
       },
-      "11532412952436166569": {
-        "type": "shopify://apps/loox-reviews/blocks/loox-inject/5c3b337f-fd14-4df5-b1d6-80ec13e6e28e",
-        "disabled": false,
-        "settings": {}
-      },
       "15912215999290715800": {
         "type": "shopify://apps/orbe-geolocation/blocks/app-embed-modal/7cb09287-cd2b-4646-837c-f1f9b6ea703e",
         "disabled": false,
@@ -128,6 +123,11 @@
       "10301360418704718919": {
         "type": "shopify://apps/assortion/blocks/app-embed/5588d7f9-a5bc-4f4a-9c54-39b7e081dd23",
         "disabled": false,
+        "settings": {}
+      },
+      "11532412952436166569": {
+        "type": "shopify://apps/loox-reviews/blocks/loox-inject/5c3b337f-fd14-4df5-b1d6-80ec13e6e28e",
+        "disabled": true,
         "settings": {}
       }
     },
