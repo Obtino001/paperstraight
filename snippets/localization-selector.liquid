@@ -44,7 +44,7 @@ Supported variables
       <x-popover id="{{ localization_popover_id }}" initial-focus="[aria-selected='true']" class="popover popover--{{ placement | default: 'bottom-start' }} color-scheme color-scheme--dialog">
         <p class="h4" slot="header">{{ 'general.localization.country' | t }}</p>
 
-        {%- form 'localization', id: localization_form_id -%}
+        {%- form 'localization', id: localization_form_id, data-orbe_country-switch: '' -%}
           <x-listbox class="popover__value-list">
             {%- for country in localization.available_countries -%}
               {%- assign is_selected = false -%}
@@ -82,7 +82,7 @@ Supported variables
       <x-popover id="{{ localization_popover_id }}" initial-focus="[aria-selected='true']" class="popover popover--{{ placement | default: 'bottom-start' }} color-scheme color-scheme--dialog">
         <p class="h4" slot="header">{{ 'general.localization.language' | t }}</p>
 
-        {%- form 'localization', id: localization_form_id -%}
+        {%- form 'localization', id: localization_form_id, data-orbe_locale-switch: '' -%}
           <x-listbox class="popover__value-list">
             {%- for language in localization.available_languages -%}
               {%- assign is_selected = false -%}
