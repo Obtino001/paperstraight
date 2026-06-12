@@ -1,0 +1,48 @@
+<script>
+    // Function to get the country domain
+    function getCountryDomain() {
+        return (typeof orbito !== 'undefined' && orbito.getCountryDomain) ? (orbito.getCountryDomain() || window.location.hostname) : window.location.hostname;
+    }
+    // ORBE App Sync
+    const mdCountryORBEforms = document.querySelectorAll('form[data-orbe_country-switch=""], form[data-orbe_locale-switch=""]');
+    // Declare a function to handle the submit event on country forms
+    function customOrbeSubmit(event) {
+        let input = event ? event.target : this;
+        let countryCode = event ? event.submitter.value : this.submitter.value;
+        let formInputReturnTo = input.querySelector("input[name='return_to']");
+        if (formInputReturnTo !== null) {
+            let countryCodeDomain = getCountryDomain();
+            // Helper function: replace the param if it exists, or add it only if addIfMissing is true
+            function setParam(name, value, addIfMissing) {
+                if (formInputReturnTo.value.match(new RegExp('(\\?|&)' + name + '=[^&]*'))) {
+                    // Replace the existing param
+                    formInputReturnTo.value = formInputReturnTo.value.replace(new RegExp('(\\?|&)' + name + '=[^&]*'), '$1' + name + '=' + value);
+                } else if (addIfMissing) {
+                    // Add the param
+                    formInputReturnTo.value += (formInputReturnTo.value.includes('?') ? '&' : '?') + name + '=' + value;
+                }
+            }
+            // country: replace or add. oc: only replace if it already exists
+            setParam('country', countryCode, true);
+            setParam('oc', countryCode, false);
+            document.cookie = `mdApp_countryCodeDomain=${countryCode}; domain=${countryCodeDomain}; path=/; max-age=${60 * 60 * 24 * 60};`;
+        }
+        this._submit();
+    }
+    // Declare a function to handle the submit event on language forms
+    function orbeChange(event) {
+        let input = event.target;
+        let langCode = event.submitter.value;
+        let countryCodeDomain = getCountryDomain();
+        document.cookie = `mdApp_showRecommendationLang=${langCode}; domain=${countryCodeDomain}; path=/; max-age=${60 * 60 * 24 * 60};`;
+    }
+    HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
+    // Listen for any 'submit' event that happens on the forms
+    mdCountryORBEforms.forEach(form => {
+        if (form.hasAttribute('data-orbe_country-switch')) {
+            form.addEventListener('submit', customOrbeSubmit, true);
+        } else if (form.hasAttribute('data-orbe_locale-switch')) {
+            form.addEventListener('submit', orbeChange);
+        }
+    });
+</script>

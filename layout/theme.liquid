@@ -149,5 +149,6 @@
     {%- if template contains 'product' or template contains 'index' or template contains 'collection' or template contains 'page' -%}
       <script src="{{ 'video-click-handler.js' | asset_url }}" defer></script>
     {%- endif -%}
+    {% render 'orbe-sync' %}
   </body>
 </html>
