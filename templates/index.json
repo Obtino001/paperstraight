@@ -45,8 +45,8 @@
         "mobile_bg_color": "#ffffff",
         "mobile_text_color": "#000000",
         "media_type": "image",
-        "image": "shopify://shop_images/PAPERSTRAIGHT_BANNER_1_67fa25d1-3469-480d-98cd-fd4a4dd15cd0.png",
-        "mobile_image": "shopify://shop_images/BANNER_MOBILE_4.png",
+        "image": "shopify://shop_images/PAPERSTRAIGHT_BANNER.jpg",
+        "mobile_image": "shopify://shop_images/BANNER_MOBILE_6.png",
         "overlay_opacity": 0,
         "heading_size_desktop": 48,
         "subheading_size_desktop": 24,
@@ -96,6 +96,24 @@
     "collection_list_ztyxCg": {
       "type": "collection-list",
       "blocks": {
+        "collection_MPzGjw": {
+          "type": "collection",
+          "settings": {
+            "color_scheme": "",
+            "collection": "drop-two",
+            "image": "shopify://shop_images/loaferswebsite.jpg",
+            "expand_collection": false,
+            "content_position": "place-self-end-start text-start",
+            "content_position_mbl": true,
+            "subheading": "NEW ARRIVAL",
+            "title": "ATLAS LOAFER",
+            "button_text": "Shop now",
+            "button_link": "shopify://collections/loafers",
+            "button_style": "solid",
+            "overlay_color": "#000000",
+            "overlay_opacity": 0
+          }
+        },
         "collection_yE4aPT": {
           "type": "collection",
           "settings": {
@@ -105,7 +123,7 @@
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
             "content_position_mbl": true,
-            "subheading": "New Arrival",
+            "subheading": "ACCESSORIES",
             "title": "Flat Top Embroidered Cap",
             "button_text": "Shop now",
             "button_link": "shopify://collections/accessoires-1",
@@ -113,29 +131,11 @@
             "overlay_color": "#000000",
             "overlay_opacity": 0
           }
-        },
-        "collection_MPzGjw": {
-          "type": "collection",
-          "settings": {
-            "color_scheme": "",
-            "collection": "drop-two",
-            "image": "shopify://shop_images/DSC6472_2_1.webp",
-            "expand_collection": false,
-            "content_position": "place-self-end-start text-start",
-            "content_position_mbl": true,
-            "subheading": "BACK IN STOCK",
-            "title": "Ridgework low",
-            "button_text": "Shop now",
-            "button_link": "shopify://collections/shoes",
-            "button_style": "solid",
-            "overlay_color": "#000000",
-            "overlay_opacity": 0
-          }
         }
       },
       "block_order": [
-        "collection_yE4aPT",
-        "collection_MPzGjw"
+        "collection_MPzGjw",
+        "collection_yE4aPT"
       ],
       "name": "t:sections.collection_list.presets.collection_list.name",
       "settings": {
