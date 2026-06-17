@@ -79,9 +79,29 @@
         "disabled": false,
         "settings": {}
       },
+      "14952540001915115444": {
+        "type": "shopify://apps/upcart-cart-drawer/blocks/app-embed/af3da5fb-f5f7-40ec-8273-41bf50059d4b",
+        "disabled": true,
+        "settings": {}
+      },
+      "7698122941617543805": {
+        "type": "shopify://apps/na-side-cart/blocks/side-cart/0e3f5d04-2a58-4b48-9557-7e4bfd02bf87",
+        "disabled": true,
+        "settings": {}
+      },
+      "10301360418704718919": {
+        "type": "shopify://apps/assortion/blocks/app-embed/5588d7f9-a5bc-4f4a-9c54-39b7e081dd23",
+        "disabled": false,
+        "settings": {}
+      },
+      "11532412952436166569": {
+        "type": "shopify://apps/loox-reviews/blocks/loox-inject/5c3b337f-fd14-4df5-b1d6-80ec13e6e28e",
+        "disabled": true,
+        "settings": {}
+      },
       "15912215999290715800": {
         "type": "shopify://apps/orbe-geolocation/blocks/app-embed-modal/7cb09287-cd2b-4646-837c-f1f9b6ea703e",
-        "disabled": false,
+        "disabled": true,
         "settings": {
           "test_mode": false,
           "modal_closeButton": false,
@@ -109,26 +129,6 @@
           "style_colors_cta_button": "#000000",
           "style_colors_text": "#000000"
         }
-      },
-      "14952540001915115444": {
-        "type": "shopify://apps/upcart-cart-drawer/blocks/app-embed/af3da5fb-f5f7-40ec-8273-41bf50059d4b",
-        "disabled": true,
-        "settings": {}
-      },
-      "7698122941617543805": {
-        "type": "shopify://apps/na-side-cart/blocks/side-cart/0e3f5d04-2a58-4b48-9557-7e4bfd02bf87",
-        "disabled": true,
-        "settings": {}
-      },
-      "10301360418704718919": {
-        "type": "shopify://apps/assortion/blocks/app-embed/5588d7f9-a5bc-4f4a-9c54-39b7e081dd23",
-        "disabled": false,
-        "settings": {}
-      },
-      "11532412952436166569": {
-        "type": "shopify://apps/loox-reviews/blocks/loox-inject/5c3b337f-fd14-4df5-b1d6-80ec13e6e28e",
-        "disabled": true,
-        "settings": {}
       }
     },
     "color_schemes": {
