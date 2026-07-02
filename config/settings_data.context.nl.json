@@ -11,5 +11,27 @@
   "context": {
     "market": "nl"
   },
-  "current": {}
+  "current": {
+    "color_schemes": {
+      "scheme-1": {
+        "settings": {}
+      },
+      "scheme-2": {
+        "settings": {}
+      },
+      "scheme-3": {
+        "settings": {}
+      },
+      "scheme-4": {
+        "settings": {}
+      }
+    },
+    "blocks": {
+      "15912215999290715800": {
+        "type": "shopify://apps/orbe-geolocation/blocks/app-embed-modal/7cb09287-cd2b-4646-837c-f1f9b6ea703e",
+        "disabled": true,
+        "settings": {}
+      }
+    }
+  }
 }
