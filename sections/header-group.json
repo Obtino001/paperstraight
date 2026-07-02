@@ -17,7 +17,7 @@
         "message_3r9pFP": {
           "type": "message",
           "settings": {
-            "text": "SUMMER SALE: UP TO 50%OFF"
+            "text": "SUMMER SALE: UP TO 60%OFF"
           }
         },
         "message_Fhmxfb": {
@@ -25,18 +25,11 @@
           "settings": {
             "text": "FREE SHIPPING ON ALL ORDERS"
           }
-        },
-        "message_L6izXR": {
-          "type": "message",
-          "settings": {
-            "text": "Duties & taxes included for US/UK orders"
-          }
         }
       },
       "block_order": [
         "message_3r9pFP",
-        "message_Fhmxfb",
-        "message_L6izXR"
+        "message_Fhmxfb"
       ],
       "name": "t:sections.announcement_bar.name",
       "settings": {
