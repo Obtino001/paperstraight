@@ -108,7 +108,7 @@
         "type": "shopify://apps/orbe-geolocation/blocks/app-embed-modal/7cb09287-cd2b-4646-837c-f1f9b6ea703e",
         "disabled": false,
         "settings": {
-          "test_mode": false,
+          "test_mode": true,
           "modal_closeButton": false,
           "option_flag_style": "none",
           "option_currency_type": "none",
