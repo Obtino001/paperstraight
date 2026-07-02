@@ -15,13 +15,13 @@
         "subheading_nkC3NW": {
           "type": "subheading",
           "settings": {
-            "subheading": "<p>The pace of summer, on foot.</p>"
+            "subheading": "<p>SUMMERSALE</p>"
           }
         },
         "heading_GwXtgR": {
           "type": "heading",
           "settings": {
-            "heading": "SLOW HOURS"
+            "heading": "UP TO 60% OFF"
           }
         },
         "buttons_y4whLE": {
@@ -45,8 +45,8 @@
         "mobile_bg_color": "#ffffff",
         "mobile_text_color": "#000000",
         "media_type": "image",
-        "image": "shopify://shop_images/PAPERSTRAIGHT_BANNER.jpg",
-        "mobile_image": "shopify://shop_images/BANNER_MOBILE_6.png",
+        "image": "shopify://shop_images/PAPERSTRAIGHT_BANNER_2.png",
+        "mobile_image": "shopify://shop_images/PS_store_8.png",
         "overlay_opacity": 0,
         "heading_size_desktop": 48,
         "subheading_size_desktop": 24,
