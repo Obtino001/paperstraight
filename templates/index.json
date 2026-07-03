@@ -190,31 +190,10 @@
           "settings": {
             "product": "paper-straight-summit-derbys-black"
           }
-        },
-        "product_TBEakQ": {
-          "type": "product",
-          "settings": {
-            "product": "ashford-shirt"
-          }
-        },
-        "product_z9CRhA": {
-          "type": "product",
-          "settings": {
-            "product": "groundwork-jeans"
-          }
-        },
-        "product_KEeXg9": {
-          "type": "product",
-          "settings": {
-            "product": "summit-ridge-brown"
-          }
         }
       },
       "block_order": [
-        "product_P6kmMT",
-        "product_TBEakQ",
-        "product_z9CRhA",
-        "product_KEeXg9"
+        "product_P6kmMT"
       ],
       "custom_css": [
         "@media screen and (max-width: 768px) {.bestsellers-content {padding: 0px; } .bestsellers-button {display: none; }}"
@@ -222,7 +201,7 @@
       "name": "Bestsellers Grid",
       "settings": {
         "image": "shopify://shop_images/BOU6026_3_185ca2a6-57cc-45e4-bc11-194df935eb7b_1.webp",
-        "heading": "OUR BESTSELLERS",
+        "heading": "SHOP THE LOOK",
         "subheading": "From streets to studios, from spring to summer",
         "button_text": "VIEW ALL",
         "button_link": "",
