@@ -185,6 +185,12 @@
     "bestsellers_grid_efbFm4": {
       "type": "Bestsellers-Grid",
       "blocks": {
+        "product_Lc8KTy": {
+          "type": "product",
+          "settings": {
+            "product": "reef-knit-black"
+          }
+        },
         "product_L9wr8C": {
           "type": "product",
           "settings": {
@@ -205,6 +211,7 @@
         }
       },
       "block_order": [
+        "product_Lc8KTy",
         "product_L9wr8C",
         "product_7B9DDM",
         "product_P6kmMT"
