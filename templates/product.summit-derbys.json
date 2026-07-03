@@ -58,8 +58,8 @@
             "layout": "",
             "textColor": "",
             "starColor": "",
-            "showAllReviews": false,
-            "looxOpenFloatingWidget": false,
+            "showAllReviews": true,
+            "looxOpenFloatingWidget": true,
             "emptyRatingWidget": false
           }
         },
