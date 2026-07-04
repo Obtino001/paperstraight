@@ -134,6 +134,18 @@
             "payment_button_text_color": ""
           }
         },
+        "size_guide_F88WRF": {
+          "type": "size_guide",
+          "settings": {
+            "main_title": "FIT GUIDE - TAKE YOUR SIZE",
+            "size_guide_text": "Size Guide",
+            "label_1": "Small",
+            "label_2": "Runs Small",
+            "label_3": "True to size",
+            "label_4": "Runs Large",
+            "label_5": "Large"
+          }
+        },
         "shipping_cutoff_block_qRHJRA": {
           "type": "shipping-cutoff-block",
           "settings": {
@@ -164,18 +176,6 @@
             "padding_vertical": 0,
             "padding_horizontal": 0,
             "border_radius": 0
-          }
-        },
-        "size_guide_F88WRF": {
-          "type": "size_guide",
-          "settings": {
-            "main_title": "FIT GUIDE - TAKE YOUR SIZE",
-            "size_guide_text": "Size Guide",
-            "label_1": "Small",
-            "label_2": "Runs Small",
-            "label_3": "True to size",
-            "label_4": "Runs Large",
-            "label_5": "Large"
           }
         },
         "icon_text_tooltip_block_CerCic": {
@@ -385,8 +385,8 @@
         "variant_color_nDmVhE",
         "variant_picker",
         "buy_buttons",
-        "shipping_cutoff_block_qRHJRA",
         "size_guide_F88WRF",
+        "shipping_cutoff_block_qRHJRA",
         "icon_text_tooltip_block_CerCic",
         "icon_text_tooltip_block_G7yKHM",
         "liquid_AVLLie",
