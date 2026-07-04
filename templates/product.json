@@ -73,6 +73,18 @@
             "progress_bar_max_value": 50
           }
         },
+        "size_guide_cVb3b7": {
+          "type": "size_guide",
+          "settings": {
+            "main_title": "FIT GUIDE - TAKE YOUR SIZE",
+            "size_guide_text": "Size Guide",
+            "label_1": "Small",
+            "label_2": "Runs Small",
+            "label_3": "True to size",
+            "label_4": "Runs Large",
+            "label_5": "Large"
+          }
+        },
         "payment_terms": {
           "type": "payment_terms",
           "settings": {}
@@ -109,19 +121,6 @@
             "swatch_selector_style": "none",
             "variant_image_options": "color, colour",
             "size_chart_page": ""
-          }
-        },
-        "size_guide_F88WRF": {
-          "type": "size_guide",
-          "disabled": true,
-          "settings": {
-            "main_title": "FIT GUIDE - TAKE YOUR SIZE",
-            "size_guide_text": "Size Guide",
-            "label_1": "Small",
-            "label_2": "Runs Small",
-            "label_3": "True to size",
-            "label_4": "Runs Large",
-            "label_5": "Large"
           }
         },
         "buy_buttons": {
@@ -165,6 +164,18 @@
             "padding_vertical": 0,
             "padding_horizontal": 0,
             "border_radius": 0
+          }
+        },
+        "size_guide_F88WRF": {
+          "type": "size_guide",
+          "settings": {
+            "main_title": "FIT GUIDE - TAKE YOUR SIZE",
+            "size_guide_text": "Size Guide",
+            "label_1": "Small",
+            "label_2": "Runs Small",
+            "label_3": "True to size",
+            "label_4": "Runs Large",
+            "label_5": "Large"
           }
         },
         "icon_text_tooltip_block_CerCic": {
@@ -233,6 +244,7 @@
         },
         "liquid_AVLLie": {
           "type": "liquid",
+          "disabled": true,
           "settings": {
             "liquid": "<div class=\"product-info__block-item\" data-block-id=\"icons_with_text_jKh3fp\" data-block-type=\"icons-with-text\">\n<p class=\"custom-iwt-heading\">Details</p>\n              <div class=\"cust-icon-text grid grid-cols-2 justify-start gap-3\">\n<div class=\"h-stack gap-3\">\n<img src=\"//decarba.com/cdn/shop/files/detailsss.svg?v=1750522404&amp;width=21\" alt=\"\" srcset=\"//decarba.com/cdn/shop/files/detailsss.svg?v=1750522404&amp;width=20 20w\" width=\"21\" height=\"21\" loading=\"lazy\" sizes=\" 20px\" class=\" icon   \" style=\"--icon-max-width: 20px; --icon-mobile-max-width: 20px\">Premium Fabric</div>\n<div class=\"h-stack gap-3\">\n<img src=\"//decarba.com/cdn/shop/files/branding.svg?v=1750522403&amp;width=23\" alt=\"\" srcset=\"https://cdn.shopify.com/s/files/1/0865/8151/0478/files/ps-favicon-logo.svg?v=1763235268&amp;width=20 20w\" width=\"23\" height=\"16\" loading=\"lazy\" sizes=\" 20px\" class=\" icon   \" style=\"--icon-max-width: 20px; --icon-mobile-max-width: 20px\">Minimal Branding</div>\n<div class=\"h-stack gap-3\">\n<img src=\"//decarba.com/cdn/shop/files/responsible.svg?v=1750522403&amp;width=22\" alt=\"\" srcset=\"//decarba.com/cdn/shop/files/responsible.svg?v=1750522403&amp;width=20 20w\" width=\"22\" height=\"22\" loading=\"lazy\" sizes=\" 20px\" class=\" icon   \" style=\"--icon-max-width: 20px; --icon-mobile-max-width: 20px\">Responsibly Made</div>\n<div class=\"h-stack gap-3\">\n<img src=\"//decarba.com/cdn/shop/files/limited.svg?v=1750522403&amp;width=16\" alt=\"\" width=\"16\" height=\"28\" loading=\"lazy\" sizes=\" 18px\" class=\" icon   \" style=\"--icon-max-width: 18px; --icon-mobile-max-width: 18px\">Limited Drops</div>\n</div>\n</div>"
           }
@@ -367,13 +379,14 @@
         "price",
         "loox_reviews_loox_rating_YHVmRW",
         "inventory_GxPYBz",
+        "size_guide_cVb3b7",
         "payment_terms",
         "separator",
         "variant_color_nDmVhE",
         "variant_picker",
-        "size_guide_F88WRF",
         "buy_buttons",
         "shipping_cutoff_block_qRHJRA",
+        "size_guide_F88WRF",
         "icon_text_tooltip_block_CerCic",
         "icon_text_tooltip_block_G7yKHM",
         "liquid_AVLLie",
