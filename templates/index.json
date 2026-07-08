@@ -351,7 +351,7 @@
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
             "content_position_mbl": false,
-            "subheading": "HERITAGE COLLECTIon",
+            "subheading": "HERITAGE COLLECTION",
             "title": "",
             "button_text": "",
             "button_link": "shopify://collections/discover-the-heritage",
@@ -390,7 +390,7 @@
             "subheading": "CLOTHING",
             "title": "",
             "button_text": "",
-            "button_link": "",
+            "button_link": "shopify://collections/bottoms",
             "button_style": "solid",
             "overlay_color": "#000000",
             "overlay_opacity": 20
