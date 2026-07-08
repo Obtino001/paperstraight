@@ -100,7 +100,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "",
-            "collection": "drop-two",
+            "collection": "loafers",
             "image": "shopify://shop_images/loaferswebsite.jpg",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
@@ -118,7 +118,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "",
-            "collection": "shoes",
+            "collection": "accessoires-1",
             "image": "shopify://shop_images/Banner_Mobile_2_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
@@ -328,7 +328,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "black-friday-sales",
+            "collection": "tops",
             "image": "shopify://shop_images/DSC4345_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
@@ -346,7 +346,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "shoes",
+            "collection": "discover-the-heritage",
             "image": "shopify://shop_images/DSC4009_1_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
