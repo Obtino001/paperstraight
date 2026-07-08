@@ -18,9 +18,35 @@
         "show_title": true,
         "page_width": "xs"
       }
+    },
+    "reviews_hero_Yk6bCn": {
+      "type": "reviews-hero",
+      "name": "PS Reviews Hero",
+      "settings": {
+        "eyebrow": "Paper Straight",
+        "title": "Worn. Rated. Reviewed.",
+        "subtitle": "Real reviews from verified buyers. Every pair, every order, unedited.",
+        "trust_1": "Verified buyers only",
+        "trust_2": "Photo and video reviews",
+        "trust_3": "60 day returns"
+      }
+    },
+    "custom_liquid_XJ9DiA": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom_liquid.presets.custom_liquid.name",
+      "settings": {
+        "color_scheme": "",
+        "separate_section_with_border": true,
+        "remove_vertical_spacing": false,
+        "remove_horizontal_spacing": false,
+        "liquid": "<div id=\"looxReviews\" data-loox-aggregate></div>",
+        "text_alignment": "center"
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "reviews_hero_Yk6bCn",
+    "custom_liquid_XJ9DiA"
   ]
 }
