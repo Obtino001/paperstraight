@@ -364,7 +364,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "bottoms",
+            "collection": "accessoires-1",
             "image": "shopify://shop_images/DSC4512-Edit_ca4f899f-8d3c-4c6d-9df7-5ee1b66a7fa5_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
@@ -382,7 +382,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "jackets",
+            "collection": "bottoms",
             "image": "shopify://shop_images/DSC_4097_1_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
