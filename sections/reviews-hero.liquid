@@ -1,0 +1,137 @@
+{% comment %}
+  Paper Straight — Reviews page hero
+  Plaats deze sectie BOVEN het Loox "Reviews Widget" app block in de page.reviews template.
+  Haalt de totale rating live uit de Loox shop metafield (global_stats = "avg_rating,review_count").
+  Typografie erft van het theme (Refresh) via de standaard OS 2.0 font-variabelen.
+{% endcomment %}
+
+{% liquid
+  assign avg_rating = ''
+  assign review_count = ''
+  if shop.metafields.loox['global_stats']
+    assign looxstats = shop.metafields.loox['global_stats'] | split: ','
+    assign avg_rating = looxstats[0]
+    assign review_count = looxstats[1]
+  endif
+%}
+
+<section class="ps-reviews-hero" id="ps-reviews-hero">
+  <div class="ps-reviews-hero__inner">
+    <p class="ps-reviews-hero__eyebrow">{{ section.settings.eyebrow }}</p>
+    <h1 class="ps-reviews-hero__title">{{ section.settings.title }}</h1>
+    <p class="ps-reviews-hero__subtitle">{{ section.settings.subtitle }}</p>
+
+    {% if avg_rating != blank and review_count != blank %}
+      <div class="ps-reviews-hero__stats" aria-label="Overall customer rating">
+        <span class="ps-reviews-hero__rating">{{ avg_rating }}</span>
+        <span class="ps-reviews-hero__stars" aria-hidden="true">
+          {% assign rating_rounded = avg_rating | times: 1.0 | round %}
+          {% for i in (1..5) %}{% if i <= rating_rounded %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+        </span>
+        <span class="ps-reviews-hero__count">{{ review_count }} verified reviews</span>
+      </div>
+    {% endif %}
+
+    <ul class="ps-reviews-hero__trust">
+      <li>{{ section.settings.trust_1 }}</li>
+      <li>{{ section.settings.trust_2 }}</li>
+      <li>{{ section.settings.trust_3 }}</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ps-reviews-hero {
+    background: #ffffff;
+    color: #111111;
+    padding: 72px 20px 40px;
+    text-align: center;
+  }
+  .ps-reviews-hero__inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .ps-reviews-hero__eyebrow {
+    font-family: var(--font-body-family, inherit);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin: 0 0 16px;
+    opacity: 0.6;
+  }
+  .ps-reviews-hero__title {
+    font-family: var(--font-heading-family, inherit);
+    font-size: clamp(32px, 6vw, 56px);
+    line-height: 1.05;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 16px;
+  }
+  .ps-reviews-hero__subtitle {
+    font-family: var(--font-body-family, inherit);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 auto 28px;
+    max-width: 520px;
+    opacity: 0.85;
+  }
+  .ps-reviews-hero__stats {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .ps-reviews-hero__rating {
+    font-family: var(--font-heading-family, inherit);
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .ps-reviews-hero__stars {
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #111111;
+  }
+  .ps-reviews-hero__count {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+  }
+  .ps-reviews-hero__trust {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    list-style: none;
+    padding: 20px 0 0;
+    margin: 0;
+    border-top: 1px solid #e6e6e6;
+    flex-wrap: wrap;
+  }
+  .ps-reviews-hero__trust li {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    opacity: 0.7;
+  }
+  @media (max-width: 600px) {
+    .ps-reviews-hero { padding: 48px 16px 32px; }
+    .ps-reviews-hero__trust { gap: 16px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "PS Reviews Hero",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Paper Straight" },
+    { "type": "text", "id": "title", "label": "Title", "default": "Worn. Rated. Reviewed." },
+    { "type": "textarea", "id": "subtitle", "label": "Subtitle", "default": "Real reviews from verified buyers. Every pair, every order, unedited." },
+    { "type": "text", "id": "trust_1", "label": "Trust point 1", "default": "Verified buyers only" },
+    { "type": "text", "id": "trust_2", "label": "Trust point 2", "default": "Photo and video reviews" },
+    { "type": "text", "id": "trust_3", "label": "Trust point 3", "default": "60 day returns" }
+  ],
+  "presets": [{ "name": "PS Reviews Hero" }]
+}
+{% endschema %}
