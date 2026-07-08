@@ -328,7 +328,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "tops",
+            "collection": "black-friday-sales",
             "image": "shopify://shop_images/DSC4345_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
@@ -346,7 +346,7 @@
           "type": "collection",
           "settings": {
             "color_scheme": "scheme-4",
-            "collection": "discover-the-heritage",
+            "collection": "shoes",
             "image": "shopify://shop_images/DSC4009_1_1.webp",
             "expand_collection": false,
             "content_position": "place-self-end-start text-start",
